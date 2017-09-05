@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import com.rit.sucy.EnchantPlugin;
 import com.rit.sucy.EnchantmentAPI;
 
-import enchantments.DiamondArmor;
+import nl.pim16aap2.armoredElytra.enchantments.DiamondArmor;
  
 public class ArmoredElytra extends EnchantPlugin implements Listener {
 	

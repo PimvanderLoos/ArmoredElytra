@@ -1,4 +1,4 @@
-package enchantments;
+package nl.pim16aap2.armoredElytra.enchantments;
 
 import org.bukkit.Material;
 
