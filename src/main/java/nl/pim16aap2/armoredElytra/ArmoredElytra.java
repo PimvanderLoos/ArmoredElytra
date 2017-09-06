@@ -15,6 +15,7 @@ public class ArmoredElytra extends EnchantPlugin implements Listener {
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 	}
 	
+	// TODO: Remove this after updating elytras on my server.
 	@Override
     public void registerEnchantments() {
         EnchantmentAPI.registerCustomEnchantment(new DiamondArmor());
