@@ -47,14 +47,12 @@ public class EventHandlers implements Listener {
 	}
 	
 	
-	
 	// Clear the anvil's inventory (destroy all the items in all 3 slots (second slot is not emptied, when repairing you can safely give multiple items)).
 	public void cleanAnvil(AnvilInventory anvilInventory){
 		anvilInventory.getItem(0).setAmount(0);
 		anvilInventory.getItem(1).setAmount(anvilInventory.getItem(1).getAmount()-1);
 		anvilInventory.getItem(2).setAmount(0);
 	}
-	
 	
 	
 	// Check if the enchantment is allowed on elytras.
@@ -68,7 +66,6 @@ public class EventHandlers implements Listener {
 	}
 	
 	
-	
 	// Check if the enchantment is "special", i.e. cannot be enchanted by the EnchantmentAPI.
 	public boolean isSpecialEnchantment(Enchantment enchant) {
 		for (String s : specialEnchantments) {
@@ -78,7 +75,6 @@ public class EventHandlers implements Listener {
 		}
 		return false;
 	}
-	
 	
 	
 	// Check if the elytra being checked is an armored one.
@@ -92,12 +88,10 @@ public class EventHandlers implements Listener {
 	}
 	
 	
-	
 	// Copy enchants of 2 items to one item.
 	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player p) {
 		// Create the resulting item and apply the diamond armor tier enchantment to it.
 		ItemStack result = itemOne.clone();
-
 		// Get the enchantments of the first and second item in the anvil.
 		Map<Enchantment, Integer> enchantments0 = itemOne.getEnchantments();
 		Map<Enchantment, Integer> enchantments1 = itemTwo.getEnchantments();
@@ -106,7 +100,6 @@ public class EventHandlers implements Listener {
 			EnchantmentStorageMeta meta = (EnchantmentStorageMeta)itemTwo.getItemMeta();
 			enchantments1 = meta.getStoredEnchants();
 		}
-
 		// Copy enchantments from item1 to result.
 		if (enchantments1!=null) {
 			for (Map.Entry<Enchantment, Integer> entry : enchantments1.entrySet()) {
@@ -133,10 +126,8 @@ public class EventHandlers implements Listener {
 				}
 			}
 		}
-		
 		return result;
 	}
-	
 	
 	
 	// Copy enchants of 2 items to one item.
@@ -152,7 +143,6 @@ public class EventHandlers implements Listener {
 		
 		return result;
 	}
-	
 	
 	
 	// Handle the anvil related parts.
@@ -176,8 +166,7 @@ public class EventHandlers implements Listener {
 						// Clean the anvil's inventory after transferring the items.
 						cleanAnvil(anvilInventory);
 					}
-				} 
-				
+				}
 		        new BukkitRunnable() {
 		            @Override
 	                public void run() {
@@ -260,7 +249,6 @@ public class EventHandlers implements Listener {
 	}
 	
 	
-	
 	// Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
 	@EventHandler
 	public void onPlayerDamage (EntityDamageEvent e) {
@@ -270,12 +258,11 @@ public class EventHandlers implements Listener {
 				if (p.getInventory().getChestplate().getType() == Material.ELYTRA && isArmoredElytra(p.getInventory().getChestplate())) {
 					DamageCause cause = e.getCause();
 					if (cause!=DamageCause.DROWNING    && cause!=DamageCause.STARVATION     && cause!=DamageCause.SUFFOCATION && 
-					    cause!=DamageCause.SUICIDE     && cause!=DamageCause.FLY_INTO_WALL  && cause!=DamageCause.POISON) {						
+					    cause!=DamageCause.SUICIDE     && cause!=DamageCause.FLY_INTO_WALL  && cause!=DamageCause.POISON) {
 						
 						int durability    = p.getInventory().getChestplate().getDurability();
 						int maxDurability = p.getInventory().getChestplate().getType().getMaxDurability();
 						int newDurability = (int) (durability + ((int)(e.getDamage()/4) > 1 ? (int)(e.getDamage()/4) : 1));
-						
 						// If the elytra has the durability enchantment.
 						if (p.getInventory().getChestplate().containsEnchantment(Enchantment.DURABILITY)) {
 				    		Random r = new Random();
@@ -301,13 +288,11 @@ public class EventHandlers implements Listener {
 	}
 	
 	
-	
 	// Remove item from player's chestplate slot and puts it in their normal inventory.
 	public void enquipChestPlayer(Player p) {
 		p.getInventory().addItem(p.getInventory().getChestplate());
 		p.getInventory().getChestplate().setAmount(0);
 	}
-	
 	
 	
 	// Check if the player is trying to equip a broken elytra (and prevent that).

@@ -4,9 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import com.rit.sucy.EnchantPlugin;
-import com.rit.sucy.EnchantmentAPI;
-
-import nl.pim16aap2.armoredElytra.enchantments.DiamondArmor;
  
 public class ArmoredElytra extends EnchantPlugin implements Listener {
 	
@@ -14,10 +11,4 @@ public class ArmoredElytra extends EnchantPlugin implements Listener {
     public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
 	}
-	
-	// TODO: Remove this after updating elytras on my server.
-	@Override
-    public void registerEnchantments() {
-        EnchantmentAPI.registerCustomEnchantment(new DiamondArmor());
-    }
 }

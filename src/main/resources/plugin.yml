@@ -1,6 +1,6 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
-version: 0.1
+version: 1.0
 author: Pim
 softdepend:
  - EnchantmentAPI
