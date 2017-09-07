@@ -176,8 +176,7 @@ public class EventHandlers implements Listener {
 		                	if (anvilInventory.getItem(0).getType() == Material.ELYTRA) {
 		                		ItemStack result = null;
 		                		// Check if the second input slot contains a diamond chestplate.
-			                	if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE || 
-		                			(anvilInventory.getItem(1).getType() == Material.ENCHANTED_BOOK && isArmoredElytra(anvilInventory.getItem(0)))) {
+			                	if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) {
 			                		// Combine the enchantments of the two items in the input slots.
 			                		result = addEnchants(anvilInventory.getItem(0), anvilInventory.getItem(1), p);
 			                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) {
@@ -198,7 +197,7 @@ public class EventHandlers implements Listener {
 			                	}
 								// Put the created item in the second slot of the anvil.
 			                	if (result!=null) {
-			                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE/* || isArmoredElytra(anvilInventory.getItem(0))*/) {
+			                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) {
 				                		ItemMeta itemmeta = result.getItemMeta();
 				                		itemmeta.setDisplayName(ChatColor.AQUA+"Armored Elytra");
 				                		itemmeta.setLore(Arrays.asList("This is an armored Elytra."));
@@ -229,16 +228,6 @@ public class EventHandlers implements Listener {
 			                		}
 									anvilInventory.setItem(2, result);
 			                	}
-		                	}
-		                	// Super ugly way of making sure that when applying enchantments from an enchanted book to an elytra, the result has a higher chance of showing up.
-		                	if (anvilInventory.getItem(1).getType() == Material.ENCHANTED_BOOK) {
-								p.updateInventory();
-								p.updateInventory();
-								p.updateInventory();
-								p.updateInventory();
-								p.updateInventory();
-								p.updateInventory();
-								p.sendMessage(ChatColor.GREEN+"Combining enchanted books with elytras IS possible, but sometimes you have to remove the book and put it back a few times.");
 		                	}
 				        }
 						p.updateInventory();
