@@ -21,6 +21,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.minecraft.server.v1_11_R1.*;
+import net.minecraft.server.v1_12_R1.*;
+import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 
 import com.rit.sucy.EnchantmentAPI;
 
@@ -30,6 +32,7 @@ public class EventHandlers implements Listener {
 
 	private int DIAMONDS_TO_FULL = 3;
 	private int  LEATHER_TO_FULL = 4;
+	private NBTEditor nbtEditor;
 	private final ArmoredElytra plugin;
 	private String[] allowedEnchantments = {"DURABILITY",
 										    "PROTECTION_FIRE",
@@ -38,12 +41,13 @@ public class EventHandlers implements Listener {
 										    "PROTECTION_ENVIRONMENTAL",
 											"DIAMOND_ARMOR_ITEMS",
 											"THORNS"};
-	private String[] specialEnchantments = {"MENDING",
-		    								"VANISHING_CURSE",
-		    								"BINDING_CURSE"};
+	private String[] specialEnchantments  = {"MENDING",
+		    								    "VANISHING_CURSE",
+		    									"BINDING_CURSE"};
 
-	public EventHandlers(ArmoredElytra plugin) {
+	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor) {
 		this.plugin = plugin;
+		this.nbtEditor = nbtEditor;
 	}
 	
 	
@@ -198,35 +202,9 @@ public class EventHandlers implements Listener {
 								// Put the created item in the second slot of the anvil.
 			                	if (result!=null) {
 			                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) {
-				                		ItemMeta itemmeta = result.getItemMeta();
-				                		itemmeta.setDisplayName(ChatColor.AQUA+"Armored Elytra");
-				                		itemmeta.setLore(Arrays.asList("This is an armored Elytra."));
-				                		result.setItemMeta(itemmeta);
-				                		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(result);
-				                		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
-				                		NBTTagList modifiers = new NBTTagList();
-				                		NBTTagCompound armor = new NBTTagCompound();
-				                		armor.set("AttributeName", new NBTTagString("generic.armor"));
-				                	    armor.set("Name", new NBTTagString("generic.armor"));
-				                		armor.set("Amount", new NBTTagInt(8));
-				                		armor.set("Operation", new NBTTagInt(0));
-				                		armor.set("UUIDLeast", new NBTTagInt(894654));
-				                		armor.set("UUIDMost", new NBTTagInt(2872));
-				                		armor.set("Slot", new NBTTagString("chest"));
-				                		modifiers.add(armor);			
-				                		NBTTagCompound armorTough = new NBTTagCompound();
-				                		armorTough.set("AttributeName", new NBTTagString("generic.armorToughness"));
-				                		armorTough.set("Name", new NBTTagString("generic.armorToughness"));
-				                		armorTough.set("Amount", new NBTTagInt(2));
-				                		armorTough.set("Operation", new NBTTagInt(0));
-				                		armorTough.set("UUIDLeast", new NBTTagInt(894654));
-				                		armorTough.set("UUIDMost", new NBTTagInt(2872));
-				                		armorTough.set("Slot", new NBTTagString("chest"));
-				                		modifiers.add(armorTough);
-				                		compound.set("AttributeModifiers", modifiers);
-				                		result = CraftItemStack.asBukkitCopy(nmsStack);
+				                		result = nbtEditor.addNBTTags(result);
 			                		}
-									anvilInventory.setItem(2, result);
+								anvilInventory.setItem(2, result);
 			                	}
 		                	}
 				        }
