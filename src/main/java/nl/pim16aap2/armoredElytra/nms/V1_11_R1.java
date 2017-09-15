@@ -16,7 +16,7 @@ public class V1_11_R1 implements NBTEditor
 {
 
 	@Override
-	public ItemStack addNBTTags(ItemStack item) 
+	public ItemStack addArmorNBTTags(ItemStack item) 
 	{
 		ItemMeta itemmeta = item.getItemMeta();
 		itemmeta.setDisplayName(ChatColor.AQUA+"Armored Elytra");

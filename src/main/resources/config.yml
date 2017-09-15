@@ -1,0 +1,17 @@
+# Amount of diamonds it takes to fully repair 
+diamondsRepair: 3
+
+# Will curses (vanishing, binding) be transferred when creating armored elytras?
+allowCurses: true
+
+# List of enchantments that are allowed to be put on an armored elytra.
+# If you do not want to allow any enchantments, remove them all and add "NONE"
+allowedEnchantments:
+#  - NONE
+  - DURABILITY
+  - PROTECTION_FIRE
+  - PROTECTION_EXPLOSIONS
+  - PROTECTION_PROJECTILE
+  - PROTECTION_ENVIRONMENTAL
+  - DIAMOND_ARMOR_ITEMS
+  - THORNS

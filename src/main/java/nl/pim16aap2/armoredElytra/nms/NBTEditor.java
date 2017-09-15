@@ -4,5 +4,5 @@ import org.bukkit.inventory.ItemStack;
 
 public interface NBTEditor 
 {
-	public ItemStack addNBTTags(ItemStack item);
+	public ItemStack addArmorNBTTags(ItemStack item);
 }
