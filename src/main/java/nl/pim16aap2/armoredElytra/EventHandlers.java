@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +27,9 @@ import net.md_5.bungee.api.ChatColor;
 public class EventHandlers implements Listener 
 {
 	private int DIAMONDS_TO_FULL;
-	private int  LEATHER_TO_FULL = 4;
+	private int LEATHER_TO_FULL;
+	private int GOLD_TO_FULL;
+	private int IRON_TO_FULL;
 	private boolean cursesAllowed; 
 	private NBTEditor nbtEditor;
 	private final ArmoredElytra plugin;
@@ -33,14 +37,17 @@ public class EventHandlers implements Listener
 	private String[] cursedEnchantments  = {"MENDING",
 		    								   "VANISHING_CURSE",
                                             "BINDING_CURSE"};
-
-	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int DIAMONDS_TO_FULL, String[] allowedEnchantments) 
+	
+	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments) 
 	{
 		this.plugin = plugin;
 		this.nbtEditor = nbtEditor;
 		this.cursesAllowed = allowCurses;
 		this.DIAMONDS_TO_FULL = DIAMONDS_TO_FULL;
 		this.allowedEnchantments = allowedEnchantments;
+		this.LEATHER_TO_FULL = LEATHER_TO_FULL;
+		this.GOLD_TO_FULL = GOLD_TO_FULL;
+		this.IRON_TO_FULL = IRON_TO_FULL;
 	}
 	
 	
@@ -180,12 +187,29 @@ public class EventHandlers implements Listener
 		// Create the resulting item.
 		ItemStack result = one.clone();
 		
-		int mult          = two.getType() == Material.DIAMOND ? 100/DIAMONDS_TO_FULL : 100/LEATHER_TO_FULL;
+		// Get the multiplier for the repair items.
+		double mult = 0.01;
+		if (two.getType() == Material.LEATHER)
+		{
+			mult *= (100/LEATHER_TO_FULL);
+			
+		} else if (two.getType() == Material.GOLD_INGOT)
+		{
+			mult *= (100/GOLD_TO_FULL);
+			
+		} else if (two.getType() == Material.IRON_INGOT)
+		{
+			mult *= (100/IRON_TO_FULL);
+			
+		} else if (two.getType() == Material.DIAMOND)
+		{
+			mult *= (100/DIAMONDS_TO_FULL);
+		}
+
 		int maxDurability = one.getType().getMaxDurability();
 		int durability    = one.getDurability();
-		int newDurability = (durability - (int) (maxDurability*mult));
-		result.setDurability((short) (newDurability >= 0 ? newDurability : 0) );
-		
+		int newDurability = (int) (durability - (maxDurability*mult));
+		result.setDurability((short) (newDurability <= 0 ? 0 : newDurability));
 		return result;
 	}
 	
@@ -225,26 +249,62 @@ public class EventHandlers implements Listener
 		            @Override
 	                public void run() 
 		            {
+            				ItemStack result = null;
 		            		// Check if there are items in both input slots.
 				        if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null) 
 				        {
 			                	// Check if the first input slot contains an elytra.
 			                	if (anvilInventory.getItem(0).getType() == Material.ELYTRA) 
 			                	{
-			                		ItemStack result = null;
+			                		int armorTier = 0;
+			                		int currentArmorTier = 0;
+			                		if (isArmoredElytra(anvilInventory.getItem(0)))
+			                		{
+			                			currentArmorTier = nbtEditor.getArmorTier(anvilInventory.getItem(0));
+			                		}
+			                		/* 0 = No Armor.
+			                		 * 1 = Leather Armor.
+			                		 * 2 = Gold Armor.
+			                		 * 3 = Chain Armor.
+			                		 * 4 = Iron Armor.
+			                		 * 5 = Diamond Armor.
+			                		 */
 			                		// Check if the second input slot contains a diamond chestplate.
-				                	if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+				                	if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE   ||
+			                			anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE      ||
+			                			anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE ||
+			                			anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE      ||
+			                			anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
 				                	{
 				                		// Combine the enchantments of the two items in the input slots.
 				                		result = addEnchants(anvilInventory.getItem(0), anvilInventory.getItem(1), p);
-				                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+				                		if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE) 
 				                		{
-				                			result.setDurability((short)0);
+				                			armorTier = 1;
+				                		} else if (anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE) 
+				                		{
+				                			armorTier = 2;
+				                		} else if (anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE) 
+				                		{
+				                			armorTier = 3;
+				                		} else if (anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE) 
+				                		{
+				                			armorTier = 4;
+				                		} else if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+				                		{
+				                			armorTier = 5;
 				                		}
+				                		short durability = (short) (-anvilInventory.getItem(0).getType().getMaxDurability() - anvilInventory.getItem(0).getDurability() - anvilInventory.getItem(1).getDurability());
+				                		durability = durability < 0 ? 0 : durability;
+			                			result.setDurability(durability);
 				                	} 
-								// If the player tries to repair an armored elytra with diamonds or a regular elytra with leather, repair 52% or 26%.
-				                	else if ((anvilInventory.getItem(1).getType() == Material.LEATHER && !isArmoredElytra(anvilInventory.getItem(0))) || 
-			                			     (anvilInventory.getItem(1).getType() == Material.DIAMOND &&  isArmoredElytra(anvilInventory.getItem(0)))) 
+								// If the player tries to repair an armored elytra. Check if the armor tier and the repair item match.
+				                	// If the repair item is leather it can only repair 
+				                	else if ((anvilInventory.getItem(1).getType() == Material.LEATHER    && (!isArmoredElytra(anvilInventory.getItem(0))) || currentArmorTier == 1) || 
+			                			    	 	(anvilInventory.getItem(1).getType() == Material.GOLD_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 2) || 
+			                			    	 	(anvilInventory.getItem(1).getType() == Material.IRON_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 3) || 
+			                			    	 	(anvilInventory.getItem(1).getType() == Material.IRON_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 4) || 
+			                			    	 	(anvilInventory.getItem(1).getType() == Material.DIAMOND    &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 5)) 
 				                	{
 				                		// Repair the item in the first input slot with items from the second input slot.
 				                		result = repairItem(anvilInventory.getItem(0), anvilInventory.getItem(1));
@@ -260,10 +320,14 @@ public class EventHandlers implements Listener
 								// Put the created item in the second slot of the anvil.
 				                	if (result!=null) 
 				                	{
-				                		if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+					                	if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE       ||
+					                			anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE      ||
+					                			anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE ||
+					                			anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE      ||
+					                			anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
 				                		{
 				                			// Add the NBT Tags for the elytra, to give it diamond_chestplate tier of armor protection.
-					                		result = nbtEditor.addArmorNBTTags(result);
+					                		result = nbtEditor.addArmorNBTTags(result, armorTier);
 				                		}
 									anvilInventory.setItem(2, result);
 				                	}
@@ -315,7 +379,7 @@ public class EventHandlers implements Listener
 				    		int durabilityDelta = (100/(enchantLevel+1)) < randomInt ? 0 : 1;
 				    		if (durability>=maxDurability) 
 				    		{
-								enquipChestPlayer(p);
+								unenquipChestPlayer(p);
 				    		} else 
 				    			newDurability = durability+durabilityDelta;
 						}
@@ -323,7 +387,7 @@ public class EventHandlers implements Listener
 						if (newDurability >= maxDurability) 
 						{
 							newDurability = maxDurability;
-							enquipChestPlayer(p);
+							unenquipChestPlayer(p);
 						}
 						p.getInventory().getChestplate().setDurability((short) (newDurability));
 					}
@@ -334,7 +398,7 @@ public class EventHandlers implements Listener
 	
 	
 	// Remove item from player's chestplate slot and puts it in their normal inventory.
-	public void enquipChestPlayer(Player p) 
+	public void unenquipChestPlayer(Player p) 
 	{
 		p.getInventory().addItem(p.getInventory().getChestplate());
 		p.getInventory().getChestplate().setAmount(0);
@@ -365,8 +429,8 @@ public class EventHandlers implements Listener
 							{
 								if (p.getInventory().getChestplate().getDurability() >= p.getInventory().getChestplate().getType().getMaxDurability()) 
 								{
-									p.sendMessage(ChatColor.RED + "You cannot equip this elytra! Please repair it first by combining it with diamonds in an anvil.");
-									enquipChestPlayer(p);
+									p.sendMessage(ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
+									unenquipChestPlayer(p);
 								}
 							}
 						}
@@ -376,3 +440,8 @@ public class EventHandlers implements Listener
         }
     }
 }
+
+
+
+
+

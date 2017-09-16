@@ -1,4 +1,7 @@
-# Amount of diamonds it takes to fully repair 
+# Amount of items it takes to fully repair an armored elytra
+leatherRepair: 6
+goldRepair: 5
+ironRepair: 4
 diamondsRepair: 3
 
 # Will curses (vanishing, binding) be transferred when creating armored elytras?

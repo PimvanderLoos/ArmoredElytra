@@ -15,10 +15,47 @@ import net.minecraft.server.v1_12_R1.NBTTagString;
 public class V1_12_R1 implements NBTEditor 
 {
 	@Override
-	public ItemStack addArmorNBTTags(ItemStack item) 
+	public ItemStack addArmorNBTTags(ItemStack item, int armorTier) 
 	{
 		ItemMeta itemmeta = item.getItemMeta();
-		itemmeta.setDisplayName(ChatColor.AQUA+"Armored Elytra");
+		ChatColor color = ChatColor.WHITE;
+		int armorProtection = 0;
+		int armorToughness = 0;
+		/* 0 = No Armor.
+		 * 1 = Leather Armor.
+		 * 2 = Gold Armor.
+		 * 3 = Chain Armor.
+		 * 4 = Iron Armor.
+		 * 5 = Diamond Armor.
+		 */
+		// Give the name the correct color.
+		switch (armorTier)
+		{
+		case 1:
+			color = ChatColor.valueOf("733D31");
+			armorProtection = 3;
+			break;
+		case 2:
+			color = ChatColor.valueOf("FFD700");
+			armorProtection = 5;
+			break;
+		case 3:
+			color = ChatColor.DARK_GRAY;
+			armorProtection = 5;
+			break;
+		case 4:
+			color = ChatColor.GRAY;
+			armorProtection = 6;
+			break;
+		case 5:
+			color = ChatColor.AQUA;
+			armorProtection = 8;
+			armorToughness  = 2;
+			break;
+		default:
+			color = ChatColor.WHITE;
+		}
+		itemmeta.setDisplayName(color+"Armored Elytra");
 		itemmeta.setLore(Arrays.asList("This is an armored Elytra."));
 		item.setItemMeta(itemmeta);
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
@@ -27,7 +64,7 @@ public class V1_12_R1 implements NBTEditor
 		NBTTagCompound armor = new NBTTagCompound();
 		armor.set("AttributeName", new NBTTagString("generic.armor"));
 	    armor.set("Name", new NBTTagString("generic.armor"));
-		armor.set("Amount", new NBTTagInt(8));
+		armor.set("Amount", new NBTTagInt(armorProtection));
 		armor.set("Operation", new NBTTagInt(0));
 		armor.set("UUIDLeast", new NBTTagInt(894654));
 		armor.set("UUIDMost", new NBTTagInt(2872));
@@ -36,7 +73,7 @@ public class V1_12_R1 implements NBTEditor
 		NBTTagCompound armorTough = new NBTTagCompound();
 		armorTough.set("AttributeName", new NBTTagString("generic.armorToughness"));
 		armorTough.set("Name", new NBTTagString("generic.armorToughness"));
-		armorTough.set("Amount", new NBTTagInt(2));
+		armorTough.set("Amount", new NBTTagInt(armorToughness));
 		armorTough.set("Operation", new NBTTagInt(0));
 		armorTough.set("UUIDLeast", new NBTTagInt(894654));
 		armorTough.set("UUIDMost", new NBTTagInt(2872));
@@ -45,5 +82,41 @@ public class V1_12_R1 implements NBTEditor
 		compound.set("AttributeModifiers", modifiers);
 		item = CraftItemStack.asBukkitCopy(nmsStack);
 		return item;
+	}
+	
+	// Get the armor tier of the item.
+	public int getArmorTier(ItemStack item)
+	{
+		ItemStack itemTest = item.clone();
+		itemTest = addArmorNBTTags(itemTest, 1);
+		if (itemTest.equals(item))
+		{
+			return 1;
+		}
+		
+		itemTest = addArmorNBTTags(itemTest, 2);
+		if (itemTest.equals(item))
+		{
+			return 2;
+		}
+		
+		itemTest = addArmorNBTTags(itemTest, 3);
+		if (itemTest.equals(item))
+		{
+			return 3;
+		}
+		
+		itemTest = addArmorNBTTags(itemTest, 4);
+		if (itemTest.equals(item))
+		{
+			return 4;
+		}
+
+		itemTest = addArmorNBTTags(itemTest, 5);
+		if (itemTest.equals(item))
+		{
+			return 5;
+		}
+		return 0;
 	}
 }

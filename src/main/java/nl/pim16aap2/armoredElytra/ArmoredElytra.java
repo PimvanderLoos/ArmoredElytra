@@ -15,6 +15,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 {
 	private NBTEditor nbtEditor;
 	private boolean cursesAllowed;
+	private int LEATHER_TO_FULL;
+	private int GOLD_TO_FULL;
+	private int IRON_TO_FULL;
 	private int DIAMONDS_TO_FULL;
 	private String[] allowedEnchants;
 	
@@ -22,6 +25,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public void onEnable() 
 	{
 		saveDefaultConfig();
+		LEATHER_TO_FULL = this.getConfig().getInt("leatherRepair");
+		GOLD_TO_FULL = this.getConfig().getInt("goldRepair");
+		IRON_TO_FULL = this.getConfig().getInt("ironRepair");
 		DIAMONDS_TO_FULL = this.getConfig().getInt("diamondsRepair");
 		cursesAllowed = this.getConfig().getBoolean("allowCurses");
 		List<String> list = this.getConfig().getStringList("allowedEnchantments");
@@ -35,7 +41,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		
 		if (compatibleMCVer()) 
 		{
-			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, cursesAllowed, DIAMONDS_TO_FULL, allowedEnchants), this);
+			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, cursesAllowed, LEATHER_TO_FULL, GOLD_TO_FULL, IRON_TO_FULL, DIAMONDS_TO_FULL, allowedEnchants), this);
 		} else {
 			Bukkit.getLogger().log(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft!");
 		}
