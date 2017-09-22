@@ -1,4 +1,31 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
-version: 1.3.0
+version: 1.4.0
 author: Pim
+commands:
+  ArmoredElytra:
+    description: Give an armored elytra of the specified tier.
+    usage: /ArmoredElytra <tier>
+    permission: armoredelytra.give
+    permission-message: You do not have the armoredelytra.give permission node.
+permissions:
+  armoredelytra.wear.leather:
+    description: Allow the player to wear leather tier armored elytras.
+  armoredelytra.wear.gold:
+    description: Allow the player to wear gold tier armored elytras.
+  armoredelytra.wear.chain:
+    description: Allow the player to wear chain tier armored elytras.
+  armoredelytra.wear.iron:
+    description: Allow the player to wear iron tier armored elytras.
+  armoredelytra.wear.diamond:
+    description: Allow the player to wear diamond tier armored elytras.
+  armoredelytra.give.leather:
+    description: Allow the player to spawn in leather tier armored elytras.
+  armoredelytra.give.gold:
+    description: Allow the player to spawn in gold tier armored elytras.
+  armoredelytra.give.chain:
+    description: Allow the player to spawn in chain tier armored elytras.
+  armoredelytra.give.iron:
+    description: Allow the player to spawn in iron tier armored elytras.
+  armoredelytra.give.diamond:
+    description: Allow the player to spawn in diamond tier armored elytras.

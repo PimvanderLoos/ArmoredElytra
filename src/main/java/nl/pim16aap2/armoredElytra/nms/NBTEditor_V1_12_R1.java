@@ -2,19 +2,18 @@ package nl.pim16aap2.armoredElytra.nms;
 
 import java.util.Arrays;
 
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.NBTTagInt;
-import net.minecraft.server.v1_11_R1.NBTTagList;
-import net.minecraft.server.v1_11_R1.NBTTagString;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagInt;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_12_R1.NBTTagString;
 
-public class V1_11_R1 implements NBTEditor 
+public class NBTEditor_V1_12_R1 implements NBTEditor 
 {
-
 	@Override
 	public ItemStack addArmorNBTTags(ItemStack item, int armorTier) 
 	{
@@ -33,12 +32,10 @@ public class V1_11_R1 implements NBTEditor
 		switch (armorTier)
 		{
 		case 1:
-//			color = ChatColor.valueOf("733D31");
 			color = ChatColor.DARK_GREEN;
 			armorProtection = 3;
 			break;
 		case 2:
-//			color = ChatColor.valueOf("FFD700");
 			color = ChatColor.YELLOW;
 			armorProtection = 5;
 			break;
@@ -61,7 +58,7 @@ public class V1_11_R1 implements NBTEditor
 		itemmeta.setDisplayName(color+"Armored Elytra");
 		itemmeta.setLore(Arrays.asList("This is an armored Elytra."));
 		item.setItemMeta(itemmeta);
-		net.minecraft.server.v1_11_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
 		NBTTagCompound compound = (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
 		NBTTagList modifiers = new NBTTagList();
 		NBTTagCompound armor = new NBTTagCompound();
@@ -84,7 +81,6 @@ public class V1_11_R1 implements NBTEditor
 		modifiers.add(armorTough);
 		compound.set("AttributeModifiers", modifiers);
 		item = CraftItemStack.asBukkitCopy(nmsStack);
-		
 		return item;
 	}
 	

@@ -6,7 +6,6 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -405,43 +405,73 @@ public class EventHandlers implements Listener
 	}
 	
 	
+	// Check if the player tries to equip armor by richt clicking it.
+	@SuppressWarnings("deprecation")
+	@EventHandler
+    public void onRightClick(PlayerInteractEvent event) 
+	{
+        Player player = event.getPlayer();    
+    
+        ItemStack item = player.getItemInHand();
+    
+        if (item != null) 
+        {
+            	if (item.getType() == Material.ELYTRA && isArmoredElytra(item)) 
+            	{
+            		int armorTier = nbtEditor.getArmorTier(item);
+            		if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather"))     || 
+			           (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))     || 
+			           (armorTier == 3 && !player.hasPermission("armoredelytra.wear.chain"))    || 
+			           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))     || 
+			           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
+            		{
+		        		player.sendMessage(ChatColor.RED + "You do not have the required permission to wear this armor tier!.");
+		        		event.setCancelled(true);
+            		}
+            }
+        }
+	}
+	
+	
 	// Check if the player is trying to equip a broken elytra (and prevent that).
 	@EventHandler
     public void playerEquipsArmor(InventoryClickEvent e)
 	{
 		if (e.getWhoClicked() instanceof Player) 
 		{
-			Player p = (Player) e.getWhoClicked();
-			int slot = e.getRawSlot();
-			// Chestplate slot.
-			if (slot == 6) 
+			Player player = (Player) e.getWhoClicked();
+			new BukkitRunnable() 
 			{
-				new BukkitRunnable() 
-				{
-		            @Override
-	                public void run() 
-		            {
-		            	// If the player equips a new chestplate.
-						if (p.getInventory().getChestplate() != null) 
+	            @Override
+                public void run() 
+	            {
+	            		ItemStack chestplate = player.getInventory().getChestplate();
+	            		// If the player equips a new chestplate.
+					if (player.getInventory().getChestplate() != null) 
+					{
+						// If that chestplate is an (armored) elytra.
+						if (chestplate.getType() == Material.ELYTRA && isArmoredElytra(chestplate)) 
 						{
-							// If that chestplate is an (armored) elytra.
-							if (p.getInventory().getChestplate().getType() == Material.ELYTRA && isArmoredElytra(p.getInventory().getChestplate())) 
+							int armorTier = nbtEditor.getArmorTier(chestplate);
+							if ((chestplate.getDurability() >= chestplate.getType().getMaxDurability())) 
 							{
-								if (p.getInventory().getChestplate().getDurability() >= p.getInventory().getChestplate().getType().getMaxDurability()) 
-								{
-									p.sendMessage(ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
-									unenquipChestPlayer(p);
-								}
+								player.sendMessage(ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
+								unenquipChestPlayer(player);
+							} else if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather")) || 
+						           (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))        || 
+						           (armorTier == 3 && !player.hasPermission("armoredelytra.wear.chain"))       || 
+						           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))        || 
+						           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
+							{
+								player.sendMessage(ChatColor.RED + "You do not have the required permission to wear this armor tier!.");
+								unenquipChestPlayer(player);
 							}
+							player.updateInventory();
+							e.setCancelled(true);
 						}
-		            }
-				}.runTaskLater(this.plugin, 1);
-			}
-        }
+					}
+	            }
+			}.runTaskLater(this.plugin, 1);
+		}
     }
 }
-
-
-
-
-
