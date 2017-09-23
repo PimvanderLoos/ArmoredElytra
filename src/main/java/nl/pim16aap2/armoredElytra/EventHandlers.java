@@ -33,12 +33,13 @@ public class EventHandlers implements Listener
 	private boolean cursesAllowed; 
 	private NBTEditor nbtEditor;
 	private final ArmoredElytra plugin;
+	private String usageDeniedMessage;
 	private String[] allowedEnchantments;
 	private String[] cursedEnchantments  = {"MENDING",
 		    								   "VANISHING_CURSE",
                                             "BINDING_CURSE"};
 	
-	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments) 
+	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments, String usageDeniedMessage) 
 	{
 		this.plugin = plugin;
 		this.nbtEditor = nbtEditor;
@@ -48,6 +49,7 @@ public class EventHandlers implements Listener
 		this.LEATHER_TO_FULL = LEATHER_TO_FULL;
 		this.GOLD_TO_FULL = GOLD_TO_FULL;
 		this.IRON_TO_FULL = IRON_TO_FULL;
+		this.usageDeniedMessage = usageDeniedMessage;
 	}
 	
 	
@@ -425,7 +427,10 @@ public class EventHandlers implements Listener
 			           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))     || 
 			           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
             		{
-		        		player.sendMessage(ChatColor.RED + "You do not have the required permission to wear this armor tier!.");
+            			if (usageDeniedMessage  != null)
+            			{
+            				player.sendMessage(ChatColor.RED + usageDeniedMessage);
+            			}
 		        		event.setCancelled(true);
             		}
             }
@@ -463,7 +468,10 @@ public class EventHandlers implements Listener
 						           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))        || 
 						           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
 							{
-								player.sendMessage(ChatColor.RED + "You do not have the required permission to wear this armor tier!.");
+								if (usageDeniedMessage != null)
+								{
+									player.sendMessage(ChatColor.RED + usageDeniedMessage);
+								}
 								unenquipChestPlayer(player);
 							}
 							player.updateInventory();

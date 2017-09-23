@@ -16,5 +16,10 @@ allowedEnchantments:
   - PROTECTION_EXPLOSIONS
   - PROTECTION_PROJECTILE
   - PROTECTION_ENVIRONMENTAL
-  - DIAMOND_ARMOR_ITEMS
   - THORNS
+  
+# Message players receive when they lack the required permissions to wear a certain armor tier. "NONE" = no message
+usageDeniedMessage: "You do not have the required permission node for this armor tier!"
+
+# Message players receive when they are given an armored elytra using commands. "NONE" = no message
+elytraReceivedMessage: "An armored elytra has been bestowed upon you!"
