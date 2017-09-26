@@ -83,11 +83,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		}
 	}
 	
+	// Send a message to a player in a specific color.
 	public void messagePlayer(Player player, ChatColor color, String s)
 	{
 		player.sendMessage(color + s);
 	}
 	
+	// Send a message to a player.
 	public void messagePlayer(Player player, String s)
 	{
 		messagePlayer(player, ChatColor.WHITE, s);

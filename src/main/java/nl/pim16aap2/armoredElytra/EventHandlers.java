@@ -106,7 +106,7 @@ public class EventHandlers implements Listener
 	
 	
 	// Copy enchants of 2 items to one item.
-	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player p) 
+	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player player) 
 	{
 		// Create the resulting item;
 		ItemStack result = new ItemStack(Material.ELYTRA, 1);
@@ -210,8 +210,8 @@ public class EventHandlers implements Listener
 		result.setDurability((short) (newDurability <= 0 ? 0 : newDurability));
 		return result;
 	}
-	
-	
+	 
+		
 	// Handle the anvil related parts.
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) 
@@ -223,7 +223,7 @@ public class EventHandlers implements Listener
 			if (e.getView().getType() == InventoryType.ANVIL) 
 			{
 				AnvilInventory anvilInventory = (AnvilInventory) e.getInventory(); // Inventory type
-				int slot = e.getRawSlot(); // Get slot 
+				int slot = e.getRawSlot(); // Get slot 				
 				
 				if (slot == 2 && anvilInventory.getItem(2) != null) 
 				{
@@ -242,23 +242,40 @@ public class EventHandlers implements Listener
 						cleanAnvil(anvilInventory);
 					}
 				}
+				
 		        new BukkitRunnable() 
 		        {
 		            @Override
 	                public void run() 
 		            {
-            				ItemStack result = null;
+		            	
+		            		ItemStack itemA = anvilInventory.getItem(0);
+						ItemStack itemB = anvilInventory.getItem(1);
+        					ItemStack result = null;
+						if (itemB != null)
+						{
+							// If itemB is the elytra, switch itemA and itemB.
+							if (itemB.getType() == Material.ELYTRA)
+							{
+								result = itemA;
+								itemA  = itemB;
+								itemB  = result;
+								result = null;
+							}
+						}
+						
+						
 		            		// Check if there are items in both input slots.
-				        if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null) 
+				        if (itemA != null && itemB != null) 
 				        {
 			                	// Check if the first input slot contains an elytra.
-			                	if (anvilInventory.getItem(0).getType() == Material.ELYTRA) 
+			                	if (itemA.getType() == Material.ELYTRA) 
 			                	{
 			                		int armorTier = 0;
 			                		int currentArmorTier = 0;
-			                		if (isArmoredElytra(anvilInventory.getItem(0)))
+			                		if (isArmoredElytra(itemA))
 			                		{
-			                			currentArmorTier = nbtEditor.getArmorTier(anvilInventory.getItem(0));
+			                			currentArmorTier = nbtEditor.getArmorTier(itemA);
 			                		}
 			                		/* 0 = No Armor.
 			                		 * 1 = Leather Armor.
@@ -268,44 +285,49 @@ public class EventHandlers implements Listener
 			                		 * 5 = Diamond Armor.
 			                		 */
 			                		// Check if the second input slot contains a diamond chestplate.
-				                	if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE   ||
-			                			anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE      ||
-			                			anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE ||
-			                			anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE      ||
-			                			anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+				                	if (itemB.getType() == Material.LEATHER_CHESTPLATE   ||
+			                			itemB.getType() == Material.GOLD_CHESTPLATE      ||
+			                			itemB.getType() == Material.CHAINMAIL_CHESTPLATE ||
+			                			itemB.getType() == Material.IRON_CHESTPLATE      ||
+			                			itemB.getType() == Material.DIAMOND_CHESTPLATE) 
 				                	{
 				                		// Combine the enchantments of the two items in the input slots.
-				                		result = addEnchants(anvilInventory.getItem(0), anvilInventory.getItem(1), p);
-				                		if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE) 
+				                		result = addEnchants(itemA, itemB, p);
+				                		if (itemB.getType() == Material.LEATHER_CHESTPLATE) 
 				                		{
 				                			armorTier = 1;
-				                		} else if (anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE) 
+				                		} else if (itemB.getType() == Material.GOLD_CHESTPLATE) 
 				                		{
 				                			armorTier = 2;
-				                		} else if (anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE) 
+				                		} else if (itemB.getType() == Material.CHAINMAIL_CHESTPLATE) 
 				                		{
 				                			armorTier = 3;
-				                		} else if (anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE) 
+				                		} else if (itemB.getType() == Material.IRON_CHESTPLATE) 
 				                		{
 				                			armorTier = 4;
-				                		} else if (anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+				                		} else if (itemB.getType() == Material.DIAMOND_CHESTPLATE) 
 				                		{
 				                			armorTier = 5;
 				                		}
-				                		short durability = (short) (-anvilInventory.getItem(0).getType().getMaxDurability() - anvilInventory.getItem(0).getDurability() - anvilInventory.getItem(1).getDurability());
+				                		short durability = (short) (-itemA.getType().getMaxDurability() - itemA.getDurability() - itemB.getDurability());
 				                		durability = durability < 0 ? 0 : durability;
 			                			result.setDurability(durability);
 				                	} 
 								// If the player tries to repair an armored elytra. Check if the armor tier and the repair item match.
 				                	// If the repair item is leather it can only repair 
-				                	else if ((anvilInventory.getItem(1).getType() == Material.LEATHER    && (!isArmoredElytra(anvilInventory.getItem(0))) || currentArmorTier == 1) || 
-			                			    	 	(anvilInventory.getItem(1).getType() == Material.GOLD_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 2) || 
-			                			    	 	(anvilInventory.getItem(1).getType() == Material.IRON_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 3) || 
-			                			    	 	(anvilInventory.getItem(1).getType() == Material.IRON_INGOT &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 4) || 
-			                			    	 	(anvilInventory.getItem(1).getType() == Material.DIAMOND    &&  isArmoredElytra(anvilInventory.getItem(0))   && currentArmorTier == 5)) 
+				                	else if ((itemB.getType() == Material.LEATHER    && (!isArmoredElytra(itemA)) || currentArmorTier == 1) || 
+			                			    	 (itemB.getType() == Material.GOLD_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 2) || 
+			                			    	 (itemB.getType() == Material.IRON_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 3) || 
+			                			    	 (itemB.getType() == Material.IRON_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 4) || 
+			                			    	 (itemB.getType() == Material.DIAMOND    &&  isArmoredElytra(itemA)   && currentArmorTier == 5)) 
 				                	{
 				                		// Repair the item in the first input slot with items from the second input slot.
-				                		result = repairItem(anvilInventory.getItem(0), anvilInventory.getItem(1));
+				                		result = repairItem(itemA, itemB);
+				                	}
+				                	// Check if it is an enchanted book for itemB.
+				                	else if (itemB.getType() == Material.ENCHANTED_BOOK)
+				                	{
+				                		result = addEnchants(itemA, itemB, p);
 				                	}
 				                	// Otherwise, remove the item in the result slot (slot2).
 				                	else 
@@ -318,21 +340,25 @@ public class EventHandlers implements Listener
 								// Put the created item in the second slot of the anvil.
 				                	if (result!=null) 
 				                	{
-					                	if (anvilInventory.getItem(1).getType() == Material.LEATHER_CHESTPLATE       ||
-					                			anvilInventory.getItem(1).getType() == Material.GOLD_CHESTPLATE      ||
-					                			anvilInventory.getItem(1).getType() == Material.CHAINMAIL_CHESTPLATE ||
-					                			anvilInventory.getItem(1).getType() == Material.IRON_CHESTPLATE      ||
-					                			anvilInventory.getItem(1).getType() == Material.DIAMOND_CHESTPLATE) 
+					                	if (itemB.getType() == Material.LEATHER_CHESTPLATE       ||
+					                			itemB.getType() == Material.GOLD_CHESTPLATE      ||
+					                			itemB.getType() == Material.CHAINMAIL_CHESTPLATE ||
+					                			itemB.getType() == Material.IRON_CHESTPLATE      ||
+					                			itemB.getType() == Material.DIAMOND_CHESTPLATE)
 				                		{
 				                			// Add the NBT Tags for the elytra, to give it diamond_chestplate tier of armor protection.
 					                		result = nbtEditor.addArmorNBTTags(result, armorTier);
+				                		} else if (isArmoredElytra(itemA) && !isArmoredElytra(result))
+				                		{
+				                			armorTier = nbtEditor.getArmorTier(itemA);
+				                			result = nbtEditor.addArmorNBTTags(result, armorTier);
 				                		}
 									anvilInventory.setItem(2, result);
 				                	}
 			                	}
 				        }
-				        // Check if Item0 is occupied, but Item1 isn't.
-				        if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) == null) 
+				        // Check if either itemA or itemB is unoccupied.
+				        if (itemA == null || itemB == null) 
 				        {
 				        		// If Item2 is occupied despite Item1 not being occupied.
 				        		if (anvilInventory.getItem(2) != null)
@@ -349,9 +375,10 @@ public class EventHandlers implements Listener
 	}
 	
 	
+	
 	// Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
 	@EventHandler
-	public void onPlayerDamage (EntityDamageEvent e) 
+	public void onPlayerDamage(EntityDamageEvent e) 
 	{
 		if(e.getEntity() instanceof Player) 
 		{
