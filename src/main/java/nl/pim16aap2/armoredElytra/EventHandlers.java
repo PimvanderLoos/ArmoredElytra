@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -173,9 +172,6 @@ public class EventHandlers implements Listener
 						}
 					}
 					result.addUnsafeEnchantment(entry.getKey(), enchantLevel);
-				} else 
-				{
-//					p.sendMessage(ChatColor.RED+"This enchantment is not allowed on this item!");
 				}
 			}
 		}
@@ -429,7 +425,7 @@ public class EventHandlers implements Listener
             		{
             			if (usageDeniedMessage  != null)
             			{
-            				player.sendMessage(ChatColor.RED + usageDeniedMessage);
+            				plugin.messagePlayer(player, ChatColor.RED + usageDeniedMessage);
             			}
 		        		event.setCancelled(true);
             		}
@@ -460,7 +456,7 @@ public class EventHandlers implements Listener
 							int armorTier = nbtEditor.getArmorTier(chestplate);
 							if ((chestplate.getDurability() >= chestplate.getType().getMaxDurability())) 
 							{
-								player.sendMessage(ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
+								plugin.messagePlayer(player, ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
 								unenquipChestPlayer(player);
 							} else if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather")) || 
 						           (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))        || 
@@ -470,7 +466,7 @@ public class EventHandlers implements Listener
 							{
 								if (usageDeniedMessage != null)
 								{
-									player.sendMessage(ChatColor.RED + usageDeniedMessage);
+									plugin.messagePlayer(player, ChatColor.RED + usageDeniedMessage);
 								}
 								unenquipChestPlayer(player);
 							}
