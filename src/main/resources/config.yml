@@ -1,4 +1,5 @@
 # Amount of items it takes to fully repair an armored elytra
+# Repair cost for every tier of armored elytra in number of items to repair 100%.
 leatherRepair: 6
 goldRepair: 5
 ironRepair: 4
@@ -19,7 +20,10 @@ allowedEnchantments:
   - THORNS
   
 # Message players receive when they lack the required permissions to wear a certain armor tier. "NONE" = no message
-usageDeniedMessage: "You do not have the required permission node for this armor tier!"
+usageDeniedMessage: "You do not have the required permissions to wear %ARMOR_TIER% armored elytras!"
 
 # Message players receive when they are given an armored elytra using commands. "NONE" = no message
-elytraReceivedMessage: "An armored elytra has been bestowed upon you!"
+elytraReceivedMessage: "A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!"
+
+# Allow this plugin to check for updates on startup. It will not download new versions!
+checkForUpdates: true

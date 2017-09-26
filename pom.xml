@@ -1,14 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">  <modelVersion>4.0.0</modelVersion>
   <groupId>nl.pim16aap2</groupId>
   <artifactId>ArmoredElytra</artifactId>
-  <version>1.5.0-SNAPSHOT</version>
+  <version>1.6.0-SNAPSHOT</version>
+  
+  
   <repositories>
     <repository>
         <id>spigot-repo</id>
         <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
   </repositories>
+  
+  
+  
   <dependencies>
     <!--Spigot API-->
     <dependency>
@@ -17,12 +21,14 @@
            <version>1.11.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     </dependency>
+    
     <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
            <version>1.12.1-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     </dependency>
+    
     <!--Bukkit API-->
     <dependency>
             <groupId>org.bukkit</groupId>
@@ -30,6 +36,7 @@
             <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
     </dependency>
+    
     <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
@@ -37,6 +44,9 @@
             <scope>provided</scope>
     </dependency>
   </dependencies>
+  
+  
+  
   <build>
    <plugins>
        <plugin>

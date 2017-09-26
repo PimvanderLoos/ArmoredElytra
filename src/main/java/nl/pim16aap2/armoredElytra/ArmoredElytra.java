@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_11_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_12_R1;
+import nl.pim16aap2.armoredElytra.util.Update;
  
 public class ArmoredElytra extends JavaPlugin implements Listener 
 {
@@ -30,6 +31,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	private String[] allowedEnchants;
 	private String usageDeniedMessage;
 	private String elytraReceivedMessage;
+	private boolean checkForUpdates;
+	private boolean upToDate;
 	
 	@Override
     public void onEnable() 
@@ -42,8 +45,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		config.addDefault("allowCurses", true);
 		config.addDefault("allowedEnchantments", new String[]{"DURABILITY","PROTECTION_FIRE","PROTECTION_EXPLOSIONS",
 															 "PROTECTION_PROJECTILE","PROTECTION_ENVIRONMENTAL","THORNS"});
-		config.addDefault("usageDeniedMessage", "You do not have the required permission node for this armor tier!");
-		config.addDefault("elytraReceivedMessage", "An armored elytra has been bestowed upon you!");
+		config.addDefault("usageDeniedMessage", "You do not have the required permissions to wear %ARMOR_TIER% armored elytras!");
+		config.addDefault("elytraReceivedMessage", "A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!");
+		config.addDefault("checkForUpdates", true);
 		saveDefaultConfig();
 		
 		LEATHER_TO_FULL       = config.getInt("leatherRepair", 6);
@@ -55,15 +59,32 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		allowedEnchants       = list.toArray(new String[0]);
 		usageDeniedMessage    = config.getString("usageDeniedMessage");
 		elytraReceivedMessage = config.getString("elytraReceivedMessage");
+		checkForUpdates       = config.getBoolean("checkForUpdates");
 
-		if (Objects.equals(usageDeniedMessage, new String("NONE")))
-		{
-			usageDeniedMessage = null;
-		} 
+		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage);
+		elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
+
 		
-		if (Objects.equals(elytraReceivedMessage, new String("NONE")))
+		// Check if the user allows checking for updates. 
+		if (checkForUpdates)
 		{
-			elytraReceivedMessage = null;
+			Bukkit.getPluginManager().registerEvents(new LoginHandler(this), this);
+			
+			Update update        = new Update(278437, this);
+			
+			String latestVersion = update.getLatestVersion();
+			String thisVersion   = this.getDescription().getVersion();
+			int updateStatus     = update.versionCompare(latestVersion, thisVersion);
+			
+			if (updateStatus > 0)
+			{
+				myLogger(Level.INFO, "Plugin out of date! You are using version "+thisVersion+" but the latest version is version "+latestVersion+"!");
+				this.upToDate = false;
+			}else 
+			{
+				this.upToDate = true;
+				myLogger(Level.INFO, "You seem to be using the latest version of this plugin!");
+			}
 		}
 		
 		config.options().copyDefaults(true);
@@ -77,10 +98,16 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		
 		if (compatibleMCVer()) 
 		{
-			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, cursesAllowed, LEATHER_TO_FULL, GOLD_TO_FULL, IRON_TO_FULL, DIAMONDS_TO_FULL, allowedEnchants, usageDeniedMessage), this);
+			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, cursesAllowed, LEATHER_TO_FULL, GOLD_TO_FULL, IRON_TO_FULL, DIAMONDS_TO_FULL, allowedEnchants), this);
 		} else {
 			myLogger(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft!");
 		}
+	}
+	
+	
+	public boolean isUpToDate()
+	{
+		return upToDate;
 	}
 	
 	// Send a message to a player in a specific color.
@@ -93,6 +120,50 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	public void messagePlayer(Player player, String s)
 	{
 		messagePlayer(player, ChatColor.WHITE, s);
+	}
+	
+	public String armorTierToString(int armorTier)
+	{
+		String armorTierName = null;
+		switch(armorTier)
+		{
+		case 0:
+			armorTierName = "unarmored";
+		case 1:
+			armorTierName = "leather";
+		case 2:
+			armorTierName = "gold";
+		case 3:
+			armorTierName = "chain";
+		case 4:
+			armorTierName = "iron";
+		case 5:
+			armorTierName = "diamond";
+		}
+		
+		return armorTierName;
+	}
+	
+	// Send the usageDeniedMessage message to the player.
+	public void usageDeniedMessage(Player player, int armorTier)
+	{
+		if (usageDeniedMessage != null)
+		{
+			String armorTierName = armorTierToString(armorTier);
+			String message       = usageDeniedMessage.replace("%ARMOR_TIER%", armorTierName);
+			messagePlayer(player, ChatColor.RED, message);
+		}
+	}
+	
+	// Send the elytraReceivedMessage message to the player.
+	public void elytraReceivedMessage(Player player, int armorTier)
+	{
+		if (elytraReceivedMessage != null)
+		{
+			String armorTierName  = armorTierToString(armorTier);
+			String message        = elytraReceivedMessage.replace("%ARMOR_TIER%", armorTierName);
+			messagePlayer(player, ChatColor.GREEN, message);
+		}
 	}
 	
 	// Print a string to the log.
@@ -111,23 +182,34 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			player = (Player) sender;
 			if (cmd.getName().equalsIgnoreCase("ArmoredElytra"))
 			{
-				if (args.length == 1) 
+				if (args.length == 1 || args.length == 2) 
 				{
 					ItemStack newElytra = null;
-					String tier = args[0];
+					String tier = null;
+					Player receiver;
+					boolean allowed = false;
+					int armorTier = 0;
+					if (args.length == 1)
+					{
+						receiver = player;
+						tier = args[0];
+					} else 
+					{
+						receiver = Bukkit.getPlayer(args[0]);
+						if (receiver == null)
+						{
+							messagePlayer(player, ChatColor.RED, "Player \""+args[0]+"\" not found!");
+							return true;
+						}
+						tier = args[1];
+					}
 					// Leather armor.
 					if (tier.equalsIgnoreCase("leather"))
 					{
 						if (player.hasPermission("armoredelytra.give.leather")) 
 						{
-							if (elytraReceivedMessage != null)
-							{
-								messagePlayer(player, elytraReceivedMessage);
-							}
-							newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 1);
-						} else 
-						{
-							messagePlayer(player, ChatColor.RED, "You do not have the required permission node for this armor tier!");
+							armorTier = 1;
+							allowed   = true;
 						}
 						
 					// Gold armor.
@@ -135,14 +217,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 					{
 						if (player.hasPermission("armoredelytra.give.gold")) 
 						{
-							if (elytraReceivedMessage != null)
-							{
-								messagePlayer(player, elytraReceivedMessage);
-							}
-							newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 2);
-						} else 
-						{
-							messagePlayer(player, "You do not have the required permission node for this armor tier!");
+							armorTier = 2;
+							allowed   = true;
 						}
 						
 					// Chain armor.
@@ -150,14 +226,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 					{
 						if (player.hasPermission("armoredelytra.give.chain")) 
 						{
-							if (elytraReceivedMessage != null)
-							{
-								messagePlayer(player, elytraReceivedMessage);
-							}
-							newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 3);
-						} else 
-						{
-							messagePlayer(player, "You do not have the required permission node for this armor tier!");
+							armorTier = 3;
+							allowed   = true;
 						}
 					
 					// Iron armor.
@@ -165,14 +235,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 					{
 						if (player.hasPermission("armoredelytra.give.iron")) 
 						{
-							if (elytraReceivedMessage != null)
-							{
-								messagePlayer(player, elytraReceivedMessage);
-							}
-							newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 4);
-						} else 
-						{
-							messagePlayer(player, "You do not have the required permission node for this armor tier!");
+							armorTier = 4;
+							allowed   = true;
 						}
 					
 					// Diamond armor.
@@ -180,21 +244,22 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 					{
 						if (player.hasPermission("armoredelytra.give.diamond")) 
 						{
-							if (elytraReceivedMessage != null)
-							{
-								messagePlayer(player, elytraReceivedMessage);
-							}
-							newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 5);
-						} else 
-						{
-							messagePlayer(player, "You do not have the required permission node for this armor tier!");
+							armorTier = 5;
+							allowed   = true;
 						}
-					
 					} else 
 					{
 						messagePlayer(player, "Not a supported armor tier! Try one of these: leather, gold, chain, iron, diamond.");
 					}
-					giveArmoredElytraToPlayer(player, newElytra);
+					if (allowed)
+					{
+						elytraReceivedMessage(receiver, armorTier);
+						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier);
+						giveArmoredElytraToPlayer(receiver, newElytra);
+					} else 
+					{
+						messagePlayer(player, "You do not have the required permission node to give "+ armorTierToString(armorTier) + " armored elytras.");
+					}
 					return true;
 				}
 			}
@@ -207,54 +272,34 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 				if (Bukkit.getPlayer(args[0]) != null)
 				{
 					player = Bukkit.getPlayer(args[0]);
+					int armorTier = 0;
 					
 					// Leather armor tier.
 					if (tier.equalsIgnoreCase("leather"))
 					{
-						if (elytraReceivedMessage != null)
-						{
-							messagePlayer(player, elytraReceivedMessage);
-						}
-						myLogger(Level.INFO, ("Giving an armored elytra of the leather armor tier to player "+player.getName()));
-						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 1);
+						armorTier = 1;
 					// Gold armor tier.
 					} else if (tier.equalsIgnoreCase("gold"))
 					{
-						if (elytraReceivedMessage != null)
-						{
-							messagePlayer(player, elytraReceivedMessage);
-						}
-						myLogger(Level.INFO, ("Giving an armored elytra of the gold armor tier to player "+player.getName()));
-						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 2);
+						armorTier = 2;
 					// Chain armor tier.
 					} else if (tier.equalsIgnoreCase("chain"))
 					{
-						if (elytraReceivedMessage != null)
-						{
-							messagePlayer(player, elytraReceivedMessage);
-						}
-						myLogger(Level.INFO, ("Giving an armored elytra of the chain armor tier to player "+player.getName()));
-						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 3);
+						armorTier = 3;
 					// Iron armor tier.
 					} else if (tier.equalsIgnoreCase("iron"))
 					{
-						if (elytraReceivedMessage != null)
-						{
-							messagePlayer(player, elytraReceivedMessage);
-						}
-						myLogger(Level.INFO, ("Giving an armored elytra of the iron armor tier to player "+player.getName()));
-						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 4);
+						armorTier = 4;
 					// Diamond armor tier.
 					} else if (tier.equalsIgnoreCase("diamond"))
 					{
-						if (elytraReceivedMessage != null)
-						{
-							messagePlayer(player, elytraReceivedMessage);
-						}
-						myLogger(Level.INFO, ("Giving an armored elytra of the armor armor tier to player "+player.getName()));
-						newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), 5);
+						armorTier = 5;
 					}
+
+					elytraReceivedMessage(player, armorTier);
+					newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier);
 					giveArmoredElytraToPlayer(player, newElytra);
+					myLogger(Level.INFO, ("Giving an armored elytra of the "+ armorTierToString(armorTier) +" armor tier to player "+player.getName()));
 					return true;					
 				} else 
 				{

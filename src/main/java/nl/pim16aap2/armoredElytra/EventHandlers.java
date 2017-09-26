@@ -32,13 +32,12 @@ public class EventHandlers implements Listener
 	private boolean cursesAllowed; 
 	private NBTEditor nbtEditor;
 	private final ArmoredElytra plugin;
-	private String usageDeniedMessage;
 	private String[] allowedEnchantments;
 	private String[] cursedEnchantments  = {"MENDING",
 		    								   "VANISHING_CURSE",
                                             "BINDING_CURSE"};
 	
-	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments, String usageDeniedMessage) 
+	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments) 
 	{
 		this.plugin = plugin;
 		this.nbtEditor = nbtEditor;
@@ -48,7 +47,6 @@ public class EventHandlers implements Listener
 		this.LEATHER_TO_FULL = LEATHER_TO_FULL;
 		this.GOLD_TO_FULL = GOLD_TO_FULL;
 		this.IRON_TO_FULL = IRON_TO_FULL;
-		this.usageDeniedMessage = usageDeniedMessage;
 	}
 	
 	
@@ -263,8 +261,8 @@ public class EventHandlers implements Listener
 								result = null;
 							}
 						}
-						
-						
+							
+							
 		            		// Check if there are items in both input slots.
 				        if (itemA != null && itemB != null) 
 				        {
@@ -450,10 +448,7 @@ public class EventHandlers implements Listener
 			           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))     || 
 			           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
             		{
-            			if (usageDeniedMessage  != null)
-            			{
-            				plugin.messagePlayer(player, ChatColor.RED + usageDeniedMessage);
-            			}
+            			plugin.usageDeniedMessage(player, armorTier);
 		        		event.setCancelled(true);
             		}
             }
@@ -491,10 +486,7 @@ public class EventHandlers implements Listener
 						           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))        || 
 						           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
 							{
-								if (usageDeniedMessage != null)
-								{
-									plugin.messagePlayer(player, ChatColor.RED + usageDeniedMessage);
-								}
+								plugin.usageDeniedMessage(player, armorTier);
 								unenquipChestPlayer(player);
 							}
 							player.updateInventory();
