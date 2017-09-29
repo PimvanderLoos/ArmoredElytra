@@ -33,6 +33,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	private String elytraReceivedMessage;
 	private boolean checkForUpdates;
 	private boolean upToDate;
+	private String elytraName;
+	private String elytraLore;
 	
 	@Override
     public void onEnable() 
@@ -47,6 +49,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 															 "PROTECTION_PROJECTILE","PROTECTION_ENVIRONMENTAL","THORNS"});
 		config.addDefault("usageDeniedMessage", "You do not have the required permissions to wear %ARMOR_TIER% armored elytras!");
 		config.addDefault("elytraReceivedMessage", "A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!");
+
+		config.addDefault("elytraName", "%ARMOR_TIER% Armored Elytra");
+		config.addDefault("elytraLore", "Elytra with %ARMOR_TIER% level protection.");
+		
 		config.addDefault("checkForUpdates", true);
 		saveDefaultConfig();
 		
@@ -59,11 +65,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		allowedEnchants       = list.toArray(new String[0]);
 		usageDeniedMessage    = config.getString("usageDeniedMessage");
 		elytraReceivedMessage = config.getString("elytraReceivedMessage");
+		elytraName            = config.getString("elytraName");
+		elytraLore            = config.getString("elytraLore");
 		checkForUpdates       = config.getBoolean("checkForUpdates");
 
 		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage);
 		elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
-
+		elytraLore            = (Objects.equals(elytraLore, new String("NONE")) ? null : elytraLore);
 		
 		// Check if the user allows checking for updates. 
 		if (checkForUpdates)
@@ -122,25 +130,31 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		messagePlayer(player, ChatColor.WHITE, s);
 	}
 	
+	// Convert int of armorTier to its string. 
 	public String armorTierToString(int armorTier)
 	{
 		String armorTierName = null;
 		switch(armorTier)
 		{
 		case 0:
-			armorTierName = "unarmored";
+			armorTierName = "Unarmored";
+			break;
 		case 1:
-			armorTierName = "leather";
+			armorTierName = "Leather";
+			break;
 		case 2:
-			armorTierName = "gold";
+			armorTierName = "Gold";
+			break;
 		case 3:
-			armorTierName = "chain";
+			armorTierName = "Chain";
+			break;
 		case 4:
-			armorTierName = "iron";
+			armorTierName = "Iron";
+			break;
 		case 5:
-			armorTierName = "diamond";
+			armorTierName = "Diamond";
+			break;
 		}
-		
 		return armorTierName;
 	}
 	
@@ -149,8 +163,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	{
 		if (usageDeniedMessage != null)
 		{
-			String armorTierName = armorTierToString(armorTier);
-			String message       = usageDeniedMessage.replace("%ARMOR_TIER%", armorTierName);
+			String message = fillInArmorTierInString(usageDeniedMessage, armorTier);
 			messagePlayer(player, ChatColor.RED, message);
 		}
 	}
@@ -160,10 +173,17 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	{
 		if (elytraReceivedMessage != null)
 		{
-			String armorTierName  = armorTierToString(armorTier);
-			String message        = elytraReceivedMessage.replace("%ARMOR_TIER%", armorTierName);
+			String message = fillInArmorTierInString(elytraReceivedMessage, armorTier);
 			messagePlayer(player, ChatColor.GREEN, message);
 		}
+	}
+	
+	// Replace %ARMOR_TIER% by the name of that armor tier in a string.
+	public String fillInArmorTierInString(String string, int armorTier)
+	{
+		String armorTierName  = armorTierToString(armorTier);
+		String replaced       = string.replace("%ARMOR_TIER%", armorTierName);
+		return replaced;
 	}
 	
 	// Print a string to the log.
@@ -206,47 +226,37 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 					// Leather armor.
 					if (tier.equalsIgnoreCase("leather"))
 					{
-						if (player.hasPermission("armoredelytra.give.leather")) 
-						{
-							armorTier = 1;
+						armorTier = 1;
+						if (player.hasPermission("armoredelytra.give.leather"))
 							allowed   = true;
-						}
 						
 					// Gold armor.
 					} else if (tier.equalsIgnoreCase("gold"))
 					{
-						if (player.hasPermission("armoredelytra.give.gold")) 
-						{
-							armorTier = 2;
+						armorTier = 2;
+						if (player.hasPermission("armoredelytra.give.gold"))
 							allowed   = true;
-						}
 						
 					// Chain armor.
 					} else if (tier.equalsIgnoreCase("chain"))
 					{
+						armorTier = 3;
 						if (player.hasPermission("armoredelytra.give.chain")) 
-						{
-							armorTier = 3;
 							allowed   = true;
-						}
 					
 					// Iron armor.
 					} else if (tier.equalsIgnoreCase("iron"))
 					{
-						if (player.hasPermission("armoredelytra.give.iron")) 
-						{
-							armorTier = 4;
+						armorTier = 4;
+						if (player.hasPermission("armoredelytra.give.iron"))
 							allowed   = true;
-						}
 					
 					// Diamond armor.
 					} else if (tier.equalsIgnoreCase("diamond"))
 					{
-						if (player.hasPermission("armoredelytra.give.diamond")) 
-						{
-							armorTier = 5;
+						armorTier = 5;
+						if (player.hasPermission("armoredelytra.give.diamond"))
 							allowed   = true;
-						}
 					} else 
 					{
 						messagePlayer(player, "Not a supported armor tier! Try one of these: leather, gold, chain, iron, diamond.");
@@ -337,11 +347,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
         if (version.equals("v1_11_R1")) 
         {
-        		nbtEditor = new NBTEditor_V1_11_R1();
+        		nbtEditor = new NBTEditor_V1_11_R1(elytraName, elytraLore, this);
 
         } else if (version.equals("v1_12_R1")) 
         {
-        		nbtEditor = new NBTEditor_V1_12_R1();
+        		nbtEditor = new NBTEditor_V1_12_R1(elytraName, elytraLore, this);
         }
         // Return true if compatible.
         return nbtEditor != null;

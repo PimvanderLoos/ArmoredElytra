@@ -89,19 +89,11 @@ public class EventHandlers implements Listener
 		return false;
 	}
 	
-	
 	// Check if the elytra being checked is an armored one.
-	public boolean isArmoredElytra(ItemStack elytra) 
+	public boolean isArmoredElytra(ItemStack elytra)
 	{
-	if (elytra.hasItemMeta() && elytra.getType() == Material.ELYTRA) 
-		if (elytra.getItemMeta().hasLore())
-			if (elytra.getItemMeta().getLore().toString().equals("[This is an armored Elytra.]")) 
-			{
-				return true;
-			}
-		return false;
+		return (nbtEditor.getArmorTier(elytra) == 0 ? false : true);
 	}
-	
 	
 	// Copy enchants of 2 items to one item.
 	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player player) 
@@ -418,7 +410,6 @@ public class EventHandlers implements Listener
 			}
 		}
 	}
-	
 	
 	// Remove item from player's chestplate slot and puts it in their normal inventory.
 	public void unenquipChestPlayer(Player p) 
