@@ -49,7 +49,6 @@ public class EventHandlers implements Listener
 		this.IRON_TO_FULL = IRON_TO_FULL;
 	}
 	
-	
 	// Clear the anvil's inventory (destroy all the items in all 3 slots (second slot is not emptied, when repairing you can safely give multiple items)).
 	public void cleanAnvil(AnvilInventory anvilInventory)
 	{
@@ -57,7 +56,6 @@ public class EventHandlers implements Listener
 		anvilInventory.getItem(1).setAmount(anvilInventory.getItem(1).getAmount()-1);
 		anvilInventory.getItem(2).setAmount(0);
 	}
-	
 	
 	// Check if the enchantment is allowed on elytras.
 	public boolean isAllowedEnchantment(Enchantment enchant) 
@@ -74,7 +72,6 @@ public class EventHandlers implements Listener
 		}
 		return false;
 	}
-	
 	
 	// Check if the enchantment is a curse.
 	public boolean isCursedEnchantment(Enchantment enchant) 
@@ -168,7 +165,6 @@ public class EventHandlers implements Listener
 		return result;
 	}
 	
-	
 	// Copy enchants of 2 items to one item.
 	public ItemStack repairItem(ItemStack one, ItemStack two) 
 	{
@@ -201,7 +197,6 @@ public class EventHandlers implements Listener
 		return result;
 	}
 	 
-		
 	// Handle the anvil related parts.
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) 
@@ -253,8 +248,7 @@ public class EventHandlers implements Listener
 								result = null;
 							}
 						}
-							
-							
+						
 		            		// Check if there are items in both input slots.
 				        if (itemA != null && itemB != null) 
 				        {
@@ -305,7 +299,7 @@ public class EventHandlers implements Listener
 				                	} 
 								// If the player tries to repair an armored elytra. Check if the armor tier and the repair item match.
 				                	// If the repair item is leather it can only repair 
-				                	else if ((itemB.getType() == Material.LEATHER    && (!isArmoredElytra(itemA)) || currentArmorTier == 1) || 
+				                	else if ((itemB.getType() == Material.LEATHER    &&  isArmoredElytra(itemA)   && currentArmorTier == 1) || 
 			                			    	 (itemB.getType() == Material.GOLD_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 2) || 
 			                			    	 (itemB.getType() == Material.IRON_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 3) || 
 			                			    	 (itemB.getType() == Material.IRON_INGOT &&  isArmoredElytra(itemA)   && currentArmorTier == 4) || 
@@ -364,8 +358,6 @@ public class EventHandlers implements Listener
 		}
 	}
 	
-	
-	
 	// Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
 	@EventHandler
 	public void onPlayerDamage(EntityDamageEvent e) 
@@ -418,7 +410,6 @@ public class EventHandlers implements Listener
 		p.getInventory().getChestplate().setAmount(0);
 	}
 	
-	
 	// Check if the player tries to equip armor by richt clicking it.
 	@SuppressWarnings("deprecation")
 	@EventHandler
@@ -433,11 +424,11 @@ public class EventHandlers implements Listener
             	if (item.getType() == Material.ELYTRA && isArmoredElytra(item)) 
             	{
             		int armorTier = nbtEditor.getArmorTier(item);
-            		if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather"))     || 
-			           (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))     || 
-			           (armorTier == 3 && !player.hasPermission("armoredelytra.wear.chain"))    || 
-			           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))     || 
-			           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
+            		if ((armorTier == 1 	&& !player.hasPermission("armoredelytra.wear.leather"))  || 
+		            (armorTier == 2 	&& !player.hasPermission("armoredelytra.wear.gold"))     || 
+		            (armorTier == 3 	&& !player.hasPermission("armoredelytra.wear.chain"))    || 
+		            (armorTier == 4 	&& !player.hasPermission("armoredelytra.wear.iron"))     || 
+		            (armorTier == 5 	&& !player.hasPermission("armoredelytra.wear.diamond")))
             		{
             			plugin.usageDeniedMessage(player, armorTier);
 		        		event.setCancelled(true);

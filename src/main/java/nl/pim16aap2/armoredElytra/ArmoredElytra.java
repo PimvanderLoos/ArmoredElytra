@@ -47,11 +47,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		config.addDefault("allowCurses", true);
 		config.addDefault("allowedEnchantments", new String[]{"DURABILITY","PROTECTION_FIRE","PROTECTION_EXPLOSIONS",
 															 "PROTECTION_PROJECTILE","PROTECTION_ENVIRONMENTAL","THORNS"});
-		config.addDefault("usageDeniedMessage", "You do not have the required permissions to wear %ARMOR_TIER% armored elytras!");
-		config.addDefault("elytraReceivedMessage", "A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!");
+		config.addDefault("usageDeniedMessage", "&CYou do not have the required permissions to wear %ARMOR_TIER% armored elytras!");
+		config.addDefault("elytraReceivedMessage", "&2A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!");
 
 		config.addDefault("elytraName", "%ARMOR_TIER% Armored Elytra");
-		config.addDefault("elytraLore", "Elytra with %ARMOR_TIER% level protection.");
+		config.addDefault("elytraLore", "&DElytra with %ARMOR_TIER% level protection.");
 		
 		config.addDefault("checkForUpdates", true);
 		saveDefaultConfig();
@@ -63,10 +63,12 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		cursesAllowed         = config.getBoolean("allowCurses", true);
 		List<String> list     = config.getStringList("allowedEnchantments");
 		allowedEnchants       = list.toArray(new String[0]);
-		usageDeniedMessage    = config.getString("usageDeniedMessage");
-		elytraReceivedMessage = config.getString("elytraReceivedMessage");
-		elytraName            = config.getString("elytraName");
-		elytraLore            = config.getString("elytraLore");
+		
+		usageDeniedMessage    = config.getString("usageDeniedMessage").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
+		elytraReceivedMessage = config.getString("elytraReceivedMessage").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
+		elytraName            = config.getString("elytraName").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
+		elytraLore            = config.getString("elytraLore").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
+		
 		checkForUpdates       = config.getBoolean("checkForUpdates");
 
 		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage);
