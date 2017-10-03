@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.md_5.bungee.api.ChatColor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_11_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_12_R1;

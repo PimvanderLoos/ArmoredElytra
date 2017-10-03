@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -20,8 +21,6 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class EventHandlers implements Listener 
 {
