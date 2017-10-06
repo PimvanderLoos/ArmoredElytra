@@ -10,6 +10,8 @@ allowCurses: true
 
 # List of enchantments that are allowed to be put on an armored elytra.
 # If you do not want to allow any enchantments, remove them all and add "NONE"
+# You can find supported enchantments here:
+# https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html
 allowedEnchantments:
 #  - NONE
   - DURABILITY
@@ -21,17 +23,20 @@ allowedEnchantments:
   
 # Message players receive when they lack the required permissions to wear a certain armor tier. "NONE" = no message. 
 # %ARMOR_TIER% is replaced by the name of the armor tier.
-usageDeniedMessage: "You do not have the required permissions to wear %ARMOR_TIER% armored elytras!"
+usageDeniedMessage: 'You do not have the required permissions to wear %ARMOR_TIER% armored elytras!'
 
 # Message players receive when they are given an armored elytra using commands. "NONE" = no message. 
 # %ARMOR_TIER% is replaced by the name of the armor tier.
-elytraReceivedMessage: "A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!"
+elytraReceivedMessage: '&2A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!'
 
 # The name of armored elytras. %ARMOR_TIER% is replaced by the name of the armor tier.
 elytraName: '%ARMOR_TIER% Armored Elytra'
 
 # The lore of armored elytras. "NONE" = no lore. %ARMOR_TIER% is replaced by the name of the armor tier.
-elytraLore: Elytra with %ARMOR_TIER% level protection.
+elytraLore: 'Elytra with %ARMOR_TIER% level protection'
 
 # Allow this plugin to check for updates on startup. It will not download new versions!
 checkForUpdates: true
+
+# Allow this plugin to send (anonymised) stats using bStats.
+allowStats: true

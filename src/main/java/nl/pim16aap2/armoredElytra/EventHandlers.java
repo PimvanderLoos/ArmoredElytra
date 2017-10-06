@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.AnvilInventory;
@@ -213,7 +214,7 @@ public class EventHandlers implements Listener
 				{
 					// If there is an elytra in the final slot (it is unenchantable by default, so we can reasonably expect it to be an enchanted elytra)
 					// and the player selects it, let the player transfer it to their inventory.
-					if (anvilInventory.getItem(2).getType() == Material.ELYTRA) 
+					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null) 
 					{
 						if (e.isShiftClick()) 
 						{
@@ -436,6 +437,43 @@ public class EventHandlers implements Listener
         }
 	}
 	
+	// Player closes their inventory. Also checks for whether they are allowed to wear the armored elytra they are wearing.
+	// This is done again here because there are ways to  bypass permission check when equipping.
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent e)
+	{
+		verifyArmorInChestSlot((Player) e.getPlayer());
+	}
+	
+	// Check if the player is allowed to wear the armored elytra based on their permissions.
+	public void verifyArmorInChestSlot(Player player)
+	{
+		ItemStack chestplate = player.getInventory().getChestplate();
+		// If the player equips a new chestplate.
+		if (player.getInventory().getChestplate() != null) 
+		{
+			// If that chestplate is an (armored) elytra.
+			if (chestplate.getType() == Material.ELYTRA && isArmoredElytra(chestplate)) 
+			{
+				int armorTier = nbtEditor.getArmorTier(chestplate);
+				if ((chestplate.getDurability() >= chestplate.getType().getMaxDurability())) 
+				{
+					plugin.messagePlayer(player, ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
+					unenquipChestPlayer(player);
+				} else if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather")) || 
+						   (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))        || 
+						   (armorTier == 3 && !player.hasPermission("armoredelytra.wear.chain"))       || 
+						   (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))        || 
+						   (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
+				{
+					plugin.usageDeniedMessage(player, armorTier);
+					unenquipChestPlayer(player);
+				}
+				player.updateInventory();
+			}
+		}
+	}
+	
 	
 	// Check if the player is trying to equip a broken elytra (and prevent that).
 	@EventHandler
@@ -449,31 +487,7 @@ public class EventHandlers implements Listener
 	            @Override
                 public void run() 
 	            {
-	            		ItemStack chestplate = player.getInventory().getChestplate();
-	            		// If the player equips a new chestplate.
-					if (player.getInventory().getChestplate() != null) 
-					{
-						// If that chestplate is an (armored) elytra.
-						if (chestplate.getType() == Material.ELYTRA && isArmoredElytra(chestplate)) 
-						{
-							int armorTier = nbtEditor.getArmorTier(chestplate);
-							if ((chestplate.getDurability() >= chestplate.getType().getMaxDurability())) 
-							{
-								plugin.messagePlayer(player, ChatColor.RED + "You cannot equip this elytra! Please repair it in an anvil first.");
-								unenquipChestPlayer(player);
-							} else if ((armorTier == 1 && !player.hasPermission("armoredelytra.wear.leather")) || 
-						           (armorTier == 2 && !player.hasPermission("armoredelytra.wear.gold"))        || 
-						           (armorTier == 3 && !player.hasPermission("armoredelytra.wear.chain"))       || 
-						           (armorTier == 4 && !player.hasPermission("armoredelytra.wear.iron"))        || 
-						           (armorTier == 5 && !player.hasPermission("armoredelytra.wear.diamond")))
-							{
-								plugin.usageDeniedMessage(player, armorTier);
-								unenquipChestPlayer(player);
-							}
-							player.updateInventory();
-							e.setCancelled(true);
-						}
-					}
+	            		verifyArmorInChestSlot(player);
 	            }
 			}.runTaskLater(this.plugin, 1);
 		}

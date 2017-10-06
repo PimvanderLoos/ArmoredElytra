@@ -1,13 +1,11 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
-version: 1.7.3
+version: 1.9
 author: Pim
 commands:
   ArmoredElytra:
     description: Give an armored elytra of the specified tier.
     usage: /ArmoredElytra [receiver] <tier>
-    permission: armoredelytra.give
-    permission-message: You do not have the armoredelytra.give permission node.
 permissions:
   armoredelytra.wear.leather:
     description: Allow the player to wear leather tier armored elytras.
@@ -30,4 +28,4 @@ permissions:
   armoredelytra.give.diamond:
     description: Allow the player to spawn in diamond tier armored elytras.
   armoredElytra.admin:
-    description: Receive a message upon joining the game if this plugin is out of date.
+    description: Receive a message if this plugin is out of date when joining the server.

@@ -32,6 +32,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	private String usageDeniedMessage;
 	private String elytraReceivedMessage;
 	private boolean checkForUpdates;
+	private boolean allowStats;
 	private boolean upToDate;
 	private String elytraName;
 	private String elytraLore;
@@ -40,20 +41,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public void onEnable() 
 	{	
 		FileConfiguration config = this.getConfig();
-		config.addDefault("leatherRepair", 6);
-		config.addDefault("goldRepair", 5);
-		config.addDefault("ironRepair", 4);
-		config.addDefault("diamondsRepair", 3);
-		config.addDefault("allowCurses", true);
-		config.addDefault("allowedEnchantments", new String[]{"DURABILITY","PROTECTION_FIRE","PROTECTION_EXPLOSIONS",
-															 "PROTECTION_PROJECTILE","PROTECTION_ENVIRONMENTAL","THORNS"});
-		config.addDefault("usageDeniedMessage", "&CYou do not have the required permissions to wear %ARMOR_TIER% armored elytras!");
-		config.addDefault("elytraReceivedMessage", "&2A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!");
-
-		config.addDefault("elytraName", "%ARMOR_TIER% Armored Elytra");
-		config.addDefault("elytraLore", "&DElytra with %ARMOR_TIER% level protection.");
-		
-		config.addDefault("checkForUpdates", true);
 		saveDefaultConfig();
 		
 		LEATHER_TO_FULL       = config.getInt("leatherRepair", 6);
@@ -63,13 +50,14 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		cursesAllowed         = config.getBoolean("allowCurses", true);
 		List<String> list     = config.getStringList("allowedEnchantments");
 		allowedEnchants       = list.toArray(new String[0]);
-		
-		usageDeniedMessage    = config.getString("usageDeniedMessage").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
-		elytraReceivedMessage = config.getString("elytraReceivedMessage").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
-		elytraName            = config.getString("elytraName").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
-		elytraLore            = config.getString("elytraLore").replaceAll("(&([a-f0-9]))", "\u00A7$2");;
-		
+
+		usageDeniedMessage    = config.getString("usageDeniedMessage").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraReceivedMessage = config.getString("elytraReceivedMessage").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraName            = config.getString("elytraName").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraLore            = config.getString("elytraLore").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+
 		checkForUpdates       = config.getBoolean("checkForUpdates");
+		allowStats            = config.getBoolean("allowStats");
 
 		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage);
 		elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
@@ -95,6 +83,16 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 				this.upToDate = true;
 				myLogger(Level.INFO, "You seem to be using the latest version of this plugin!");
 			}
+		}
+		
+		if (allowStats)
+		{
+			myLogger(Level.INFO, "Enabling stats!");
+			@SuppressWarnings("unused")
+			Metrics metrics = new Metrics(this);
+		} else 
+		{
+			myLogger(Level.INFO, "Stats disabled, not laoding stats :(");
 		}
 		
 		config.options().copyDefaults(true);
