@@ -1,6 +1,7 @@
-package nl.pim16aap2.armoredElytra;
+package nl.pim16aap2.armoredElytra.handlers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -21,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 
 public class EventHandlers implements Listener 
@@ -32,21 +34,23 @@ public class EventHandlers implements Listener
 	private boolean cursesAllowed; 
 	private NBTEditor nbtEditor;
 	private final ArmoredElytra plugin;
-	private String[] allowedEnchantments;
+	private List<String> allowedEnchantments;
 	private String[] cursedEnchantments  = {"MENDING",
 		    								   "VANISHING_CURSE",
                                             "BINDING_CURSE"};
 	
-	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean allowCurses, int LEATHER_TO_FULL, int GOLD_TO_FULL, int IRON_TO_FULL, int DIAMONDS_TO_FULL, String[] allowedEnchantments) 
+	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor) 
 	{
-		this.plugin = plugin;
+		this.plugin    = plugin;
 		this.nbtEditor = nbtEditor;
-		this.cursesAllowed = allowCurses;
-		this.DIAMONDS_TO_FULL = DIAMONDS_TO_FULL;
-		this.allowedEnchantments = allowedEnchantments;
-		this.LEATHER_TO_FULL = LEATHER_TO_FULL;
-		this.GOLD_TO_FULL = GOLD_TO_FULL;
-		this.IRON_TO_FULL = IRON_TO_FULL;
+		
+		// Get the values of the config options.
+		this.cursesAllowed       = plugin.getConfigLoader().getBool("allowCurses");
+		this.allowedEnchantments = plugin.getConfigLoader().getStringList("allowedEnchantments");
+		this.LEATHER_TO_FULL     = plugin.getConfigLoader().getInt("leatherRepair");
+		this.GOLD_TO_FULL        = plugin.getConfigLoader().getInt("goldRepair");
+		this.IRON_TO_FULL        = plugin.getConfigLoader().getInt("ironRepair");
+		this.DIAMONDS_TO_FULL    = plugin.getConfigLoader().getInt("diamondsRepair");
 	}
 	
 	// Clear the anvil's inventory (destroy all the items in all 3 slots (second slot is not emptied, when repairing you can safely give multiple items)).

@@ -117,6 +117,8 @@ public class NBTEditor_V1_11_R1 implements NBTEditor
 		String nbtTags = compound.toString();
 		
 		// Check if the item has the generic.armor attribute.
+		// Format = <level>,Slot:"chest",AttributeName:"generic.armor so get pos of char before 
+		// The start of the string, as that's the value of the generic.armor attribute.
 		int pos = nbtTags.indexOf(",Slot:\"chest\",AttributeName:\"generic.armor\"");
 		if (pos > 0)
 		{

@@ -1,4 +1,4 @@
-package nl.pim16aap2.armoredElytra;
+package nl.pim16aap2.armoredElytra.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;

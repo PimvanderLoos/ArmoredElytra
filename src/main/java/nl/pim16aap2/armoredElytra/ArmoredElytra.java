@@ -1,6 +1,5 @@
 package nl.pim16aap2.armoredElytra;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -9,69 +8,61 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
+import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_11_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_12_R1;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.Metrics;
 import nl.pim16aap2.armoredElytra.util.Update;
  
 public class ArmoredElytra extends JavaPlugin implements Listener 
 {
 	private NBTEditor nbtEditor;
-	private boolean cursesAllowed;
-	private int LEATHER_TO_FULL;
-	private int GOLD_TO_FULL;
-	private int IRON_TO_FULL;
-	private int DIAMONDS_TO_FULL;
-	private String[] allowedEnchants;
+
 	private String usageDeniedMessage;
 	private String elytraReceivedMessage;
-	private boolean checkForUpdates;
-	private boolean allowStats;
-	private boolean upToDate;
 	private String elytraName;
 	private String elytraLore;
+	private boolean upToDate;
+	
+	private ConfigLoader config;
 	
 	@Override
     public void onEnable() 
 	{	
-		FileConfiguration config = this.getConfig();
-		saveDefaultConfig();
-		
-		LEATHER_TO_FULL       = config.getInt("leatherRepair", 6);
-		GOLD_TO_FULL          = config.getInt("goldRepair", 5);
-		IRON_TO_FULL          = config.getInt("ironRepair", 4);
-		DIAMONDS_TO_FULL      = config.getInt("diamondsRepair", 3);
-		cursesAllowed         = config.getBoolean("allowCurses", true);
-		List<String> list     = config.getStringList("allowedEnchantments");
-		allowedEnchants       = list.toArray(new String[0]);
+		config = new ConfigLoader(this);
 
+		// Replace color codes by the corresponding colors.
 		usageDeniedMessage    = config.getString("usageDeniedMessage").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
 		elytraReceivedMessage = config.getString("elytraReceivedMessage").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
 		elytraName            = config.getString("elytraName").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
 		elytraLore            = config.getString("elytraLore").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-
-		checkForUpdates       = config.getBoolean("checkForUpdates");
-		allowStats            = config.getBoolean("allowStats");
-
+		
+		// Change the string to null if it says "NONE".
 		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage);
 		elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
-		elytraLore            = (Objects.equals(elytraLore, new String("NONE")) ? null : elytraLore);
+		elytraLore            = (Objects.equals(elytraLore,            new String("NONE")) ? null : elytraLore);
+		
+		
 		
 		// Check if the user allows checking for updates. 
-		if (checkForUpdates)
+		if (config.getBool("checkForUpdates"))
 		{
+			// Load the loginHandler to show messages to the user when they join.
 			Bukkit.getPluginManager().registerEvents(new LoginHandler(this), this);
 			
 			Update update        = new Update(278437, this);
 			
 			String latestVersion = update.getLatestVersion();
 			String thisVersion   = this.getDescription().getVersion();
+			// Check if this is the latest version or not.
 			int updateStatus     = update.versionCompare(latestVersion, thisVersion);
 			
 			if (updateStatus > 0)
@@ -85,37 +76,44 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			}
 		}
 		
-		if (allowStats)
+		// Are stats allowed?
+		if (config.getBool("allowStats"))
 		{
 			myLogger(Level.INFO, "Enabling stats!");
 			@SuppressWarnings("unused")
 			Metrics metrics = new Metrics(this);
 		} else 
-		{
+			// Y u do dis? :(
 			myLogger(Level.INFO, "Stats disabled, not laoding stats :(");
-		}
-		
-		config.options().copyDefaults(true);
-		saveConfig();
 
+		// Log all allowed enchantments.
 		myLogger(Level.INFO, ("Allowed enchantments:"));
-		for (String s : allowedEnchants)
+		for (String s : config.getStringList("allowedEnchantments"))
 		{
-			myLogger(Level.INFO, s);
+			myLogger(Level.INFO, " - " + s);
 		}
+		// Log whether or not curses are allowed.
+		myLogger(Level.INFO, "Curses on armored elytras are " + (config.getBool("allowCurses") ? "" : "not " + "allowed!"));
 		
+		// Load the files for the correct version of Minecraft.
 		if (compatibleMCVer()) 
 		{
-			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, cursesAllowed, LEATHER_TO_FULL, GOLD_TO_FULL, IRON_TO_FULL, DIAMONDS_TO_FULL, allowedEnchants), this);
+			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor), this);
 		} else {
 			myLogger(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft!");
 		}
 	}
 	
-	
+	// Returns true if this is the latest version of this plugin.
 	public boolean isUpToDate()
 	{
 		return upToDate;
+	}
+	
+	// Returns the config handler.
+	public ConfigLoader getConfigLoader()
+	{
+		return config;
 	}
 	
 	// Send a message to a player in a specific color.
