@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.pim16aap2</groupId>
 	<artifactId>ArmoredElytra</artifactId>
-	<version>1.9-SNAPSHOT</version>
+	<version>1.11.9-SNAPSHOT</version>
 
 
 	<repositories>
@@ -22,17 +22,24 @@
 	<dependencies>
 		<!--Spigot API -->
 		<dependency>
+           	<groupId>org.spigotmc</groupId>
+           	<artifactId>spigot</artifactId>
+           	<version>1.10.2-R0.1-SNAPSHOT</version>
+        		<scope>provided</scope>
+    		</dependency>
+    		
+		<dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
 			<version>1.11.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<!--bStats -->
-		<dependency>
-			<groupId>org.bstats</groupId>
-			<artifactId>bstats-bukkit</artifactId>
-			<version>1.2</version>
 		</dependency>
 
 		<dependency>
@@ -46,6 +53,13 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
+			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.bukkit</groupId>
+			<artifactId>craftbukkit</artifactId>
 			<version>1.11.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
@@ -55,6 +69,13 @@
 			<artifactId>craftbukkit</artifactId>
 			<version>1.12-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!--bStats -->
+		<dependency>
+			<groupId>org.bstats</groupId>
+			<artifactId>bstats-bukkit</artifactId>
+			<version>1.2</version>
 		</dependency>
 	</dependencies>
 

@@ -3,26 +3,26 @@ package nl.pim16aap2.armoredElytra.nms;
 import java.util.Arrays;
 
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.minecraft.server.v1_12_R1.NBTTagByte;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagInt;
-import net.minecraft.server.v1_12_R1.NBTTagList;
-import net.minecraft.server.v1_12_R1.NBTTagString;
+import net.minecraft.server.v1_10_R1.NBTTagByte;
+import net.minecraft.server.v1_10_R1.NBTTagCompound;
+import net.minecraft.server.v1_10_R1.NBTTagInt;
+import net.minecraft.server.v1_10_R1.NBTTagList;
+import net.minecraft.server.v1_10_R1.NBTTagString;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
-public class NBTEditor_V1_12_R1 implements NBTEditor 
+public class NBTEditor_V1_10_R1 implements NBTEditor 
 {
 	String elytraName;
 	String elytraLore;
 	ArmoredElytra plugin;
 	
 	// Get the names and lores for every tier of armor.
-	public NBTEditor_V1_12_R1(String elytraName, String elytraLore, ArmoredElytra plugin)
+	public NBTEditor_V1_10_R1(String elytraName, String elytraLore, ArmoredElytra plugin)
 	{
 		this.elytraName = elytraName;
 		this.elytraLore = elytraLore;
@@ -32,7 +32,7 @@ public class NBTEditor_V1_12_R1 implements NBTEditor
 	// Add armor to the supplied item, based on the armorTier.
 	@Override
 	public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable) 
-	{
+	{	
 		ItemMeta itemmeta   = item.getItemMeta();
 		int armorProtection = ArmorTier.getArmor    (armorTier);
 		int armorToughness  = ArmorTier.getToughness(armorTier);
@@ -43,7 +43,7 @@ public class NBTEditor_V1_12_R1 implements NBTEditor
 			itemmeta.setLore(Arrays.asList(plugin.fillInArmorTierInString(elytraLore, armorTier)));
 		item.setItemMeta(itemmeta);
 		
-		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+		net.minecraft.server.v1_10_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
 		NBTTagCompound compound   =     (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
 		NBTTagList modifiers      =     new NBTTagList();
 		NBTTagCompound armor      =     new NBTTagCompound();

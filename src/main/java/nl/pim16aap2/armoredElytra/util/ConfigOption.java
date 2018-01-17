@@ -5,11 +5,11 @@ import java.util.List;
 public class ConfigOption
 {
 	private String optionName;
-	List<String> listVal = null;
-	private Integer intVal = null;
-	private Boolean boolVal = null;
-	private String stringVal = null;
-	private String[] comment;
+	List<String> 	listVal     	= null;
+	private Integer 	intVal  		= null;
+	private Boolean 	boolVal 		= null;
+	private String 	stringVal 	= null;
+	private String[]	comment;
 	
 	public ConfigOption(String optionName, int value, String[] comment)
 	{
@@ -75,30 +75,11 @@ public class ConfigOption
 		return string;
 	}
 	
-	public String getName()
-	{
-		return optionName;
-	}
-	
-	public List<String> getStringList()
-	{
-		return listVal;
-	}
-	
-	public int getInt()
-	{
-		return intVal;
-	}
-	
-	public boolean getBool()
-	{
-		return boolVal;
-	}
-	
-	public String getString()
-	{
-		return stringVal;
-	}
+	public String       getName()       { return optionName; }
+	public List<String> getStringList() { return listVal   ; }
+	public int          getInt()        { return intVal    ; }
+	public boolean      getBool()       { return boolVal   ; }
+	public String       getString()     { return stringVal ; }
 
 	public String toString()
 	{

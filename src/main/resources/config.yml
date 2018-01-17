@@ -1,3 +1,7 @@
+
+# Setting this to true will cause armored elytras to be unbreakable.
+unbreakable: false
+
 # Amount of items it takes to fully repair an armored elytra
 # Repair cost for every tier of armored elytra in number of items to repair 100%.
 leatherRepair: 6
@@ -40,3 +44,9 @@ checkForUpdates: true
 
 # Allow this plugin to send (anonymised) stats using bStats.
 allowStats: true
+
+# Setting this to true will disable this plugin and remove any armored elytras it can find.
+# It will check player's inventories and their end chest upon login and any regular chest when it is opened.
+# This means it will take a while for all armored elytras to be removed from your server, but it doesn't take up 
+# a lot of resources, so you can just leave it installed and ignore it.
+uninstall: false
