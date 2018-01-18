@@ -1,6 +1,5 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -71,7 +70,6 @@ public class EventHandlers implements Listener
 			if (Enchantment.getByName(s) != null)
 				if (Enchantment.getByName(s).equals(enchant))
 					return true;
-		
 		return false;
 	}
 	
@@ -81,41 +79,32 @@ public class EventHandlers implements Listener
 		for (String s : cursedEnchantments)
 			if (Enchantment.getByName(s).equals(enchant))
 				return true;
-		
 		return false;
 	}
 	
 	// Copy enchants of 2 items to one item.
 	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player player) 
 	{
-		// Create the resulting item;
-		ItemStack result = new ItemStack(Material.ELYTRA, 1);
+		ItemStack result = itemOne.clone();
 		
-		// Get the enchantments of the first and second item in the anvil.
-		Map<Enchantment, Integer> enchantmentsTemp = itemOne.getEnchantments();
-		Map<Enchantment, Integer> enchantments0    = new HashMap<Enchantment, Integer>();
-		Map<Enchantment, Integer> enchantments1    = itemTwo.getEnchantments();
+		Map<Enchantment, Integer> newEnchantments = itemTwo.getEnchantments();
 		
-		for (Map.Entry<Enchantment, Integer> entry : enchantmentsTemp.entrySet())
-			// Check if the enchantment is allowed or if it is a cursed enchantment while it's allowed.
-			if (isAllowedEnchantment(entry.getKey()) || (cursesAllowed && isCursedEnchantment(entry.getKey())))
-				enchantments0.put(entry.getKey(), entry.getValue());
-
-		// Add the enchantments copied from itemOne to the resulting item.
-		result.addUnsafeEnchantments(enchantments0);
+		for (Map.Entry<Enchantment, Integer> entry : result.getEnchantments().entrySet())
+			if (isAllowedEnchantment(entry.getKey()) == false && (cursesAllowed && isCursedEnchantment(entry.getKey())) == false)
+				result.removeEnchantment(entry.getKey());
 		
-		// Enchants from enchanted books have to be access in a different way.
+		// Enchants from enchanted books have to be accessed in a different way.
 		if (itemTwo.getType() == Material.ENCHANTED_BOOK && (nbtEditor.getArmorTier(itemOne) != ArmorTier.NONE)) 
 		{
 			EnchantmentStorageMeta meta = (EnchantmentStorageMeta)itemTwo.getItemMeta();
-			enchantments1 = meta.getStoredEnchants();
+			newEnchantments = meta.getStoredEnchants();
 		}
 		
 		// Copy enchantments from item1 to result.
-		if (enchantments1!=null) 
+		if (newEnchantments!=null) 
 		{
 			// Loop through the enchantments of item1.
-			for (Map.Entry<Enchantment, Integer > entry : enchantments1.entrySet()) 
+			for (Map.Entry<Enchantment, Integer > entry : newEnchantments.entrySet()) 
 			{
 				// If the enchantment is a curse and if the result does not already have it.
 				if (isCursedEnchantment(entry.getKey()) && !result.containsEnchantment(entry.getKey())) 
@@ -129,10 +118,10 @@ public class EventHandlers implements Listener
 					int enchantLevel = entry.getValue();
 					// If item0 and item1 both have the same enchantment at the same level, result has level+1.
 					// If item0 and item1 both have the same enchantment at different levels, give the highest level to result.
-					if (enchantments0 != null) 
+					if (newEnchantments != null) 
 					{
 						// Loop through the enchantments of item0 (which are already on the result).
-						for (Map.Entry<Enchantment, Integer > rentry : enchantments0.entrySet()) 
+						for (Map.Entry<Enchantment, Integer > rentry : newEnchantments.entrySet()) 
 						{
 							if (entry.getKey().getName() == rentry.getKey().getName()) 
 							{
@@ -177,6 +166,21 @@ public class EventHandlers implements Listener
 		result.setDurability((short) (newDurability <= 0 ? 0 : newDurability));
 		return result;
 	}
+	
+	public boolean verifyEnchants(Map<Enchantment, Integer> enchantments)
+	{
+		for (Map.Entry<Enchantment, Integer > entry : enchantments.entrySet()) 
+		{
+			// If it's a cursed enchantment, while it's not allowed, it's false.
+			if (isCursedEnchantment(entry.getKey()))
+				if (!cursesAllowed)
+					return false;
+			// If the enchantment is not allowed, it's false.
+			else if (!isAllowedEnchantment(entry.getKey())) 
+				return false;
+		}
+		return true;
+	}
 	 
 	// Handle the anvil related parts.
 	@EventHandler
@@ -198,7 +202,7 @@ public class EventHandlers implements Listener
 				}
 				catch (ClassCastException exception)
 				{
-					// Print warning to console and exit onInventoryClick event (no support for custom inventories as they are usually used for GUI's)).
+					// Print warning to console and exit onInventoryClick event (no support for custom inventories as they are usually used for GUI's).
 					plugin.debugMsg(Level.WARNING, "Could not cast inventory to anvilInventory for player " + p.getName() + "! Armored Elytras cannot be crafted!");
 					return;
 				}
@@ -209,7 +213,8 @@ public class EventHandlers implements Listener
 				{
 					// If there is an elytra in the final slot (it is unenchantable by default, so we can reasonably expect it to be an enchanted elytra)
 					// and the player selects it, let the player transfer it to their inventory.
-					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null) 
+					// Verify the end result first, to prevent glitches. If the end result is invalid, remove the item and update the player's inventory.
+					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null && verifyEnchants(anvilInventory.getItem(2).getEnchantments())) 
 					{
 						if (e.isShiftClick()) 
 							p.getInventory().addItem(anvilInventory.getItem(2));
@@ -217,6 +222,11 @@ public class EventHandlers implements Listener
 							p.setItemOnCursor(anvilInventory.getItem(2));
 						// Clean the anvil's inventory after transferring the items.
 						cleanAnvil(anvilInventory);
+					}
+					else
+					{
+						anvilInventory.getItem(2).setAmount(0);
+						p.updateInventory();
 					}
 				}
 				
@@ -295,21 +305,20 @@ public class EventHandlers implements Listener
 								// Put the created item in the second slot of the anvil.
 				                	if (result!=null) 
 				                	{
-					                	if (itemB.getType() == Material.LEATHER_CHESTPLATE       ||
-					                			itemB.getType() == Material.GOLD_CHESTPLATE      ||
-					                			itemB.getType() == Material.CHAINMAIL_CHESTPLATE ||
-					                			itemB.getType() == Material.IRON_CHESTPLATE      ||
-					                			itemB.getType() == Material.DIAMOND_CHESTPLATE)
-				                		{
+					                	if (itemB.getType() 		== Material.LEATHER_CHESTPLATE  	||
+					                			itemB.getType() 	== Material.GOLD_CHESTPLATE     	||
+					                			itemB.getType() 	== Material.CHAINMAIL_CHESTPLATE	||
+					                			itemB.getType() 	== Material.IRON_CHESTPLATE     	||
+					                			itemB.getType() 	== Material.DIAMOND_CHESTPLATE)
 				                			// Add the NBT Tags for the elytra, to give it diamond_chestplate tier of armor protection.
 					                		result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
-				                		} 
 					                	else if ((nbtEditor.getArmorTier(itemA) 	!= ArmorTier.NONE) && 
 					                			 (nbtEditor.getArmorTier(result)	!= ArmorTier.NONE))
 				                		{
 				                			armorTier = nbtEditor.getArmorTier(itemA);
 				                			result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
 				                		}
+//					                	result.setItemMeta(itemMeta)
 									anvilInventory.setItem(2, result);
 				                	}
 			                	}

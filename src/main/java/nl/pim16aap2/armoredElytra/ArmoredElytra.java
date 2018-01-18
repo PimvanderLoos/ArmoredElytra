@@ -56,11 +56,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		// Check if the plugin should go into uninstall mode.
 		uninstallMode = config.getBool("uninstallMode");
 		
-
-		getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor, uninstallMode));
-		
-		
-		
 		// Check if the user allows checking for updates. 
 		if (config.getBool("checkForUpdates"))
 		{	
@@ -111,11 +106,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		if (compatibleMCVer()) 
 		{
 			Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor), this);
+			getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor, uninstallMode));
 		} 
-		else 
-		{
+		else
 			myLogger(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft!");
-		}
 		
 		
 		
@@ -123,8 +117,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		// Load the plugin normally if not in uninstall mode.
 		if (!uninstallMode)
 		{
-			
-			
 			// Check if the user wants to disable durability penalty for flying with an armored elytra.
 			if (config.getBool("noFlightDurability"))
 			{
@@ -137,9 +129,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			// Log all allowed enchantments.
 			myLogger(Level.INFO, ("Allowed enchantments:"));
 			for (String s : config.getStringList("allowedEnchantments"))
-			{
 				myLogger(Level.INFO, " - " + s);
-			}
 			// Log whether or not curses are allowed.
 			myLogger(Level.INFO, "Curses on armored elytras are " + (config.getBool("allowCurses") ? "" : "not " + "allowed!"));
 		} 
