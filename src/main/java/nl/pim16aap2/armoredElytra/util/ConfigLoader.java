@@ -69,7 +69,8 @@ public class ConfigLoader
 	    	{"Setting this to true will disable this plugin and remove any armored elytras it can find.",
 		 "It will check player's inventories and their end chest upon login and any regular chest when it is opened.",
 		 "This means it will take a while for all armored elytras to be removed from your server, but it doesn't take up ",
-		 "a lot of resources, so you can just leave it installed and ignore it."};
+		 "a lot of resources, so you can just leave it installed and ignore it.",
+		 "Please do not forget to MAKE A BACKUP before enabling this option!"};
 	
 	private ArrayList<ConfigOption> configOptionsList;
     private ArmoredElytra plugin;

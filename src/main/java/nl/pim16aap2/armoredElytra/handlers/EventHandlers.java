@@ -221,9 +221,14 @@ public class EventHandlers implements Listener
 					// Verify the end result first, to prevent glitches. If the end result is invalid, remove the item and update the player's inventory.
 					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && 
 							anvilInventory.getItem(0) != null && 
-							anvilInventory.getItem(1) != null && 
-							verifyEnchants(anvilInventory.getItem(2).getEnchantments())) 
+							anvilInventory.getItem(1) != null) 
 					{
+						if (!verifyEnchants(anvilInventory.getItem(2).getEnchantments()))
+						{
+							anvilInventory.getItem(2).setAmount(0);
+							p.updateInventory();
+							return;
+						}
 						// If the elytra is armored with any tier other than leather and the other item is leather, remove the elytra.
 						if ((nbtEditor.getArmorTier(anvilInventory.getItem(0))   	!= ArmorTier.LEATHER 	|| 
 								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.LEATHER)	&&
@@ -242,11 +247,6 @@ public class EventHandlers implements Listener
 							p.setItemOnCursor(anvilInventory.getItem(2));
 						// Clean the anvil's inventory after transferring the items.
 						cleanAnvil(anvilInventory);
-					}
-					else
-					{
-						anvilInventory.getItem(2).setAmount(0);
-						p.updateInventory();
 					}
 				}
 				
