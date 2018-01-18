@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -233,7 +232,6 @@ public class EventHandlers implements Listener
 							(nbtEditor.getArmorTier(anvilInventory.getItem(0)) 	!= ArmorTier.NONE     	|| 
 								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.NONE))
 						{
-							Bukkit.broadcastMessage("Nope");
 							anvilInventory.getItem(2).setAmount(0);
 							p.updateInventory();
 							return;
@@ -375,7 +373,6 @@ public class EventHandlers implements Listener
 			}
 		}
 	}
-
 	
 	// Check if the player tries to equip armor by richt clicking it.
 	@SuppressWarnings("deprecation")
