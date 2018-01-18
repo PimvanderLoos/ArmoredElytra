@@ -13,12 +13,11 @@ public enum ArmorTier
 	IRON     (6              , 0                   , ChatColor.GRAY      , "Iron"     ),
 	DIAMOND  (8              , 2                   , ChatColor.AQUA      , "Diamond"  );
 	
-    private int armor;
-	private int toughness;
+    private int       armor;
+	private int   toughness;
 	private ChatColor color;
-	private String name;
+	private String     name;
 
-	// Create a new chip with the given face and suit
     private ArmorTier (int armor, int toughness, ChatColor color, String name) 
     {
         this.armor     = armor;
@@ -38,10 +37,4 @@ public enum ArmorTier
     
     // return the name of a tier.
     public static String getArmorName (ArmorTier item) { return item.name;      }
-
-	public static ArmorTier tierFromMat(Material type)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -88,10 +89,6 @@ public class EventHandlers implements Listener
 		ItemStack result = itemOne.clone();
 		
 		Map<Enchantment, Integer> newEnchantments = itemTwo.getEnchantments();
-		
-		for (Map.Entry<Enchantment, Integer> entry : result.getEnchantments().entrySet())
-			if (isAllowedEnchantment(entry.getKey()) == false && (cursesAllowed && isCursedEnchantment(entry.getKey())) == false)
-				result.removeEnchantment(entry.getKey());
 		
 		// Enchants from enchanted books have to be accessed in a different way.
 		if (itemTwo.getType() == Material.ENCHANTED_BOOK && (nbtEditor.getArmorTier(itemOne) != ArmorTier.NONE)) 
@@ -181,6 +178,15 @@ public class EventHandlers implements Listener
 		}
 		return true;
 	}
+	
+	public ItemStack fixEnchants(ItemStack item) 
+	{
+		ItemStack result = item.clone();
+		for (Map.Entry<Enchantment, Integer> entry : result.getEnchantments().entrySet())
+			if (isAllowedEnchantment(entry.getKey()) == false && (cursesAllowed && isCursedEnchantment(entry.getKey())) == false)
+				result.removeEnchantment(entry.getKey());
+		return result;
+	}
 	 
 	// Handle the anvil related parts.
 	@EventHandler
@@ -214,9 +220,25 @@ public class EventHandlers implements Listener
 					// If there is an elytra in the final slot (it is unenchantable by default, so we can reasonably expect it to be an enchanted elytra)
 					// and the player selects it, let the player transfer it to their inventory.
 					// Verify the end result first, to prevent glitches. If the end result is invalid, remove the item and update the player's inventory.
-					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null && verifyEnchants(anvilInventory.getItem(2).getEnchantments())) 
+					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && 
+							anvilInventory.getItem(0) != null && 
+							anvilInventory.getItem(1) != null && 
+							verifyEnchants(anvilInventory.getItem(2).getEnchantments())) 
 					{
-						if (e.isShiftClick()) 
+						// If the elytra is armored with any tier other than leather and the other item is leather, remove the elytra.
+						if ((nbtEditor.getArmorTier(anvilInventory.getItem(0))   	!= ArmorTier.LEATHER 	|| 
+								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.LEATHER)	&&
+							(anvilInventory.getItem(0).getType() 	== Material.LEATHER              	|| 
+								anvilInventory.getItem(1).getType() 	== Material.LEATHER)                	&&
+							(nbtEditor.getArmorTier(anvilInventory.getItem(0)) 	!= ArmorTier.NONE     	|| 
+								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.NONE))
+						{
+							Bukkit.broadcastMessage("Nope");
+							anvilInventory.getItem(2).setAmount(0);
+							p.updateInventory();
+							return;
+						}
+						else if (e.isShiftClick()) 
 							p.getInventory().addItem(anvilInventory.getItem(2));
 						else 
 							p.setItemOnCursor(anvilInventory.getItem(2));
@@ -238,10 +260,10 @@ public class EventHandlers implements Listener
 		            		ItemStack itemA = anvilInventory.getItem(0);
 						ItemStack itemB = anvilInventory.getItem(1);
         					ItemStack result = null;
-						if (itemB != null)
+						if (itemA != null && itemB != null)
 						{
-							// If itemB is the elytra, switch itemA and itemB.
-							if (itemB.getType() == Material.ELYTRA)
+							// If itemB is the elytra, while itemA isn't, switch itemA and itemB.
+							if (itemB.getType() == Material.ELYTRA && itemA.getType() != Material.ELYTRA)
 							{
 								result = itemA;
 								itemA  = itemB;
@@ -258,12 +280,16 @@ public class EventHandlers implements Listener
 			                	{
 			                		ArmorTier armorTier = ArmorTier.NONE;
 			                		ArmorTier currentArmorTier = nbtEditor.getArmorTier(itemA);
+			                		
+			                		if (currentArmorTier == ArmorTier.NONE && itemB.getType() == Material.LEATHER)
+			                			return;
+			                		
 			                		// Check if the second input slot contains a diamond chestplate.
-				                	if (itemB.getType() == Material.LEATHER_CHESTPLATE   ||
-			                			itemB.getType() == Material.GOLD_CHESTPLATE      ||
-			                			itemB.getType() == Material.CHAINMAIL_CHESTPLATE ||
-			                			itemB.getType() == Material.IRON_CHESTPLATE      ||
-			                			itemB.getType() == Material.DIAMOND_CHESTPLATE) 
+			                		else if (itemB.getType()	== Material.LEATHER_CHESTPLATE  	||
+			                				 itemB.getType()	== Material.GOLD_CHESTPLATE     	||
+			                				 itemB.getType()	== Material.CHAINMAIL_CHESTPLATE	||
+			                				 itemB.getType()	== Material.IRON_CHESTPLATE     	||
+			                				 itemB.getType()	== Material.DIAMOND_CHESTPLATE) 
 				                	{
 				                		// Combine the enchantments of the two items in the input slots.
 				                		result = addEnchants(itemA, itemB, p);
@@ -297,11 +323,23 @@ public class EventHandlers implements Listener
 				                	// Check if it is an enchanted book for itemB.
 				                	else if (itemB.getType() == Material.ENCHANTED_BOOK)
 				                		result = addEnchants(itemA, itemB, p);
+				                	
+				                	// If itemA and itemB are both armored elytras of the same armor tier, repair + share enchantments
+				                	else if (itemB.getType() == Material.ELYTRA)
+				                	{
+				                		if (nbtEditor.getArmorTier(itemB) != ArmorTier.NONE && nbtEditor.getArmorTier(itemA) == nbtEditor.getArmorTier(itemB))
+				                		{
+				                			result = addEnchants(itemA, itemB, p);
+					                		short durability = (short) (- itemA.getType().getMaxDurability() - itemA.getDurability() - itemB.getDurability());
+					                		durability = durability < 0 ? 0 : durability;
+				                			result.setDurability(durability);
+				                		}
+				                	}
 
 				                	// Otherwise, remove the item in the result slot (slot2).
 				                	else if (anvilInventory.getItem(2) != null)
 			                			anvilInventory.getItem(2).setAmount(0);
-
+				                	
 								// Put the created item in the second slot of the anvil.
 				                	if (result!=null) 
 				                	{
@@ -310,7 +348,7 @@ public class EventHandlers implements Listener
 					                			itemB.getType() 	== Material.CHAINMAIL_CHESTPLATE	||
 					                			itemB.getType() 	== Material.IRON_CHESTPLATE     	||
 					                			itemB.getType() 	== Material.DIAMOND_CHESTPLATE)
-				                			// Add the NBT Tags for the elytra, to give it diamond_chestplate tier of armor protection.
+				                			// Add the NBT Tags for the elytra, to give it armorTier tier of armor protection.
 					                		result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
 					                	else if ((nbtEditor.getArmorTier(itemA) 	!= ArmorTier.NONE) && 
 					                			 (nbtEditor.getArmorTier(result)	!= ArmorTier.NONE))
@@ -318,9 +356,11 @@ public class EventHandlers implements Listener
 				                			armorTier = nbtEditor.getArmorTier(itemA);
 				                			result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
 				                		}
-//					                	result.setItemMeta(itemMeta)
+					                	result = fixEnchants(result);
 									anvilInventory.setItem(2, result);
 				                	}
+				                	else if (anvilInventory.getItem(2) != null)
+			                			anvilInventory.getItem(2).setAmount(0);
 			                	}
 				        }
 				        // Check if either itemA or itemB is unoccupied.
