@@ -1,6 +1,6 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
-version: 2.0.9
+version: 2.1
 author: Pim
 commands:
   ArmoredElytra:
