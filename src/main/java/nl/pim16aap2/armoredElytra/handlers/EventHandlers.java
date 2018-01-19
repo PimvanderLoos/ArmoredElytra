@@ -1,5 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -24,22 +25,23 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
+import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.Util;
 
 public class EventHandlers implements Listener 
 {
-	private int DIAMONDS_TO_FULL;
-	private int LEATHER_TO_FULL;
-	private int GOLD_TO_FULL;
-	private int IRON_TO_FULL;
-	private boolean cursesAllowed; 
-	private NBTEditor nbtEditor;
-	private final ArmoredElytra plugin;
+	private int             DIAMONDS_TO_FULL;
+	private int              LEATHER_TO_FULL;
+	private int                 GOLD_TO_FULL;
+	private int                 IRON_TO_FULL;
+	private boolean            cursesAllowed; 
+	private NBTEditor              nbtEditor;
+	private final ArmoredElytra       plugin;
 	private List<String> allowedEnchantments;
-	private String[] cursedEnchantments  = {"MENDING",
-		    								   "VANISHING_CURSE",
-                                            "BINDING_CURSE"};
+	private String[]     cursedEnchantments = {	"MENDING"			,
+		    								      	"VANISHING_CURSE" 	,
+                                               	"BINDING_CURSE"		};
 	
 	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor) 
 	{
@@ -63,6 +65,12 @@ public class EventHandlers implements Listener
 		anvilInventory.getItem(2).setAmount(0);
 	}
 	
+	// Accessor for this.plugin
+	public ArmoredElytra getPlugin()
+	{
+		return this.plugin;
+	}
+	
 	// Check if the enchantment is allowed on elytras.
 	public boolean isAllowedEnchantment(Enchantment enchant) 
 	{
@@ -82,95 +90,74 @@ public class EventHandlers implements Listener
 		return false;
 	}
 	
-	// Copy enchants of 2 items to one item.
-	public ItemStack addEnchants(ItemStack itemOne, ItemStack itemTwo, Player player) 
+	// Combine 2 maps of enchantments (and remove any invalid ones).
+	public Map<Enchantment, Integer> combineEnchantments(Map<Enchantment, Integer> enchantments0, Map<Enchantment, Integer> enchantments1)
 	{
-		ItemStack result = itemOne.clone();
+		fixEnchantments(enchantments0);
+		Map<Enchantment, Integer> combined = new HashMap<Enchantment, Integer>(enchantments0);
 		
-		Map<Enchantment, Integer> newEnchantments = itemTwo.getEnchantments();
-		
-		// Enchants from enchanted books have to be accessed in a different way.
-		if (itemTwo.getType() == Material.ENCHANTED_BOOK && (nbtEditor.getArmorTier(itemOne) != ArmorTier.NONE)) 
+		if (enchantments1 != null)
 		{
-			EnchantmentStorageMeta meta = (EnchantmentStorageMeta)itemTwo.getItemMeta();
-			newEnchantments = meta.getStoredEnchants();
-		}
-		
-		// Copy enchantments from item1 to result.
-		if (newEnchantments!=null) 
-		{
+			fixEnchantments(enchantments1);
 			// Loop through the enchantments of item1.
-			for (Map.Entry<Enchantment, Integer > entry : newEnchantments.entrySet()) 
+			for (Map.Entry<Enchantment, Integer > entry : enchantments1.entrySet()) 
 			{
+				Integer enchantLevel = enchantments0.get(entry.getKey());
 				// If the enchantment is a curse and if the result does not already have it.
-				if (isCursedEnchantment(entry.getKey()) && !result.containsEnchantment(entry.getKey())) 
+				if (isCursedEnchantment(entry.getKey()) && !enchantments0.containsKey(entry.getKey())) 
+					combined.put(entry.getKey(), entry.getValue());
+				// If the enchantment is already on the list...
+				else if (enchantLevel != null)
 				{
-					// If curses are allowed, apply the curse to the result.
-					if (cursesAllowed)
-						result.addEnchantment(entry.getKey(), entry.getValue());
-				} 
-				else if (isAllowedEnchantment(entry.getKey())) 
-				{
-					int enchantLevel = entry.getValue();
-					// If item0 and item1 both have the same enchantment at the same level, result has level+1.
-					// If item0 and item1 both have the same enchantment at different levels, give the highest level to result.
-					if (newEnchantments != null) 
+					if (entry.getValue() == enchantLevel && entry.getValue() < entry.getKey().getMaxLevel()) 
+						enchantLevel = entry.getValue() + 1;
+					else if (entry.getValue() > enchantLevel) 
+						enchantLevel = entry.getValue();
+					
+					// If the enchantment level has changed, 
+					if (enchantLevel != enchantments0.get(entry.getKey()))
 					{
-						// Loop through the enchantments of item0 (which are already on the result).
-						for (Map.Entry<Enchantment, Integer > rentry : newEnchantments.entrySet()) 
-						{
-							if (entry.getKey().getName() == rentry.getKey().getName()) 
-							{
-								// If they both have the same level of the same enchantment, the result will have that enchantment 1 level higher (if possible).
-								if (entry.getValue() == rentry.getValue() && entry.getValue() < entry.getKey().getMaxLevel()) 
-									enchantLevel = entry.getValue() + 1;
-								else if (entry.getValue() < rentry.getValue()) 
-									enchantLevel = rentry.getValue();
-							}
-						}
+						combined.remove(entry.getKey());
+						combined.put(entry.getKey(), enchantLevel);
 					}
-					result.addUnsafeEnchantment(entry.getKey(), enchantLevel);
 				}
+				else if (enchantLevel == null)
+					combined.put(entry.getKey(), entry.getValue());
 			}
 		}
-		return result;
+		return combined;
 	}
 	
-	// Copy enchants of 2 items to one item.
-	public ItemStack repairItem(ItemStack one, ItemStack two) 
-	{
-		// Create the resulting item.
-		ItemStack result = one.clone();
-		
+	// Repair an Armored Elytra
+	public short repairItem(short curDur, ItemStack repairItem) 
+	{	
 		// Get the multiplier for the repair items.
 		double mult = 0.01;
-		if (two.getType() == Material.LEATHER)
+		if (repairItem.getType() == Material.LEATHER)
 			mult *= (100/LEATHER_TO_FULL);
 
-		else if (two.getType() == Material.GOLD_INGOT)
+		else if (repairItem.getType() == Material.GOLD_INGOT)
 			mult *= (100/GOLD_TO_FULL);
 
-		else if (two.getType() == Material.IRON_INGOT)
+		else if (repairItem.getType() == Material.IRON_INGOT)
 			mult *= (100/IRON_TO_FULL);
 
-		else if (two.getType() == Material.DIAMOND)
+		else if (repairItem.getType() == Material.DIAMOND)
 			mult *= (100/DIAMONDS_TO_FULL);
 
-		int maxDurability = one.getType().getMaxDurability();
-		int durability    = one.getDurability();
-		int newDurability = (int) (durability - (maxDurability * mult));
-		result.setDurability((short) (newDurability <= 0 ? 0 : newDurability));
-		return result;
+		int maxDurability = Material.ELYTRA.getMaxDurability();
+		int newDurability = (int) (curDur - (maxDurability * mult));
+		return (short) (newDurability <= 0 ? 0 : newDurability);
 	}
 	
+	// Check if there aren't any disallowed enchantments / curses in the map.
 	public boolean verifyEnchants(Map<Enchantment, Integer> enchantments)
 	{
 		for (Map.Entry<Enchantment, Integer > entry : enchantments.entrySet()) 
 		{
 			// If it's a cursed enchantment, while it's not allowed, it's false.
-			if (isCursedEnchantment(entry.getKey()))
-				if (!cursesAllowed)
-					return false;
+			if (isCursedEnchantment(entry.getKey()) && !cursesAllowed)
+				return false;
 			// If the enchantment is not allowed, it's false.
 			else if (!isAllowedEnchantment(entry.getKey())) 
 				return false;
@@ -178,7 +165,18 @@ public class EventHandlers implements Listener
 		return true;
 	}
 	
-	public ItemStack fixEnchants(ItemStack item) 
+	// Remove any disallowed enchantments / curses in the map.
+	public Map<Enchantment, Integer> fixEnchantments(Map<Enchantment, Integer> enchantments) 
+	{
+		Map<Enchantment, Integer> ret = new HashMap<Enchantment, Integer>(enchantments);
+		for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
+			if (isAllowedEnchantment(entry.getKey()) == false && (cursesAllowed && isCursedEnchantment(entry.getKey())) == false)
+				ret.remove(entry.getKey());
+		return ret;
+	}
+	
+	// Fix enchantments on an item.
+	public ItemStack fixEnchantments(ItemStack item) 
 	{
 		ItemStack result = item.clone();
 		for (Map.Entry<Enchantment, Integer> entry : result.getEnchantments().entrySet())
@@ -186,7 +184,100 @@ public class EventHandlers implements Listener
 				result.removeEnchantment(entry.getKey());
 		return result;
 	}
-	 
+	
+	// Get the armor tier from a chest plate.
+	public ArmorTier armorToTier(Material item)
+	{
+		ArmorTier ret = ArmorTier.NONE;
+		
+		switch (item)
+		{
+		case LEATHER_CHESTPLATE:
+			ret = ArmorTier.LEATHER;
+			break;
+		case GOLD_CHESTPLATE:
+			ret = ArmorTier.GOLD;
+			break;
+		case CHAINMAIL_CHESTPLATE:
+			ret = ArmorTier.CHAIN;
+			break;
+		case IRON_CHESTPLATE:
+			ret = ArmorTier.IRON;
+			break;
+		case DIAMOND_CHESTPLATE:
+			ret = ArmorTier.DIAMOND;
+			break;
+		default:
+			break;
+		}
+		return ret;
+	}
+	
+	// Check if mat is a chest plate.
+	public boolean isChestPlate(Material mat)
+	{
+		if (mat == Material.LEATHER_CHESTPLATE 	|| mat == Material.GOLD_CHESTPLATE || 
+			mat == Material.CHAINMAIL_CHESTPLATE	|| mat == Material.IRON_CHESTPLATE || 
+			mat == Material.DIAMOND_CHESTPLATE)
+			return true;
+		return false;
+	}
+	
+	/* 
+	 * Valid inputs: 
+	 * 	- Elytra (armored or not) 	+ chestplate				-> Create Armored Elytra
+	 * 	- Elytra (armored)        	+ enchanted book			-> Enchant
+	 * 	- Elytra (armored)        	+ its repair item		-> Repair
+	 * 	- Elytra (armored)        	+ other elytra (armored)	-> Combine (Enchant + Repair)
+	 * 	! Elytra (armored, !leather)	+ leather				-> Block
+	 * 
+	 * Ignoring:
+	 * 	- Elytra (not armored)		+ !chestplate			-> None
+	 * 	- *							+ *						-> None
+	 */
+	public Action isValidInput(ItemStack itemOne, ItemStack itemTwo)
+	{
+		if (itemOne == null || itemTwo == null)
+			return Action.NONE;
+		
+		// If itemTwo is the elytra, while itemOne isn't, switch itemOne and itemTwo.
+		if (itemTwo.getType() == Material.ELYTRA && itemOne.getType() != Material.ELYTRA)
+		{
+			ItemStack tmp = itemOne;
+			itemOne       = itemTwo;
+			itemTwo       = tmp;
+		}
+		
+		Material matTwo = itemTwo.getType();
+		
+		// If the elytra is to be combined with chest armor...
+		if (isChestPlate(matTwo))
+			return Action.CREATE;
+		
+		ArmorTier tier = nbtEditor.getArmorTier(itemOne);
+		
+		if (tier != ArmorTier.NONE)
+		{
+			// If the armored elytra is to be enchanted using an enchanted book...
+			if (matTwo == Material.ENCHANTED_BOOK)
+				return Action.ENCHANT;
+			
+			// If the armored elytra is to be repaired using its repair item...
+			if (ArmorTier.getRepairItem(tier) == matTwo)
+				return Action.REPAIR;
+			
+			// If the armored elytra is to be combined with another armored elytra of the same tier...
+			if (nbtEditor.getArmorTier(itemTwo) == tier)
+				return Action.COMBINE;
+			
+			// If the armored elytra is not of the leather tier, but itemTwo is leather,
+			// Pick the block action, as that would repair the elytra by default (vanilla).
+			if (tier != ArmorTier.LEATHER && matTwo == Material.LEATHER)
+				return Action.BLOCK;
+		}
+		return Action.NONE;
+	}
+	
 	// Handle the anvil related parts.
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) 
@@ -214,49 +305,47 @@ public class EventHandlers implements Listener
 				
 				int slot = e.getRawSlot(); // Get slot 				
 				
-				if (slot == 2 && anvilInventory.getItem(2) != null) 
+				if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null && anvilInventory.getItem(2) != null) 
 				{
-					// If there is an elytra in the final slot (it is unenchantable by default, so we can reasonably expect it to be an enchanted elytra)
-					// and the player selects it, let the player transfer it to their inventory.
-					// Verify the end result first, to prevent glitches. If the end result is invalid, remove the item and update the player's inventory.
-					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && 
-							anvilInventory.getItem(0) != null && 
-							anvilInventory.getItem(1) != null) 
+					// If there's an armored elytra in the final slot...
+					if (anvilInventory.getItem(2).getType() == Material.ELYTRA && nbtEditor.getArmorTier(anvilInventory.getItem(2)) != ArmorTier.NONE) 
 					{
-						if (!verifyEnchants(anvilInventory.getItem(2).getEnchantments()))
+						Action action = isValidInput(anvilInventory.getItem(0), anvilInventory.getItem(1));
+						// If there is no action to be taken, take no action...
+						if (action == Action.NONE) 
+							return;
+						// If the action is to block... Well, Block! (get rid of the end result!)
+						// Also check if there are any disallowed enchantments/curses on the result, delete the result.
+						if (action == Action.BLOCK)
 						{
-							anvilInventory.getItem(2).setAmount(0);
+							// Send message to player that the recipe is invalid, as clearing the inventory doesn't work properly.
+							plugin.messagePlayer(p, ChatColor.RED, "Invalid recipe!");
+							anvilInventory.setItem(2, null);
+							anvilInventory.clear(2);
+							p.updateInventory();
+							p.updateInventory();
 							p.updateInventory();
 							return;
 						}
-						// If the elytra is armored with any tier other than leather and the other item is leather, remove the elytra.
-						if ((nbtEditor.getArmorTier(anvilInventory.getItem(0))   	!= ArmorTier.LEATHER 	|| 
-								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.LEATHER)	&&
-							(anvilInventory.getItem(0).getType() 	== Material.LEATHER              	|| 
-								anvilInventory.getItem(1).getType() 	== Material.LEATHER)                	&&
-							(nbtEditor.getArmorTier(anvilInventory.getItem(0)) 	!= ArmorTier.NONE     	|| 
-								nbtEditor.getArmorTier(anvilInventory.getItem(1))	!= ArmorTier.NONE))
-						{
-							anvilInventory.getItem(2).setAmount(0);
-							p.updateInventory();
-							return;
-						}
-						else if (e.isShiftClick()) 
-							p.getInventory().addItem(anvilInventory.getItem(2));
+						
+						// Give the result to the player and clear the anvil's inventory.
+						if (e.isShiftClick()) 
+							p.getInventory().addItem(fixEnchantments(anvilInventory.getItem(2)));
 						else 
-							p.setItemOnCursor(anvilInventory.getItem(2));
+							p.setItemOnCursor(fixEnchantments(anvilInventory.getItem(2)));
 						// Clean the anvil's inventory after transferring the items.
 						cleanAnvil(anvilInventory);
+						return;
 					}
 				}
 				
 		        new BukkitRunnable() 
 		        {
-		            @Override
+					@Override
 	                public void run() 
 	                {
-		            		ItemStack itemA = anvilInventory.getItem(0);
-						ItemStack itemB = anvilInventory.getItem(1);
+		            		ItemStack itemA  = anvilInventory.getItem(0);
+						ItemStack itemB  = anvilInventory.getItem(1);
         					ItemStack result = null;
 						if (itemA != null && itemB != null)
 						{
@@ -273,94 +362,52 @@ public class EventHandlers implements Listener
 		            		// Check if there are items in both input slots.
 				        if (itemA != null && itemB != null) 
 				        {
-			                	// Check if the first input slot contains an elytra.
-			                	if (itemA.getType() == Material.ELYTRA) 
-			                	{
-			                		ArmorTier armorTier = ArmorTier.NONE;
-			                		ArmorTier currentArmorTier = nbtEditor.getArmorTier(itemA);
-			                		
-			                		if (currentArmorTier == ArmorTier.NONE && itemB.getType() == Material.LEATHER)
-			                			return;
-			                		
-			                		// Check if the second input slot contains a diamond chestplate.
-			                		else if (itemB.getType()	== Material.LEATHER_CHESTPLATE  	||
-			                				 itemB.getType()	== Material.GOLD_CHESTPLATE     	||
-			                				 itemB.getType()	== Material.CHAINMAIL_CHESTPLATE	||
-			                				 itemB.getType()	== Material.IRON_CHESTPLATE     	||
-			                				 itemB.getType()	== Material.DIAMOND_CHESTPLATE) 
-				                	{
-				                		// Combine the enchantments of the two items in the input slots.
-				                		result = addEnchants(itemA, itemB, p);
-				                		
-				                		if (itemB.getType() == Material.LEATHER_CHESTPLATE)
-				                			armorTier = ArmorTier.LEATHER;
-				                		else if (itemB.getType() == Material.GOLD_CHESTPLATE)
-				                			armorTier = ArmorTier.GOLD;
-				                		else if (itemB.getType() == Material.CHAINMAIL_CHESTPLATE)
-				                			armorTier = ArmorTier.CHAIN;
-				                		else if (itemB.getType() == Material.IRON_CHESTPLATE)
-				                			armorTier = ArmorTier.IRON;
-				                		else if (itemB.getType() == Material.DIAMOND_CHESTPLATE)
-				                			armorTier = ArmorTier.DIAMOND;
-				                		
-				                		short durability = (short) (- itemA.getType().getMaxDurability() - itemA.getDurability() - itemB.getDurability());
-				                		durability = durability < 0 ? 0 : durability;
-			                			result.setDurability(durability);
-				                	} 
-								// If the player tries to repair an armored elytra. Check if the armor tier and the repair item match.
-				                	// If the repair item is leather it can only repair 
-				                	else if ((itemB.getType() == Material.LEATHER    && currentArmorTier == ArmorTier.LEATHER) || 
-			                			    	 (itemB.getType() == Material.GOLD_INGOT && currentArmorTier == ArmorTier.GOLD   ) || 
-			                			    	 (itemB.getType() == Material.IRON_INGOT && currentArmorTier == ArmorTier.IRON   ) || 
-			                			    	 (itemB.getType() == Material.IRON_INGOT && currentArmorTier == ArmorTier.CHAIN  ) || 
-			                			    	 (itemB.getType() == Material.DIAMOND    && currentArmorTier == ArmorTier.DIAMOND)) 
-				                	{
-				                		// Repair the item in the first input slot with items from the second input slot.
-				                		result = repairItem(itemA, itemB);
-				                	}
-				                	// Check if it is an enchanted book for itemB.
-				                	else if (itemB.getType() == Material.ENCHANTED_BOOK)
-				                		result = addEnchants(itemA, itemB, p);
-				                	
-				                	// If itemA and itemB are both armored elytras of the same armor tier, repair + share enchantments
-				                	else if (itemB.getType() == Material.ELYTRA)
-				                	{
-				                		if (nbtEditor.getArmorTier(itemB) != ArmorTier.NONE && nbtEditor.getArmorTier(itemA) == nbtEditor.getArmorTier(itemB))
-				                		{
-				                			result = addEnchants(itemA, itemB, p);
-					                		short durability = (short) (- itemA.getType().getMaxDurability() - itemA.getDurability() - itemB.getDurability());
-					                		durability = durability < 0 ? 0 : durability;
-				                			result.setDurability(durability);
-				                		}
-				                	}
-
-				                	// Otherwise, remove the item in the result slot (slot2).
-				                	else if (anvilInventory.getItem(2) != null)
-			                			anvilInventory.getItem(2).setAmount(0);
-				                	
-								// Put the created item in the second slot of the anvil.
-				                	if (result!=null) 
-				                	{
-					                	if (itemB.getType() 		== Material.LEATHER_CHESTPLATE  	||
-					                			itemB.getType() 	== Material.GOLD_CHESTPLATE     	||
-					                			itemB.getType() 	== Material.CHAINMAIL_CHESTPLATE	||
-					                			itemB.getType() 	== Material.IRON_CHESTPLATE     	||
-					                			itemB.getType() 	== Material.DIAMOND_CHESTPLATE)
-				                			// Add the NBT Tags for the elytra, to give it armorTier tier of armor protection.
-					                		result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
-					                	else if ((nbtEditor.getArmorTier(itemA) 	!= ArmorTier.NONE) && 
-					                			 (nbtEditor.getArmorTier(result)	!= ArmorTier.NONE))
-				                		{
-				                			armorTier = nbtEditor.getArmorTier(itemA);
-				                			result = nbtEditor.addArmorNBTTags(result, armorTier, plugin.getConfigLoader().getBool("unbreakable"));
-				                		}
-					                	result = fixEnchants(result);
-									anvilInventory.setItem(2, result);
-				                	}
-				                	else if (anvilInventory.getItem(2) != null)
-			                			anvilInventory.getItem(2).setAmount(0);
-			                	}
+				        		Action action     	= isValidInput(itemA, itemB);
+				        		ArmorTier newTier 	= ArmorTier.NONE;
+				        		ArmorTier curTier 	= nbtEditor.getArmorTier(itemA);
+				        		short durability  	= 0;
+				        		Map<Enchantment, Integer> enchantments = itemA.getEnchantments();
+				        		enchantments			= fixEnchantments(enchantments);
+				        		
+				        		switch (action)
+				        		{
+				        		case REPAIR:
+				        			newTier 			= curTier;
+				        			durability		= repairItem(itemA.getDurability(), itemB);
+				        			break;
+				        		case ENCHANT:
+				        			EnchantmentStorageMeta meta 	= (EnchantmentStorageMeta) itemB.getItemMeta();
+				        			newTier 			= curTier;
+				        			durability		= itemA.getDurability();
+				        			enchantments 	= combineEnchantments(enchantments, meta.getStoredEnchants());
+				        			break;
+				        		case COMBINE:
+				        			newTier 			= curTier;
+				        			durability    	= (short) (- itemA.getType().getMaxDurability() - itemA.getDurability() - itemB.getDurability());
+				        			durability 		= durability < 0 ? 0 : durability;
+			                		enchantments 	= combineEnchantments(enchantments, itemB.getEnchantments());
+				        			break;
+				        		case CREATE:
+				        			newTier 			= armorToTier(itemB.getType());
+				        			durability 		= 0;
+				        			enchantments 	= combineEnchantments(enchantments, itemB.getEnchantments());
+				        			break;
+				        		case BLOCK:
+				        			if (anvilInventory.getItem(2) != null)
+				        				anvilInventory.getItem(2).setAmount(0);
+								p.updateInventory();
+				        		case NONE:
+				        			return;
+				        		}
+				        		
+					        	result = new ItemStack(Material.ELYTRA, 1);
+					        	if (enchantments != null)
+					        		result.addUnsafeEnchantments(enchantments);
+					        	result.setDurability(durability);
+					        	result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().getBool("unbreakable"));
+					        	anvilInventory.setItem(2, result);
 				        }
+				        
 				        // Check if either itemA or itemB is unoccupied.
 				        if (itemA == null || itemB == null) 
 				        		// If Item2 is occupied despite Item1 not being occupied.
@@ -470,7 +517,7 @@ public class EventHandlers implements Listener
 						    		Random r            = new Random();
 						    		int randomInt       = r.nextInt(101);
 						    		int enchantLevel    = p.getInventory().getChestplate().getEnchantmentLevel(Enchantment.DURABILITY);
-						    		int durabilityDelta = (100/(enchantLevel+1)) < randomInt ? 0 : 1;
+						    		int durabilityDelta = (100 / (enchantLevel + 1)) < randomInt ? 0 : 1;
 						    		if (durability >= maxDurability) 
 									Util.unenquipChestPlayer(p);
 						    		else 
