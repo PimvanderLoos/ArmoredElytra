@@ -17,9 +17,9 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
 public class NBTEditor_V1_12_R1 implements NBTEditor 
 {
-	String elytraName;
-	String elytraLore;
-	ArmoredElytra plugin;
+	private String elytraName;
+	private String elytraLore;
+	private ArmoredElytra plugin;
 	
 	// Get the names and lores for every tier of armor.
 	public NBTEditor_V1_12_R1(String elytraName, String elytraLore, ArmoredElytra plugin)

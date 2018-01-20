@@ -9,6 +9,21 @@ goldRepair: 5
 ironRepair: 4
 diamondsRepair: 3
 
+# Name colors for every tier.
+leatherColor:
+goldColor:
+chainColor:
+ironColor:
+diamondColor:
+
+# Name for every tier:
+leather:
+gold: 
+chain: 
+iron: 
+diamond: 
+
+
 # Will curses (vanishing, binding) be transferred when creating armored elytras?
 allowCurses: true
 

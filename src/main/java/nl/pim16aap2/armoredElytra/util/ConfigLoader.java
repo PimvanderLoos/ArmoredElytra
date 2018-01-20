@@ -137,14 +137,12 @@ public class ConfigLoader
 		{
 			File dataFolder = plugin.getDataFolder();
 			if (!dataFolder.exists())
-			{
 				dataFolder.mkdir();
-			}
+
 			File saveTo = new File(plugin.getDataFolder(), "config.yml");
 			if (!saveTo.exists())
-			{
 				saveTo.createNewFile();
-			} else
+			else
 			{
 				saveTo.delete();
 				saveTo.createNewFile();
@@ -159,7 +157,7 @@ public class ConfigLoader
 			pw.close();
 		} catch (IOException e)
 		{
-			Bukkit.getLogger().log(Level.SEVERE, "Could not save config.yml! Please contact the author and attach the following code:");
+			Bukkit.getLogger().log(Level.SEVERE, "Could not save config.yml! Please contact pim16aap2 and show him the following code:");
 			e.printStackTrace();
 		}
 	}
@@ -167,42 +165,32 @@ public class ConfigLoader
 	public Integer getInt(String path)
 	{
 		for (ConfigOption configOption : configOptionsList)
-		{
 			if (configOption.getName().equals(path))
 				return configOption.getInt();
-		}
 		return null;
 	}
 	
 	public Boolean getBool(String path)
 	{
 		for (ConfigOption configOption : configOptionsList)
-		{
 			if (configOption.getName().equals(path))
 				return configOption.getBool();
-		}
 		return null;
 	}
 	
 	public String getString(String path)
 	{
 		for (ConfigOption configOption : configOptionsList)
-		{
 			if (configOption.getName().equals(path))
 				return configOption.getString();
-		}
 		return null;
 	}
 	
 	public List<String> getStringList(String path)
 	{
 		for (ConfigOption configOption : configOptionsList)
-		{
 			if (configOption.getName().equals(path))
-			{
 				return configOption.getStringList();
-			}
-		}
 		return null;
 	}
 }
