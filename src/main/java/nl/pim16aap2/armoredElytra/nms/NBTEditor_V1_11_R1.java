@@ -78,7 +78,9 @@ public class NBTEditor_V1_11_R1 implements NBTEditor
 	// Get the armor tier of the supplied item.
 	@Override
 	public ArmorTier getArmorTier(ItemStack item)
-	{		
+	{
+		if (item == null)
+			return ArmorTier.NONE;
 		if (item.getType() != Material.ELYTRA)
 			return ArmorTier.NONE;
 		

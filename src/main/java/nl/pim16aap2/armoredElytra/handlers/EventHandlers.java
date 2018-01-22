@@ -1,17 +1,13 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryAnvil;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,9 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.minecraft.server.v1_12_R1.ContainerAnvil;
-import net.minecraft.server.v1_12_R1.Container;
-import net.minecraft.server.v1_12_R1.ContainerDispenser;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
@@ -390,8 +383,8 @@ public class EventHandlers implements Listener
         }
         
         // Check if either itemA or itemB is unoccupied.
-        if (itemA == null || itemB == null) 
-        		// If Item2 is occupied despite itemA or itemB not being occupied.
+        if ((itemA == null || itemB == null) && nbtEditor.getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE) 
+        		// If Item2 is occupied despite itemA or itemB not being occupied. (only for armored elytra)/
         		event.setResult(null);
 		p.updateInventory();
 	}

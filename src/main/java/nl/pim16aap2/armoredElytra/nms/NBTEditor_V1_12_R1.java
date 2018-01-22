@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.nms;
 import java.util.Arrays;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -77,7 +78,12 @@ public class NBTEditor_V1_12_R1 implements NBTEditor
 	// Get the armor tier of the supplied item.
 	@Override
 	public ArmorTier getArmorTier(ItemStack item)
-	{		
+	{
+		if (item == null)
+			return ArmorTier.NONE;
+		if (item.getType() != Material.ELYTRA)
+			return ArmorTier.NONE;
+		
 		// Get the NBT tags from the item.
 		NBTTagCompound compound = CraftItemStack.asNMSCopy(item).getTag();
 		if (compound == null)

@@ -26,32 +26,32 @@ import nl.pim16aap2.armoredElytra.util.Update;
  
 public class ArmoredElytra extends JavaPlugin implements Listener 
 {
-	private NBTEditor    nbtEditor;
-	private ConfigLoader config;
+	private NBTEditor          nbtEditor;
+	private ConfigLoader          config;
 
-	private String       usageDeniedMessage;
-	private String       elytraReceivedMessage;
-	private String       elytraName;
-	private String       elytraLore;
-	private boolean      upToDate;
-	private boolean      uninstallMode;
+	private String    usageDeniedMessage;
+	private String elytraReceivedMessage;
+	private String            elytraName;
+	private String            elytraLore;
+	private boolean             upToDate;
+	private boolean        uninstallMode;
 	
 	@Override
     public void onEnable()
 	{
 		// Load the settings from the config file.
-		config                = new ConfigLoader(this);
+		config                   = new ConfigLoader(this);
 
 		// Replace color codes by the corresponding colors.
-		usageDeniedMessage    = config.getString("usageDeniedMessage"   ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-		elytraReceivedMessage = config.getString("elytraReceivedMessage").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-		elytraName            = config.getString("elytraName"           ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-		elytraLore            = config.getString("elytraLore"           ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		usageDeniedMessage       = config.getString("usageDeniedMessage"      ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraReceivedMessage    = config.getString("elytraReceivedMessage"   ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraName               = config.getString("elytraName"              ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+		elytraLore               = config.getString("elytraLore"              ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
 		
 		// Change the string to null if it says "NONE".
-		usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage   );
-		elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
-		elytraLore            = (Objects.equals(elytraLore,            new String("NONE")) ? null : elytraLore           );
+		usageDeniedMessage       = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage   );
+		elytraReceivedMessage    = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
+		elytraLore               = (Objects.equals(elytraLore,            new String("NONE")) ? null : elytraLore           );
 		
 		// Check if the plugin should go into uninstall mode.
 		uninstallMode = config.getBool("uninstallMode");
@@ -69,6 +69,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			if (updateStatus > 0)
 			{
 				// TODO: Insert download link to latest version.
+				// TODO: Use Spiget instead of the unreliable BukkitDev's update stuff?
 				// TODO: Add auto update option?
 				
 				// Load the loginHandler to show messages to the user when they join.
@@ -91,13 +92,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		// Are stats allowed?
 		if (config.getBool("allowStats"))
 		{
-			myLogger(Level.INFO, "Enabling stats!");
+			myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
 			@SuppressWarnings("unused")
 			Metrics metrics = new Metrics(this);
 		} 
 		else 
 			// Y u do dis? :(
-			myLogger(Level.INFO, "Stats disabled, not laoding stats :(");
+			myLogger(Level.INFO, "Stats disabled, not laoding stats ::(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
 		
 		
