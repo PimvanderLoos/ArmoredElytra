@@ -427,7 +427,12 @@ public class EventHandlers implements Listener
 						ItemStack result = nbtEditor.addArmorNBTTags(anvilInventory.getItem(2), armortier, plugin.getConfigLoader().getBool("unbreakable"));
 						// Give the result to the player and clear the anvil's inventory.
 						if (e.isShiftClick()) 
+						{
+							// If the player's inventory is full, don't do anything.
+							if (p.getInventory().firstEmpty() == -1)
+								return;
 							p.getInventory().addItem(result);
+						}
 						else 
 							p.setItemOnCursor(result);
 						// Clean the anvil's inventory after transferring the items.

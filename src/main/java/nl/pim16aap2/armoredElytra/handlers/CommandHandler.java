@@ -19,13 +19,11 @@ public class CommandHandler implements CommandExecutor
 {
 	ArmoredElytra  plugin;
 	NBTEditor   nbtEditor;
-	boolean uninstallMode;
 	
-	public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor, boolean uninstallMode)
+	public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor)
 	{
 		this.plugin        = plugin;
 		this.nbtEditor     = nbtEditor;
-		this.uninstallMode = uninstallMode;
 	}
 	
 	@Override
@@ -37,7 +35,7 @@ public class CommandHandler implements CommandExecutor
 		{	
 			player = (Player) sender;
 
-			if (uninstallMode)
+			if (plugin.getUninstallMode())
 			{
 				plugin.messagePlayer(player, "Plugin in uninstall mode! New Armored Elytras are not allowed!");
 				return true;
@@ -122,14 +120,14 @@ public class CommandHandler implements CommandExecutor
 						plugin.giveArmoredElytraToPlayer(receiver, newElytra);
 					} 
 					else
-						plugin.messagePlayer(player, "You do not have the required permission node to give " + ArmorTier.getArmorName(armorTier) + " armored elytras.");
+						plugin.messagePlayer(player, "You do not have the required permission node to give " + plugin.getArmoredElytrName(armorTier) + " armored elytras.");
 					return true;
 				}
 			}
 		} 
 		else 
 		{
-			if (uninstallMode)
+			if (plugin.getUninstallMode())
 			{
 				plugin.myLogger(Level.INFO, "Plugin in uninstall mode! New Armored Elytras are not allowed!");
 				return true;

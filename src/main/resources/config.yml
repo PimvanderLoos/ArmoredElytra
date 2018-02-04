@@ -9,13 +9,6 @@ goldRepair: 5
 ironRepair: 4
 diamondsRepair: 3
 
-# Name colors for every tier.
-leatherColor:
-goldColor:
-chainColor:
-ironColor:
-diamondColor:
-
 # Name for every tier:
 leather:
 gold: 

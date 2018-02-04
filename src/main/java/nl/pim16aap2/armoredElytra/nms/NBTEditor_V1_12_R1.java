@@ -2,7 +2,6 @@ package nl.pim16aap2.armoredElytra.nms;
 
 import java.util.Arrays;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -18,15 +17,11 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
 public class NBTEditor_V1_12_R1 implements NBTEditor 
 {
-	private String elytraName;
-	private String elytraLore;
 	private ArmoredElytra plugin;
 	
 	// Get the names and lores for every tier of armor.
-	public NBTEditor_V1_12_R1(String elytraName, String elytraLore, ArmoredElytra plugin)
+	public NBTEditor_V1_12_R1(ArmoredElytra plugin)
 	{
-		this.elytraName = elytraName;
-		this.elytraLore = elytraLore;
 		this.plugin     = plugin;
 	}
 	
@@ -37,11 +32,10 @@ public class NBTEditor_V1_12_R1 implements NBTEditor
 		ItemMeta itemmeta   = item.getItemMeta();
 		int armorProtection = ArmorTier.getArmor    (armorTier);
 		int armorToughness  = ArmorTier.getToughness(armorTier);
-		ChatColor color     = ArmorTier.getColor    (armorTier);
 		
-		itemmeta.setDisplayName(color+plugin.fillInArmorTierInString(elytraName, armorTier));
-		if (elytraLore != null)
-			itemmeta.setLore(Arrays.asList(plugin.fillInArmorTierInString(elytraLore, armorTier)));
+		itemmeta.setDisplayName(plugin.getArmoredElytrName(armorTier));
+		if (plugin.getElytraLore() != null)
+			itemmeta.setLore(Arrays.asList(plugin.fillInArmorTierInStringNoColor(plugin.getElytraLore(), armorTier)));
 		item.setItemMeta(itemmeta);
 		
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
