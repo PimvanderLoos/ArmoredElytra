@@ -1,6 +1,6 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
-version: 2.3
+version: 2.4
 author: Pim
 commands:
   ArmoredElytra:
@@ -17,6 +17,16 @@ permissions:
     description: Allow the player to wear iron tier armored elytras.
   armoredelytra.wear.diamond:
     description: Allow the player to wear diamond tier armored elytras.
+  armoredelytra.craft.leather:
+    description: Allow the player to craft leather tier armored elytras.
+  armoredelytra.craft.gold:
+    description: Allow the player to craft gold tier armored elytras.
+  armoredelytra.craft.chain:
+    description: Allow the player to craft chain tier armored elytras.
+  armoredelytra.craft.iron:
+    description: Allow the player to craft iron tier armored elytras.
+  armoredelytra.craft.diamond:
+    description: Allow the player to craft diamond tier armored elytras.
   armoredelytra.give.leather:
     description: Allow the player to spawn in leather tier armored elytras.
   armoredelytra.give.gold:

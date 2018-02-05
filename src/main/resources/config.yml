@@ -16,10 +16,6 @@ chain:
 iron: 
 diamond: 
 
-
-# Will curses (vanishing, binding) be transferred when creating armored elytras?
-allowCurses: true
-
 # List of enchantments that are allowed to be put on an armored elytra.
 # If you do not want to allow any enchantments, remove them all and add "NONE"
 # You can find supported enchantments here:
@@ -32,17 +28,19 @@ allowedEnchantments:
   - PROTECTION_PROJECTILE
   - PROTECTION_ENVIRONMENTAL
   - THORNS
+  - BINDING_CURSE
+  - VANISHING_CURSE
   
 # Message players receive when they lack the required permissions to wear a certain armor tier. "NONE" = no message. 
 # %ARMOR_TIER% is replaced by the name of the armor tier.
-usageDeniedMessage: 'You do not have the required permissions to wear %ARMOR_TIER% armored elytras!'
+usageDeniedMessage: 'You do not have the required permissions to wear %ARMOR_TIER%!'
 
 # Message players receive when they are given an armored elytra using commands. "NONE" = no message. 
 # %ARMOR_TIER% is replaced by the name of the armor tier.
-elytraReceivedMessage: '&2A(n) %ARMOR_TIER% armored elytra has been bestowed upon you!'
+elytraReceivedMessage: '&2A(n) %ARMOR_TIER% has been bestowed upon you!'
 
 # The name of armored elytras. %ARMOR_TIER% is replaced by the name of the armor tier.
-elytraName: '%ARMOR_TIER% Armored Elytra'
+elytraName: '%ARMOR_TIER%'
 
 # The lore of armored elytras. "NONE" = no lore. %ARMOR_TIER% is replaced by the name of the armor tier.
 elytraLore: 'Elytra with %ARMOR_TIER% level protection'

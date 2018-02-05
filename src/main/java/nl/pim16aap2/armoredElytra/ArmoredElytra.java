@@ -52,7 +52,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 				{
 					ArmoredElytra plugin = getPlugin();
 					Update update        = new Update(278437, plugin);
-					String latestVersion =  update.getLatestVersion();
+					String latestVersion = update.getLatestVersion();
 					
 					if (latestVersion == null)
 						plugin.myLogger(Level.WARNING, "Encountered problem contacting update servers! Please check manually! The error above does not affect the plugin!");
@@ -132,8 +132,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			myLogger(Level.INFO, ("Allowed enchantments:"));
 			for (String s : config.getStringList("allowedEnchantments"))
 				myLogger(Level.INFO, " - " + s);
-			// Log whether or not curses are allowed.
-			myLogger(Level.INFO, "Curses on armored elytras are " + (config.getBool("allowCurses") ? "" : "not " + "allowed!"));
 		} 
 		else
 		{
@@ -296,6 +294,25 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			ret = "NONE";
 		}
 		return ret;
+	}
+	
+	public boolean playerHasCraftPerm(Player player, ArmorTier tier)
+	{
+		switch (tier)
+		{
+		case LEATHER:
+			return player.hasPermission("armoredelytra.craft.leather");
+		case GOLD:
+			return player.hasPermission("armoredelytra.craft.gold");
+		case CHAIN:
+			return player.hasPermission("armoredelytra.craft.chain");
+		case IRON:
+			return player.hasPermission("armoredelytra.craft.iron");
+		case DIAMOND:
+			return player.hasPermission("armoredelytra.craft.diamond");
+		default:
+			return false;
+		}
 	}
 
 

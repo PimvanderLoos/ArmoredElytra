@@ -27,7 +27,6 @@ public class ConfigLoader
 	private String		ironName;
 	private String		diamondName;
 	private String      	elytraLore;
-	private boolean     	cursesAllowed;
 	private List<String>	allowedEnchantments;
 	private String      	usageDeniedMessage;
 	private String      	elytraReceivedMessage;
@@ -48,11 +47,9 @@ public class ConfigLoader
 		 "Repair cost for every tier of armored elytra in number of items to repair 100%."};
     private String[] tierNameComment		  =
 		{"Name for every armored elytra tier."};
-    private String[] cursesComment         = 
-		{"Will curses (vanishing, binding) be transferred when creating armored elytras?"};
     private String[] enchantmentsComment   = 
 		{"List of enchantments that are allowed to be put on an armored elytra.",
-		 "If you do not want to allow any enchantments, remove them all and add \"NONE\"",
+		 "If you do not want to allow any enchantments at all, remove them all and add \"NONE\"",
 		 "You can find supported enchantments here:",
 		 "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html",
 		 "Note that only 1 protection enchantment (PROTECTION_FIRE, PROTECTION_ENVIRONMENTAL etc) can be active on an elytra."};
@@ -128,8 +125,6 @@ public class ConfigLoader
 		elytraReceivedMessage = config.getString ("elytraReceivedMessage" );
 		configOptionsList.add(new ConfigOption   ("elytraReceivedMessage", elytraReceivedMessage, elytraReceivedComment));
 		
-		cursesAllowed         = config.getBoolean   ("allowCurses", true  );
-		configOptionsList.add(new ConfigOption      ("allowCurses", cursesAllowed, cursesComment));
 		allowedEnchantments   = config.getStringList("allowedEnchantments");
 		configOptionsList.add(new ConfigOption      ("allowedEnchantments", allowedEnchantments, enchantmentsComment   ));
 		

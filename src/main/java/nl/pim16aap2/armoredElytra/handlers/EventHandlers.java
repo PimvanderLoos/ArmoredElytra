@@ -36,13 +36,9 @@ public class EventHandlers implements Listener
 	private int              LEATHER_TO_FULL;
 	private int                 GOLD_TO_FULL;
 	private int                 IRON_TO_FULL;
-	private boolean            cursesAllowed; 
 	private NBTEditor              nbtEditor;
 	private final ArmoredElytra       plugin;
 	private List<String> allowedEnchantments;
-	private String[]     cursedEnchantments = {	"MENDING"			,
-		    								      	"VANISHING_CURSE" 	,
-                                               	"BINDING_CURSE"		};
 	
 	public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor) 
 	{
@@ -50,7 +46,6 @@ public class EventHandlers implements Listener
 		this.nbtEditor = nbtEditor;
 		
 		// Get the values of the config options.
-		this.cursesAllowed       = plugin.getConfigLoader().getBool("allowCurses");
 		this.allowedEnchantments = plugin.getConfigLoader().getStringList("allowedEnchantments");
 		this.LEATHER_TO_FULL     = plugin.getConfigLoader().getInt("leatherRepair");
 		this.GOLD_TO_FULL        = plugin.getConfigLoader().getInt("goldRepair");
@@ -76,15 +71,6 @@ public class EventHandlers implements Listener
 		return false;
 	}
 	
-	// Check if the enchantment is a curse.
-	public boolean isCursedEnchantment(Enchantment enchant) 
-	{
-		for (String s : cursedEnchantments)
-			if (Enchantment.getByName(s).equals(enchant))
-				return true;
-		return false;
-	}
-	
 	// Combine 2 maps of enchantments (and remove any invalid ones).
 	public Map<Enchantment, Integer> combineEnchantments(Map<Enchantment, Integer> enchantments0, Map<Enchantment, Integer> enchantments1)
 	{
@@ -98,11 +84,7 @@ public class EventHandlers implements Listener
 			for (Map.Entry<Enchantment, Integer > entry : enchantments1.entrySet()) 
 			{
 				Integer enchantLevel = enchantments0.get(entry.getKey());
-				// If the enchantment is a curse and if the result does not already have it.
-				if (isCursedEnchantment(entry.getKey()) && !enchantments0.containsKey(entry.getKey())) 
-					combined.put(entry.getKey(), entry.getValue());
-				// If the enchantment is already on the list...
-				else if (enchantLevel != null)
+				if (enchantLevel != null)
 				{
 					if (entry.getValue() == enchantLevel && entry.getValue() < entry.getKey().getMaxLevel()) 
 						enchantLevel = entry.getValue() + 1;
@@ -189,23 +171,21 @@ public class EventHandlers implements Listener
 		return (short) (newDurability <= 0 ? 0 : newDurability);
 	}
 
-	// Remove any disallowed enchantments / curses in the map.
+	// Remove any disallowed enchantments in the map.
 	public Map<Enchantment, Integer> fixEnchantments(Map<Enchantment, Integer> enchantments) 
 	{
 		Map<Enchantment, Integer> ret = new HashMap<Enchantment, Integer>(enchantments);
 		for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
-			// If it is not an allowed enchantment OR a curse while it's not allowed
-			if (!isAllowedEnchantment(entry.getKey()) || (!cursesAllowed && isCursedEnchantment(entry.getKey())))
+			if (!isAllowedEnchantment(entry.getKey()))
 				ret.remove(entry.getKey());
 		return ret;
 	}
 
-	// Verify there aren't any disallowed enchantments / curses in the map.
+	// Verify there aren't any disallowed enchantments in the map.
 	public boolean verifyEnchantments(Map<Enchantment, Integer> enchantments) 
 	{
 		for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
-			// If it is not an allowed enchantment OR a curse while it's not allowed
-			if (!isAllowedEnchantment(entry.getKey()) || (!cursesAllowed && isCursedEnchantment(entry.getKey())))
+			if (!isAllowedEnchantment(entry.getKey()))
 				return false;
 		return true;
 	}
@@ -311,7 +291,7 @@ public class EventHandlers implements Listener
 	@EventHandler
 	public void onAnvilInventoryOpen(PrepareAnvilEvent event)
 	{
-		Player p = (Player) event.getView().getPlayer();
+		Player player = (Player) event.getView().getPlayer();
 		
     		ItemStack itemA  = event.getInventory().getItem(0);
 		ItemStack itemB  = event.getInventory().getItem(1);
@@ -369,24 +349,28 @@ public class EventHandlers implements Listener
         			}
         		case BLOCK:
         			event.setResult(null);
-				p.updateInventory();
+				player.updateInventory();
         		case NONE:
         			return;
         		}
         		
-	        	result = new ItemStack(Material.ELYTRA, 1);
-	        	if (enchantments != null)
-	        		result.addUnsafeEnchantments(enchantments);
-	        	result.setDurability(durability);
-	        	result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().getBool("unbreakable"));
-	        	event.setResult(result);
+	        	if (plugin.playerHasCraftPerm(player, newTier))
+	        	{
+		        	result = new ItemStack(Material.ELYTRA, 1);
+		        	if (enchantments != null)
+		        		result.addUnsafeEnchantments(enchantments);
+		        	result.setDurability(durability);
+		        	
+		        	result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().getBool("unbreakable"));
+		        	event.setResult(result);
+	        	}
         }
         
         // Check if either itemA or itemB is unoccupied.
         if ((itemA == null || itemB == null) && nbtEditor.getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE) 
         		// If Item2 is occupied despite itemA or itemB not being occupied. (only for armored elytra)/
         		event.setResult(null);
-		p.updateInventory();
+		player.updateInventory();
 	}
 	
 	// Let the player take items out of the anvil.
@@ -396,7 +380,7 @@ public class EventHandlers implements Listener
 		if (e.getWhoClicked() instanceof Player) 
 		{
 			// Check if the event was a player who interacted with an anvil.
-			Player p = (Player) e.getWhoClicked();
+			Player player = (Player) e.getWhoClicked();
 			if (e.getView().getType() == InventoryType.ANVIL) 
 			{
 				AnvilInventory anvilInventory;
@@ -410,7 +394,7 @@ public class EventHandlers implements Listener
 				catch (ClassCastException exception)
 				{
 					// Print warning to console and exit onInventoryClick event (no support for custom inventories as they are usually used for GUI's).
-					plugin.debugMsg(Level.WARNING, "Could not cast inventory to anvilInventory for player " + p.getName() + "! Armored Elytras cannot be crafted!");
+					plugin.debugMsg(Level.WARNING, "Could not cast inventory to anvilInventory for player " + player.getName() + "! Armored Elytras cannot be crafted!");
 					return;
 				}
 				
@@ -420,7 +404,7 @@ public class EventHandlers implements Listener
 				{
 					ArmorTier armortier = nbtEditor.getArmorTier(anvilInventory.getItem(2));
 					// If there's an armored elytra in the final slot...
-					if (armortier != ArmorTier.NONE) 
+					if (armortier != ArmorTier.NONE && plugin.playerHasCraftPerm(player, armortier)) 
 					{
 						// Create a new armored elytra and give that one to the player instead of the result.
 						// This is done because after putting item0 in AFTER item1, the first letter of the color code shows up, this gets rid of that problem.
@@ -429,14 +413,15 @@ public class EventHandlers implements Listener
 						if (e.isShiftClick()) 
 						{
 							// If the player's inventory is full, don't do anything.
-							if (p.getInventory().firstEmpty() == -1)
+							if (player.getInventory().firstEmpty() == -1)
 								return;
-							p.getInventory().addItem(result);
+							player.getInventory().addItem(result);
 						}
 						else 
-							p.setItemOnCursor(result);
+							player.setItemOnCursor(result);
 						// Clean the anvil's inventory after transferring the items.
 						cleanAnvil(anvilInventory);
+						player.updateInventory();
 						return;
 					}
 				}

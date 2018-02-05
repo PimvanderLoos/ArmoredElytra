@@ -120,7 +120,7 @@ public class CommandHandler implements CommandExecutor
 						plugin.giveArmoredElytraToPlayer(receiver, newElytra);
 					} 
 					else
-						plugin.messagePlayer(player, "You do not have the required permission node to give " + plugin.getArmoredElytrName(armorTier) + " armored elytras.");
+						plugin.messagePlayer(player, "You do not have the required permission node to give " + plugin.getArmoredElytrName(armorTier));
 					return true;
 				}
 			}
