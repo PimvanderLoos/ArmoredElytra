@@ -19,6 +19,7 @@ import nl.pim16aap2.armoredElytra.nms.NBTEditor;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_10_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_11_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_12_R1;
+import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_13_R1;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Metrics;
@@ -41,10 +42,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 	{
 		readConfigValues();
 		
-		
 		// Check if the user allows checking for updates. 
 		if (config.getBool("checkForUpdates"))
 		{
+			// Check for updates in a new thread, so the server won't hang when it cannot contact the update servers.
 			Thread thread = new Thread(new Runnable()
 			{
 				@Override
@@ -99,7 +100,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 		} 
 		else 
 			// Y u do dis? :(
-			myLogger(Level.INFO, "Stats disabled, not laoding stats ::(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+			myLogger(Level.INFO, "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
 		
 		
@@ -111,7 +112,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 			getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor));
 		} 
 		else
-			myLogger(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft!");
+		{
+			myLogger(Level.WARNING, "Trying to load the plugin on an incompatible version of Minecraft! This plugin will NOT be enabled!");
+			return;
+		}
 		
 		
 		
@@ -260,7 +264,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         else if (version.equals("v1_11_R1"))
     			nbtEditor = new NBTEditor_V1_11_R1(this);
         else if (version.equals("v1_12_R1"))
-    			nbtEditor = new NBTEditor_V1_12_R1(this);
+        		nbtEditor = new NBTEditor_V1_12_R1(this);
+        else if (version.equals("v1_13_R1"))
+    			nbtEditor = new NBTEditor_V1_13_R1(this);
         // Return true if compatible.
         return nbtEditor != null;
 	}

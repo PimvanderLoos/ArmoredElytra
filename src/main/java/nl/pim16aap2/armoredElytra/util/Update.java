@@ -139,9 +139,11 @@ public class Update
         } 
         catch (IOException e) 
         {
-            // There was an error reading the query
+            // There was an error reading the query.
+        		// Does not print stacktrace, so people won't see any errors from this plugin when Bukkit Dev's servers are down,
+        		// So people won't think the plugin is broken, while the actualy problem is much, much smaller. latestVersion will be null, though, which will prompt a warning in the log instead.
 
-            e.printStackTrace();
+//            e.printStackTrace();
             return;
         }
     }

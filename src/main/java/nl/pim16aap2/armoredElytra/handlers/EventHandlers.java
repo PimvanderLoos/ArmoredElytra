@@ -470,7 +470,7 @@ public class EventHandlers implements Listener
 		if (player.getInventory().getChestplate() != null) 
 		{
 			// If that chestplate is an (armored) elytra.
-			if (chestplate.getType() == Material.ELYTRA && (nbtEditor.getArmorTier(chestplate) != ArmorTier.NONE)) 
+			if (nbtEditor.getArmorTier(chestplate) != ArmorTier.NONE)
 			{
 				ArmorTier armorTier = nbtEditor.getArmorTier(chestplate);
 				if ((chestplate.getDurability() >= chestplate.getType().getMaxDurability())) 
@@ -493,7 +493,7 @@ public class EventHandlers implements Listener
 	}
 	
 	// Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerDamage(EntityDamageEvent e) 
 	{
 		if(e.getEntity() instanceof Player) 
@@ -502,10 +502,9 @@ public class EventHandlers implements Listener
 			// If the player didn't die from the damage.
 			if ((p.getHealth() - e.getFinalDamage()) > 0)
 			{
-				if (p.getInventory().getChestplate()!=null) 
+				if (p.getInventory().getChestplate() != null) 
 				{
-					if (p.getInventory().getChestplate().getType() == Material.ELYTRA && 
-						nbtEditor.getArmorTier(p.getInventory().getChestplate()) != ArmorTier.NONE) 
+					if (nbtEditor.getArmorTier(p.getInventory().getChestplate()) != ArmorTier.NONE) 
 					{
 						ItemStack elytra = p.getInventory().getChestplate();
 						DamageCause cause = e.getCause();
