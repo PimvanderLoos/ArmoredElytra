@@ -12,9 +12,9 @@ public enum ArmorTier
 	IRON     (6              , 0                   , Material.IRON_INGOT),
 	DIAMOND  (8              , 2                   , Material.DIAMOND   );
 	
-    private int       armor;
-	private int   toughness;
-	private Material repair;
+    private int         armor;
+	private int     toughness;
+	private Material   repair;
 
     private ArmorTier (int armor, int toughness, Material repair) 
     {

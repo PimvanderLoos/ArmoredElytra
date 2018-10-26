@@ -3,24 +3,24 @@ package nl.pim16aap2.armoredElytra.nms;
 import java.util.Arrays;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import net.minecraft.server.v1_13_R1.NBTTagByte;
-import net.minecraft.server.v1_13_R1.NBTTagCompound;
-import net.minecraft.server.v1_13_R1.NBTTagInt;
-import net.minecraft.server.v1_13_R1.NBTTagList;
-import net.minecraft.server.v1_13_R1.NBTTagString;
+import net.minecraft.server.v1_13_R2.NBTTagByte;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagInt;
+import net.minecraft.server.v1_13_R2.NBTTagList;
+import net.minecraft.server.v1_13_R2.NBTTagString;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
-public class NBTEditor_V1_13_R1 implements NBTEditor
+public class NBTEditor_V1_13_R2 implements NBTEditor
 {
     private ArmoredElytra plugin;
 
     // Get the names and lores for every tier of armor.
-    public NBTEditor_V1_13_R1(ArmoredElytra plugin)
+    public NBTEditor_V1_13_R2(ArmoredElytra plugin)
     {
         this.plugin = plugin;
     }
@@ -38,7 +38,7 @@ public class NBTEditor_V1_13_R1 implements NBTEditor
             itemmeta.setLore(Arrays.asList(plugin.fillInArmorTierInStringNoColor(plugin.getElytraLore(), armorTier)));
         item.setItemMeta(itemmeta);
 
-        net.minecraft.server.v1_13_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_13_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
         NBTTagCompound compound   =    (nmsStack.hasTag()) ? nmsStack.getTag() : new NBTTagCompound();
         NBTTagList modifiers      =     new NBTTagList();
         NBTTagCompound armor      =     new NBTTagCompound();

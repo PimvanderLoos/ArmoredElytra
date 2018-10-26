@@ -17,13 +17,13 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
 public class CommandHandler implements CommandExecutor
 {
-	ArmoredElytra  plugin;
-	NBTEditor   nbtEditor;
+	ArmoredElytra plugin;
+	NBTEditor  nbtEditor;
 	
 	public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor)
 	{
-		this.plugin        = plugin;
-		this.nbtEditor     = nbtEditor;
+		this.plugin    = plugin;
+		this.nbtEditor = nbtEditor;
 	}
 	
 	@Override
@@ -37,7 +37,7 @@ public class CommandHandler implements CommandExecutor
 
 			if (plugin.getUninstallMode())
 			{
-				plugin.messagePlayer(player, "Plugin in uninstall mode! New Armored Elytras are not allowed!");
+				plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.UninstallMode"));
 				return true;
 			}
 				
@@ -66,10 +66,6 @@ public class CommandHandler implements CommandExecutor
 						}
 						tier = args[1];
 					}
-					
-					// TODO: Use armorTier name from ArmorTier struct.
-					// Also, use AT-name for permission node verification.
-					
 					
 					// Leather armor.
 					if (tier.equalsIgnoreCase("leather"))
@@ -111,7 +107,7 @@ public class CommandHandler implements CommandExecutor
 							allowed = true;
 					} 
 					else 
-						plugin.messagePlayer(player, "Not a supported armor tier! Try one of these: leather, gold, chain, iron, diamond.");
+						plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.UnsupportedTier"));
 					
 					if (allowed)
 					{
@@ -120,7 +116,7 @@ public class CommandHandler implements CommandExecutor
 						plugin.giveArmoredElytraToPlayer(receiver, newElytra);
 					} 
 					else
-						plugin.messagePlayer(player, "You do not have the required permission node to give " + plugin.getArmoredElytrName(armorTier));
+						plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(plugin.getMyMessages().getString("MESSAGES.UnsupportedTier"), armorTier));
 					return true;
 				}
 			}
@@ -141,8 +137,6 @@ public class CommandHandler implements CommandExecutor
 				{
 					player = Bukkit.getPlayer(args[0]);
 					ArmorTier armorTier = ArmorTier.NONE;
-					
-					// TODO: Again, use the ArmorTier struct for tier retrieval.
 					
 					if (tier.equalsIgnoreCase("leather"))
 						armorTier = ArmorTier.LEATHER;
