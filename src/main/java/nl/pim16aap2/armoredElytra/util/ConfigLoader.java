@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.bigDoors.util.ConfigOption;
+import nl.pim16aap2.armoredElytra.util.ConfigOption;
 
 public class ConfigLoader
 {
