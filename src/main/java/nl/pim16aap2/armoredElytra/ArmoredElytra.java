@@ -21,6 +21,8 @@ import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_11_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_12_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_13_R1;
 import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_13_R2;
+import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_9_R1;
+import nl.pim16aap2.armoredElytra.nms.NBTEditor_V1_9_R2;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Messages;
@@ -28,18 +30,20 @@ import nl.pim16aap2.armoredElytra.util.Metrics;
 import nl.pim16aap2.armoredElytra.util.Update;
 
 public class ArmoredElytra extends JavaPlugin implements Listener 
-{    
-    private NBTEditor           nbtEditor;
-    private Messages             messages;
-    private ConfigLoader           config;
+{
+    // TODO: Merge EventHandlers and EventHandlers_V1.9.
+    private NBTEditor          nbtEditor;
+    private Messages            messages;
+    private ConfigLoader          config;
 
-    private String  leatherName, ironName, goldName, chainName, diamondName;
-    private String  elytraReceivedMessage;
-    private String     usageDeniedMessage;
-    private boolean         uninstallMode;
-    private String             elytraLore;
-    private boolean              upToDate;
-    private String                 locale;
+    private String leatherName, ironName, goldName, chainName, diamondName;
+    private String elytraReceivedMessage;
+    private String    usageDeniedMessage;
+    private boolean        uninstallMode;
+    private String            elytraLore;
+    private boolean             upToDate;
+    private String                locale;
+    private boolean                is1_9;
     
     @Override
     public void onEnable()
@@ -107,7 +111,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         // Load the files for the correct version of Minecraft.
         if (compatibleMCVer()) 
         {
-            Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor), this);
+//            if (this.is1_9)
+//                Bukkit.getPluginManager().registerEvents(new EventHandlers_V1_9(this, nbtEditor), this);
+//            else
+//                Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor), this);
+            Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, this.is1_9), this);
             getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor));
         } 
         else
@@ -268,16 +276,26 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             return false;
         }
 
-        if (version.equals("v1_10_R1"))
-            nbtEditor = new NBTEditor_V1_10_R1(this);
+        if (     version.equals("v1_9_R1"))
+        {
+            nbtEditor  = new NBTEditor_V1_9_R1(this);
+            this.is1_9 = true;
+        }
+        else if (version.equals("v1_9_R2"))
+        {
+            nbtEditor  = new NBTEditor_V1_9_R2(this);
+            this.is1_9 = true;
+        }
+        else if (version.equals("v1_10_R1"))
+            nbtEditor  = new NBTEditor_V1_10_R1(this);
         else if (version.equals("v1_11_R1"))
-            nbtEditor = new NBTEditor_V1_11_R1(this);
+            nbtEditor  = new NBTEditor_V1_11_R1(this);
         else if (version.equals("v1_12_R1"))
-            nbtEditor = new NBTEditor_V1_12_R1(this);
+            nbtEditor  = new NBTEditor_V1_12_R1(this);
         else if (version.equals("v1_13_R1"))
-            nbtEditor = new NBTEditor_V1_13_R1(this);
+            nbtEditor  = new NBTEditor_V1_13_R1(this);
         else if (version.equals("v1_13_R2"))
-            nbtEditor = new NBTEditor_V1_13_R2(this);
+            nbtEditor  = new NBTEditor_V1_13_R2(this);
         // Return true if compatible.
         return nbtEditor != null;
     }
@@ -311,25 +329,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             ret = "NONE";
         }
         return ret;
-    }
-    
-    public boolean playerHasCraftPerm(Player player, ArmorTier tier)
-    {
-        switch (tier)
-        {
-        case LEATHER:
-            return player.hasPermission("armoredelytra.craft.leather");
-        case GOLD:
-            return player.hasPermission("armoredelytra.craft.gold");
-        case CHAIN:
-            return player.hasPermission("armoredelytra.craft.chain");
-        case IRON:
-            return player.hasPermission("armoredelytra.craft.iron");
-        case DIAMOND:
-            return player.hasPermission("armoredelytra.craft.diamond");
-        default:
-            return false;
-        }
     }
 
     public void setUpToDate(boolean upToDate)
