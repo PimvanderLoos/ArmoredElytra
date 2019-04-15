@@ -24,39 +24,39 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nms.NBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.Util;
 
-public class EventHandlers implements Listener 
+public class EventHandlers implements Listener
 {
-    private int             DIAMONDS_TO_FULL;
-    private int              LEATHER_TO_FULL;
-    private int                 GOLD_TO_FULL;
-    private int                 IRON_TO_FULL;
-    private NBTEditor              nbtEditor;
-    private final ArmoredElytra       plugin;
-    private List<String> allowedEnchantments;
-    private boolean                    is1_9;
-    
-    public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean is1_9) 
+    private final int             DIAMONDS_TO_FULL;
+    private final int              LEATHER_TO_FULL;
+    private final int                 GOLD_TO_FULL;
+    private final int                 IRON_TO_FULL;
+    private final NBTEditor              nbtEditor;
+    private final ArmoredElytra             plugin;
+    private final List<String> allowedEnchantments;
+    private final boolean                    is1_9;
+
+    public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean is1_9)
     {
         this.plugin    = plugin;
         this.nbtEditor = nbtEditor;
         this.is1_9     = is1_9;
-        
+
         // Get the values of the config options.
-        this.allowedEnchantments = plugin.getConfigLoader().getStringList("allowedEnchantments");
-        this.LEATHER_TO_FULL     = plugin.getConfigLoader().getInt("leatherRepair");
-        this.GOLD_TO_FULL        = plugin.getConfigLoader().getInt("goldRepair");
-        this.IRON_TO_FULL        = plugin.getConfigLoader().getInt("ironRepair");
-        this.DIAMONDS_TO_FULL    = plugin.getConfigLoader().getInt("diamondsRepair");
+        allowedEnchantments = plugin.getConfigLoader().getStringList("allowedEnchantments");
+        LEATHER_TO_FULL     = plugin.getConfigLoader().getInt("leatherRepair");
+        GOLD_TO_FULL        = plugin.getConfigLoader().getInt("goldRepair");
+        IRON_TO_FULL        = plugin.getConfigLoader().getInt("ironRepair");
+        DIAMONDS_TO_FULL    = plugin.getConfigLoader().getInt("diamondsRepair");
     }
 
     // Remove item from player's chestplate slot and puts it in their normal inventory.
-    private void unenquipChestPlayer(Player p) 
+    private void unenquipChestPlayer(Player p)
     {
         if (is1_9)
             p.getInventory().getChestplate().setType(Material.AIR);
@@ -67,7 +67,7 @@ public class EventHandlers implements Listener
             p.updateInventory();
         }
     }
-    
+
     // Clear the anvil's inventory (destroy all the items in all 3 slots (second slot is not emptied, when repairing you can safely give multiple items)).
     private void cleanAnvil(AnvilInventory anvilInventory)
     {
@@ -85,9 +85,9 @@ public class EventHandlers implements Listener
             anvilInventory.getItem(2).setAmount(0);
         }
     }
-    
+
     // Check if the enchantment is allowed on elytras.
-    private boolean isAllowedEnchantment(Enchantment enchant) 
+    private boolean isAllowedEnchantment(Enchantment enchant)
     {
         for (String s : allowedEnchantments)
             if (Enchantment.getByName(s) != null)
@@ -95,30 +95,30 @@ public class EventHandlers implements Listener
                     return true;
         return false;
     }
-    
+
     // Combine 2 maps of enchantments (and remove any invalid ones).
     private Map<Enchantment, Integer> combineEnchantments(Map<Enchantment, Integer> enchantments0, Map<Enchantment, Integer> enchantments1)
     {
         enchantments0 = fixEnchantments(enchantments0);
-        Map<Enchantment, Integer> combined = new HashMap<Enchantment, Integer>(fixEnchantments(enchantments0));
-        
+        Map<Enchantment, Integer> combined = new HashMap<>(fixEnchantments(enchantments0));
+
         // If the second set of enchantments is null, the combined enchantments are just the first enchantments.
         if (enchantments1 == null)
             return combined;
-        
+
         enchantments1  = fixEnchantments(enchantments1);
         // Loop through the enchantments of item1.
-        for (Map.Entry<Enchantment, Integer > entry : enchantments1.entrySet()) 
+        for (Map.Entry<Enchantment, Integer > entry : enchantments1.entrySet())
         {
             Integer enchantLevel = enchantments0.get(entry.getKey());
             if (enchantLevel != null)
             {
-                if (entry.getValue() == enchantLevel && entry.getValue() < entry.getKey().getMaxLevel()) 
+                if (entry.getValue() == enchantLevel && entry.getValue() < entry.getKey().getMaxLevel())
                     enchantLevel = entry.getValue() + 1;
-                else if (entry.getValue() > enchantLevel) 
+                else if (entry.getValue() > enchantLevel)
                     enchantLevel = entry.getValue();
-                
-                // If the enchantment level has changed, 
+
+                // If the enchantment level has changed,
                 if (enchantLevel != enchantments0.get(entry.getKey()))
                 {
                     combined.remove(entry.getKey());
@@ -128,17 +128,16 @@ public class EventHandlers implements Listener
             else if (enchantLevel == null)
                 combined.put(entry.getKey(), entry.getValue());
         }
-        
+
         // Get the protection enchantment rating for both enchantment sets.
         int protVal0 = Util.getProtectionEnchantmentsVal(enchantments0);
         int protVal1 = Util.getProtectionEnchantmentsVal(enchantments1);
-        
+
         // If they have different protection enchantments, keep enchantment1's enchantments
         // And remove the protection enchantment from enchantments0. Yes, this system only works
-        // If there is 1 protection enchantment on 
+        // If there is 1 protection enchantment on
         if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
-        {
-            switch(protVal0) 
+            switch(protVal0)
             {
             case 1:
                 combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
@@ -156,13 +155,12 @@ public class EventHandlers implements Listener
                 combined.remove(Enchantment.PROTECTION_PROJECTILE);
                 break;
             }
-        }
         return combined;
     }
-    
+
     // Repair an Armored Elytra
-    private short repairItem(short curDur, ItemStack repairItem) 
-    {    
+    private short repairItem(short curDur, ItemStack repairItem)
+    {
         // Get the multiplier for the repair items.
         double mult = 0.01;
         if (     repairItem.getType() == Material.LEATHER)
@@ -183,9 +181,9 @@ public class EventHandlers implements Listener
     }
 
     // Remove any disallowed enchantments in the map.
-    private Map<Enchantment, Integer> fixEnchantments(Map<Enchantment, Integer> enchantments) 
+    private Map<Enchantment, Integer> fixEnchantments(Map<Enchantment, Integer> enchantments)
     {
-        Map<Enchantment, Integer> ret = new HashMap<Enchantment, Integer>(enchantments);
+        Map<Enchantment, Integer> ret = new HashMap<>(enchantments);
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
             if (!isAllowedEnchantment(entry.getKey()))
                 ret.remove(entry.getKey());
@@ -193,7 +191,7 @@ public class EventHandlers implements Listener
     }
 
     // Verify there aren't any disallowed enchantments in the map.
-    private int verifyEnchantments(Map<Enchantment, Integer> enchantments) 
+    private int verifyEnchantments(Map<Enchantment, Integer> enchantments)
     {
         int ret = 0;
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
@@ -201,15 +199,15 @@ public class EventHandlers implements Listener
                 ++ret;
         return ret;
     }
-    
-    /* 
-     * Valid inputs: 
+
+    /*
+     * Valid inputs:
      *  - Elytra (armored or not)    + chestplate             -> Create Armored Elytra
      *  - Elytra (armored)           + enchanted book         -> Enchant
      *  - Elytra (armored)           + its repair item        -> Repair
      *  - Elytra (armored)           + other elytra (armored) -> Combine (Enchant + Repair)
      *  ! Elytra (armored, !leather) + leather                -> Block
-     * 
+     *
      * Ignoring:
      *  - Elytra (not armored)       + !chestplate            -> None
      *  - *                          + *                      -> None
@@ -218,7 +216,7 @@ public class EventHandlers implements Listener
     {
         if (itemOne == null || itemTwo == null)
             return Action.NONE;
-        
+
         // If itemTwo is the elytra, while itemOne isn't, switch itemOne and itemTwo.
         if (itemTwo.getType() == Material.ELYTRA && itemOne.getType() != Material.ELYTRA)
         {
@@ -226,32 +224,32 @@ public class EventHandlers implements Listener
             itemOne       = itemTwo;
             itemTwo       = tmp;
         }
-        
+
         if (itemOne.getType() != Material.ELYTRA)
             return Action.NONE;
-        
+
         Material matTwo = itemTwo.getType();
-        
+
         // If the elytra is to be combined with chest armor...
         if (Util.isChestPlate(matTwo))
             return Action.CREATE;
-        
+
         ArmorTier tier = nbtEditor.getArmorTier(itemOne);
-        
+
         if (tier != ArmorTier.NONE)
         {
             // If the armored elytra is to be enchanted using an enchanted book...
             if (matTwo == Material.ENCHANTED_BOOK)
                 return Action.ENCHANT;
-            
+
             // If the armored elytra is to be repaired using its repair item...
             if (ArmorTier.getRepairItem(tier) == matTwo)
                 return Action.REPAIR;
-            
+
             // If the armored elytra is to be combined with another armored elytra of the same tier...
             if (nbtEditor.getArmorTier(itemTwo) == tier)
                 return Action.COMBINE;
-            
+
             // If the armored elytra is not of the leather tier, but itemTwo is leather,
             // Pick the block action, as that would repair the elytra by default (vanilla).
             // Also block Armored Elytra + Elytra.
@@ -260,7 +258,7 @@ public class EventHandlers implements Listener
         }
         return Action.NONE;
     }
-    
+
     // Handle all anvil related stuff for this plugin.
     @EventHandler
     private void onAnvilInventoryOpen(PrepareAnvilEvent event)
@@ -269,9 +267,8 @@ public class EventHandlers implements Listener
         ItemStack itemA  = event.getInventory().getItem(0);
         ItemStack itemB  = event.getInventory().getItem(1);
         ItemStack result = null;
-        
+
         if (itemA != null && itemB != null)
-        {
             // If itemB is the elytra, while itemA isn't, switch itemA and itemB.
             if (itemB.getType() == Material.ELYTRA && itemA.getType() != Material.ELYTRA)
             {
@@ -280,10 +277,9 @@ public class EventHandlers implements Listener
                 itemB  = result;
                 result = null;
             }
-        }
-        
+
         // Check if there are items in both input slots.
-        if (itemA != null && itemB != null) 
+        if (itemA != null && itemB != null)
         {
             Action action        = isValidInput(itemA, itemB);
             ArmorTier newTier    = ArmorTier.NONE;
@@ -291,7 +287,7 @@ public class EventHandlers implements Listener
             short durability     = 0;
             Map<Enchantment, Integer> enchantments = itemA.getEnchantments();
             enchantments         = fixEnchantments(enchantments);
-            
+
             switch (action)
             {
             case REPAIR:
@@ -326,40 +322,40 @@ public class EventHandlers implements Listener
             case NONE:
                 return;
             }
-            
+
             if (Util.playerHasCraftPerm(player, newTier))
             {
                 result = new ItemStack(Material.ELYTRA, 1);
                 if (enchantments != null)
                     result.addUnsafeEnchantments(enchantments);
                 result.setDurability(durability);
-                
+
                 result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().getBool("unbreakable"));
                 event.setResult(result);
             }
         }
-        
+
         // Check if either itemA or itemB is unoccupied.
-        if ((itemA == null || itemB == null) && nbtEditor.getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE) 
+        if ((itemA == null || itemB == null) && nbtEditor.getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE)
             // If Item2 is occupied despite itemA or itemB not being occupied. (only for armored elytra)/
             event.setResult(null);
         player.updateInventory();
     }
-    
+
     // Let the player take items out of the anvil.
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) 
+    public void onInventoryClick(InventoryClickEvent e)
     {
         if (!(e.getWhoClicked() instanceof Player))
             return;
-        
+
         // Check if the event was a player who interacted with an anvil.
         Player player = (Player) e.getWhoClicked();
-        if (e.getView().getType() != InventoryType.ANVIL) 
+        if (e.getView().getType() != InventoryType.ANVIL)
             return;
-        
+
         AnvilInventory anvilInventory;
-        
+
         // Try to cast inventory being used in the event to an anvil inventory.
         // This will throw a ClassCastException when a CraftInventoryCustom is used.
         try
@@ -372,36 +368,36 @@ public class EventHandlers implements Listener
             plugin.debugMsg(Level.WARNING, "Could not cast inventory to anvilInventory for player " + player.getName() + "! Armored Elytras cannot be crafted!");
             return;
         }
-        
+
         int slot = e.getRawSlot();
-        
-        if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null && anvilInventory.getItem(2) != null) 
+
+        if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null && anvilInventory.getItem(2) != null)
         {
             ArmorTier armortier = nbtEditor.getArmorTier(anvilInventory.getItem(2));
             // If there's an armored elytra in the final slot...
-            if (armortier != ArmorTier.NONE && Util.playerHasCraftPerm(player, armortier)) 
+            if (armortier != ArmorTier.NONE && Util.playerHasCraftPerm(player, armortier))
             {
                 // Create a new armored elytra and give that one to the player instead of the result.
                 // This is done because after putting item0 in AFTER item1, the first letter of the color code shows up, this gets rid of that problem.
                 ItemStack result = nbtEditor.addArmorNBTTags(anvilInventory.getItem(2), armortier, plugin.getConfigLoader().getBool("unbreakable"));
                 // Give the result to the player and clear the anvil's inventory.
-                if (e.isShiftClick()) 
+                if (e.isShiftClick())
                 {
                     // If the player's inventory is full, don't do anything.
                     if (player.getInventory().firstEmpty() == -1)
                         return;
                     player.getInventory().addItem(result);
                 }
-                else 
+                else
                     player.setItemOnCursor(result);
                 // Clean the anvil's inventory after transferring the items.
-                this.cleanAnvil(anvilInventory);
+                cleanAnvil(anvilInventory);
                 player.updateInventory();
                 return;
             }
         }
     }
-    
+
     // Make sure the player has the correct permission and that the item is not broken.
     private AllowedToWearEnum isAllowedToWear(ItemStack elytra, Player player, ArmorTier armorTier)
     {
@@ -411,33 +407,33 @@ public class EventHandlers implements Listener
             return AllowedToWearEnum.NOPERMISSION;
         return AllowedToWearEnum.ALLOWED;
     }
-    
+
     // Check if the player tries to equip armor by richt clicking it.
     @EventHandler
-    public void onRightClick(PlayerInteractEvent event) 
+    public void onRightClick(PlayerInteractEvent event)
     {
         if (!event.getAction().equals(org.bukkit.event.block.Action.RIGHT_CLICK_AIR) &&
             !event.getAction().equals(org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK))
             return;
-        
+
         ItemStack item = event.getItem();
         if (item == null)
             return;
-        
-        Player player  = event.getPlayer();  
-        
-        if (item.getType() == Material.ELYTRA) 
+
+        Player player  = event.getPlayer();
+
+        if (item.getType() == Material.ELYTRA)
         {
             ArmorTier armorTier = nbtEditor.getArmorTier(item);
             if (nbtEditor.getArmorTier(item) == ArmorTier.NONE)
                 return;
-            AllowedToWearEnum allowed = this.isAllowedToWear(item, player, armorTier);
-            if (allowed == AllowedToWearEnum.BROKEN) 
+            AllowedToWearEnum allowed = isAllowedToWear(item, player, armorTier);
+            if (allowed == AllowedToWearEnum.BROKEN)
             {
                 plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.RepairNeeded"));
                 event.setCancelled(true);
                 player.updateInventory();
-            } 
+            }
             else if (allowed == AllowedToWearEnum.NOPERMISSION)
             {
                 plugin.usageDeniedMessage(player, armorTier);
@@ -446,7 +442,7 @@ public class EventHandlers implements Listener
             }
         }
     }
-    
+
     // Player closes their inventory. Also checks for whether they are allowed to wear the armored elytra they are wearing.
     // This is done again here because there are ways to  bypass permission check when equipping.
     @EventHandler
@@ -454,7 +450,7 @@ public class EventHandlers implements Listener
     {
         verifyArmorInChestSlot((Player) e.getPlayer());
     }
-    
+
     // Check if the player is allowed to wear the armored elytra based on their permissions.
     private void verifyArmorInChestSlot(Player player)
     {
@@ -467,23 +463,23 @@ public class EventHandlers implements Listener
         // If that chestplate is an (armored) elytra.
         if (armorTier == ArmorTier.NONE)
             return;
-        
-        AllowedToWearEnum allowed = this.isAllowedToWear(chestplate, player, armorTier);
-        if (allowed == AllowedToWearEnum.BROKEN) 
+
+        AllowedToWearEnum allowed = isAllowedToWear(chestplate, player, armorTier);
+        if (allowed == AllowedToWearEnum.BROKEN)
         {
             plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.RepairNeeded"));
-            this.unenquipChestPlayer(player);
-        } 
+            unenquipChestPlayer(player);
+        }
         else if (allowed == AllowedToWearEnum.NOPERMISSION)
         {
             plugin.usageDeniedMessage(player, armorTier);
-            this.unenquipChestPlayer(player);
+            unenquipChestPlayer(player);
         }
     }
-    
+
     // Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerDamage(EntityDamageEvent e) 
+    public void onPlayerDamage(EntityDamageEvent e)
     {
         if(!(e.getEntity() instanceof Player))
             return;
@@ -492,25 +488,25 @@ public class EventHandlers implements Listener
         // If the player didn't die from the damage.
         if ((p.getHealth() - e.getFinalDamage()) > 0)
         {
-            if (p.getInventory().getChestplate() == null) 
+            if (p.getInventory().getChestplate() == null)
                 return;
 
-            if (nbtEditor.getArmorTier(p.getInventory().getChestplate()) == ArmorTier.NONE) 
+            if (nbtEditor.getArmorTier(p.getInventory().getChestplate()) == ArmorTier.NONE)
                 return;
 
             ItemStack elytra = p.getInventory().getChestplate();
             DamageCause cause = e.getCause();
-            
+
             // The elytra doesn't receive any damage for these causes:
-            if (cause != DamageCause.DROWNING && cause != DamageCause.STARVATION    && cause != DamageCause.SUFFOCATION && 
-                cause != DamageCause.SUICIDE  && cause != DamageCause.FLY_INTO_WALL && cause != DamageCause.POISON) 
+            if (cause != DamageCause.DROWNING && cause != DamageCause.STARVATION    && cause != DamageCause.SUFFOCATION &&
+                cause != DamageCause.SUICIDE  && cause != DamageCause.FLY_INTO_WALL && cause != DamageCause.POISON)
             {
                 int durability    = p.getInventory().getChestplate().getDurability();
                 int maxDurability = p.getInventory().getChestplate().getType().getMaxDurability();
-                int newDurability = (int) (durability + ((int) (e.getDamage() / 4) > 1 ? (int) (e.getDamage() / 4) : 1));
-                
+                int newDurability = durability + ((int) (e.getDamage() / 4) > 1 ? (int) (e.getDamage() / 4) : 1);
+
                 // If the elytra has the durability enchantment, we calculate the durability loss ourselves.
-                if (p.getInventory().getChestplate().containsEnchantment(Enchantment.DURABILITY)) 
+                if (p.getInventory().getChestplate().containsEnchantment(Enchantment.DURABILITY))
                 {
                     // Get a random int between 0 and 100 to use in deciding if the durability enchantment will take effect.
                     Random r            = new Random();
@@ -519,36 +515,36 @@ public class EventHandlers implements Listener
                     int durabilityDelta = (100 / (enchantLevel + 1)) < randomInt ? 0 : 1;
                     // If the durability equals/exceeds maxDurability, it's broken (0 = full item durability).
                     if (durability >= maxDurability)
-                        this.unenquipChestPlayer(p);
-                    else 
+                        unenquipChestPlayer(p);
+                    else
                         newDurability = durability + durabilityDelta;
                 }
                 // If the item should be broken, make sure it really is broken and unequip it.
-                if (newDurability >= maxDurability) 
+                if (newDurability >= maxDurability)
                 {
                     newDurability = maxDurability;
-                    this.unenquipChestPlayer(p);
+                    unenquipChestPlayer(p);
                 }
                 elytra.setDurability((short) (newDurability));
             }
         }
     }
-    
+
     // Check if the player is trying to equip a broken elytra (and prevent that).
     @EventHandler
     public void playerEquipsArmor(InventoryClickEvent e)
     {
         if (!(e.getWhoClicked() instanceof Player))
             return;
-        
+
         Player player = (Player) e.getWhoClicked();
-        new BukkitRunnable() 
+        new BukkitRunnable()
         {
             @Override
-            public void run() 
+            public void run()
             {
                 verifyArmorInChestSlot(player);
             }
-        }.runTaskLater(this.plugin, 1);
+        }.runTaskLater(plugin, 1);
     }
 }

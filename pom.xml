@@ -16,6 +16,7 @@
 	</repositories>
 
 	<dependencies>
+    <!-- 
  		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-1.9</artifactId>
@@ -39,7 +40,7 @@
 			<artifactId>spigot-1.11</artifactId>
 			<version>1.11.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> -->
  		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-1.12</artifactId>

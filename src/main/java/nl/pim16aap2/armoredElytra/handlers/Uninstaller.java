@@ -13,13 +13,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nms.NBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 
 public class Uninstaller implements Listener
 {
-    ArmoredElytra plugin;
-    NBTEditor  nbtEditor;
+    private final ArmoredElytra plugin;
+    private final NBTEditor  nbtEditor;
 
     public Uninstaller(ArmoredElytra plugin, NBTEditor nbtEditor)
     {
@@ -45,7 +45,6 @@ public class Uninstaller implements Listener
     public void onChestOpen(InventoryOpenEvent event)
     {
         if (event.getInventory().getType().equals(InventoryType.CHEST))
-        {
             // Slight delay so the inventory has time to get loaded.
             new BukkitRunnable()
             {
@@ -57,8 +56,7 @@ public class Uninstaller implements Listener
                     if (removed != 0)
                         plugin.messagePlayer((Player) (event.getPlayer()), ChatColor.RED, "Removed " + removed + " armored elytras from your chest!");
                 }
-            }.runTaskLater(this.plugin, 20);
-        }
+            }.runTaskLater(plugin, 20);
     }
 
     @EventHandler
@@ -73,8 +71,8 @@ public class Uninstaller implements Listener
                 Inventory inv = event.getPlayer().getInventory();
                 int removed = removeArmoredElytras(inv);
                 if (removed != 0)
-                    plugin.messagePlayer((Player) (event.getPlayer()), ChatColor.RED, "Removed " + removed + " armored elytras from your inventory!");
+                    plugin.messagePlayer(event.getPlayer(), ChatColor.RED, "Removed " + removed + " armored elytras from your inventory!");
             }
-        }.runTaskLater(this.plugin, 20);
+        }.runTaskLater(plugin, 20);
     }
 }
