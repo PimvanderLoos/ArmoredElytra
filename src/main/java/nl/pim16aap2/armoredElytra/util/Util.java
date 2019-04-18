@@ -8,8 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class Util
-{    
-	// Check if an item is broken or not.
+{
+    // Check if an item is broken or not.
     public static boolean isBroken(ItemStack item)
     {
         return item.getDurability() >= item.getType().getMaxDurability();
@@ -19,7 +19,7 @@ public class Util
     public static ArmorTier armorToTier(Material item)
     {
         ArmorTier ret = ArmorTier.NONE;
-        
+
         switch (item)
         {
         case LEATHER_CHESTPLATE:
@@ -42,12 +42,12 @@ public class Util
         }
         return ret;
     }
-    
+
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {
-        if (mat == Material.LEATHER_CHESTPLATE   || mat == Material.GOLD_CHESTPLATE || 
-            mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE || 
+        if (mat == Material.LEATHER_CHESTPLATE   || mat == Material.GOLD_CHESTPLATE ||
+            mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE ||
             mat == Material.DIAMOND_CHESTPLATE)
             return true;
         return false;
@@ -69,22 +69,22 @@ public class Util
             ret += 16;
         return ret;
     }
-    
+
     public static boolean playerHasCraftPerm(Player player, ArmorTier armorTier)
     {
-        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.craft.leather")) || 
-                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.craft.gold"   )) || 
-                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.craft.chain"  )) || 
-                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.craft.iron"   )) || 
+        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.craft.leather")) ||
+                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.craft.gold"   )) ||
+                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.craft.chain"  )) ||
+                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.craft.iron"   )) ||
                 (armorTier == ArmorTier.DIAMOND && player.hasPermission("armoredelytra.craft.diamond")));
     }
-    
+
     public static boolean playerHasWearPerm(Player player, ArmorTier armorTier)
     {
-        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.wear.leather" )) || 
-                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.wear.gold"    )) || 
-                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.wear.chain"   )) || 
-                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.wear.iron"    )) || 
+        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.wear.leather" )) ||
+                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.wear.gold"    )) ||
+                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.wear.chain"   )) ||
+                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.wear.iron"    )) ||
                 (armorTier == ArmorTier.DIAMOND && player.hasPermission("armoredelytra.wear.diamond" )));
     }
 }

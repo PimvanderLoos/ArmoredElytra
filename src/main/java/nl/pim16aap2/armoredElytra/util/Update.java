@@ -133,7 +133,7 @@ public class Update
                 JSONObject latest = (JSONObject) array.get(array.size() - 1);
 
                 // Get the version's title
-                this.versionName = (String) latest.get(API_NAME_VALUE);
+                versionName = (String) latest.get(API_NAME_VALUE);
             }
         }
         catch (IOException e)
@@ -141,7 +141,7 @@ public class Update
             // There was an error reading the query.
             // Does not print stacktrace, so people won't see any errors from this plugin
             // when Bukkit Dev's servers are down,
-            // So people won't think the plugin is broken, while the actualy problem is
+            // So people won't think the plugin is broken, while the actual problem is
             // much, much smaller. latestVersion will be null, though, which will prompt a
             // warning in the log instead.
 

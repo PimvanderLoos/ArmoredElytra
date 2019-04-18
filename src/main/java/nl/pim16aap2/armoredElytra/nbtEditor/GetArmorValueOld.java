@@ -17,7 +17,6 @@ public class GetArmorValueOld implements GetArmorValue
         int pos = nbtString.indexOf(",Slot:\"chest\",AttributeName:\"generic.armor\"");
         if (pos > 0)
         {
-            // If so, get the value of the generic.armor attribute.
             pos--;
             String stringAtPos = nbtString.substring(pos, pos + 1);
             return Integer.parseInt(stringAtPos);

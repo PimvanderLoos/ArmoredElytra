@@ -74,8 +74,7 @@ public class NBTEditor
             return;
         }
 
-        // Old versions use the old format. It is assumed here that all versions from 1.13.2 on will use the
-        // new format. Might want to put this in a nice interface instead of an ugly boolean.
+        // Old versions use the old format. It is assumed here that all versions from 1.13.2 on will use the new format.
         // Spigot's 1.13.1 uses the old format, but 1.13.2 uses the new format. They share the same version number though.
         if (version.equals("v1_9_R1" ) || version.equals("v1_9_R2" ) || version.equals("v1_10_R1") ||
             version.equals("v1_11_R1") || version.equals("v1_12_R1") || version.equals("v1_13_R1") ||
@@ -113,8 +112,8 @@ public class NBTEditor
             NBTTagInt     = getNMSClass("NBTTagInt");
             NBTTagIntCtor = NBTTagInt.getConstructor(int.class);
 
-            NBTTagCompound     = getNMSClass("NBTTagCompound");
-            setTag = NBTTagCompound.getMethod("set", String.class, NBTBase);
+            NBTTagCompound = getNMSClass("NBTTagCompound");
+            setTag         = NBTTagCompound.getMethod("set", String.class, NBTBase);
 
             NBTTagList  = getNMSClass("NBTTagList");
             addCompound = NBTTagList.getMethod("add", NBTBase);
@@ -218,7 +217,6 @@ public class NBTEditor
             return null;
         }
     }
-
 
     private Class<?> getNMSClass(String name) throws ClassNotFoundException
     {
