@@ -72,19 +72,11 @@ public class Util
 
     public static boolean playerHasCraftPerm(Player player, ArmorTier armorTier)
     {
-        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.craft.leather")) ||
-                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.craft.gold"   )) ||
-                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.craft.chain"  )) ||
-                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.craft.iron"   )) ||
-                (armorTier == ArmorTier.DIAMOND && player.hasPermission("armoredelytra.craft.diamond")));
+        return player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
     }
 
     public static boolean playerHasWearPerm(Player player, ArmorTier armorTier)
     {
-        return ((armorTier == ArmorTier.LEATHER && player.hasPermission("armoredelytra.wear.leather" )) ||
-                (armorTier == ArmorTier.GOLD    && player.hasPermission("armoredelytra.wear.gold"    )) ||
-                (armorTier == ArmorTier.CHAIN   && player.hasPermission("armoredelytra.wear.chain"   )) ||
-                (armorTier == ArmorTier.IRON    && player.hasPermission("armoredelytra.wear.iron"    )) ||
-                (armorTier == ArmorTier.DIAMOND && player.hasPermission("armoredelytra.wear.diamond" )));
+        return player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));
     }
 }

@@ -49,7 +49,6 @@ public class CommandHandler implements CommandExecutor
                     String tier = null;
                     Player receiver;
                     boolean allowed = false;
-                    ArmorTier armorTier = ArmorTier.NONE;
                     if (args.length == 1)
                     {
                         receiver = player;
@@ -66,38 +65,14 @@ public class CommandHandler implements CommandExecutor
                         tier = args[1];
                     }
 
-                    if (tier.equalsIgnoreCase("leather"))
-                    {
-                        armorTier = ArmorTier.LEATHER;
-                        if (player.hasPermission("armoredelytra.give.leather"))
-                            allowed = true;
-                    }
-                    else if (tier.equalsIgnoreCase("gold"))
-                    {
-                        armorTier = ArmorTier.GOLD;
-                        if (player.hasPermission("armoredelytra.give.gold"))
-                            allowed = true;
-                    }
-                    else if (tier.equalsIgnoreCase("chain"))
-                    {
-                        armorTier = ArmorTier.CHAIN;
-                        if (player.hasPermission("armoredelytra.give.chain"))
-                            allowed = true;
-                    }
-                    else if (tier.equalsIgnoreCase("iron"))
-                    {
-                        armorTier = ArmorTier.IRON;
-                        if (player.hasPermission("armoredelytra.give.iron"))
-                            allowed = true;
-                    }
-                    else if (tier.equalsIgnoreCase("diamond"))
-                    {
-                        armorTier = ArmorTier.DIAMOND;
-                        if (player.hasPermission("armoredelytra.give.diamond"))
-                            allowed = true;
-                    }
+                    ArmorTier armorTier = ArmorTier.valueOfName(tier.toLowerCase());
+                    if (armorTier != null)
+                        allowed = player.hasPermission("armoredelytra.give." + ArmorTier.getName(armorTier));
                     else
+                    {
                         plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.UnsupportedTier"));
+                        return false;
+                    }
 
                     if (allowed)
                     {
@@ -106,7 +81,7 @@ public class CommandHandler implements CommandExecutor
                         plugin.giveArmoredElytraToPlayer(receiver, newElytra);
                     }
                     else
-                        plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(plugin.getMyMessages().getString("MESSAGES.UnsupportedTier"), armorTier));
+                        plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(plugin.getMyMessages().getString("MESSAGES.NoGivePermission"), armorTier));
                     return true;
                 }
         }
@@ -125,20 +100,9 @@ public class CommandHandler implements CommandExecutor
                 if (Bukkit.getPlayer(args[0]) != null)
                 {
                     player = Bukkit.getPlayer(args[0]);
-                    ArmorTier armorTier = ArmorTier.NONE;
 
-                    if (tier.equalsIgnoreCase("leather"))
-                        armorTier = ArmorTier.LEATHER;
-                    else if (tier.equalsIgnoreCase("gold"))
-                        armorTier = ArmorTier.GOLD;
-                    else if (tier.equalsIgnoreCase("chain"))
-                        armorTier = ArmorTier.CHAIN;
-                    else if (tier.equalsIgnoreCase("iron"))
-                        armorTier = ArmorTier.IRON;
-                    else if (tier.equalsIgnoreCase("diamond"))
-                        armorTier = ArmorTier.DIAMOND;
-                    else
-                        // TODO: Return a more informative message.
+                    ArmorTier armorTier = ArmorTier.valueOfName(tier.toLowerCase());
+                    if (armorTier == null)
                         return false;
 
                     plugin.elytraReceivedMessage(player, armorTier);
