@@ -1,7 +1,7 @@
 name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
 version: 2.4.8
-author: Pim
+author: pim16aap2
 commands:
   ArmoredElytra:
     description: Give an armored elytra of the specified tier.

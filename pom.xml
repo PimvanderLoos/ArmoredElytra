@@ -34,13 +34,13 @@
 			<artifactId>spigot-1.10</artifactId>
 			<version>1.10.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
  		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-1.11</artifactId>
 			<version>1.11.2-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
-		</dependency> -->
+		</dependency>
  		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-1.12</artifactId>
@@ -53,12 +53,18 @@
 			<version>1.13-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-1.13.1</artifactId>
-			<version>1.13.1-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-1.13.1</artifactId>
+            <version>1.13.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency> 
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-1.14</artifactId>
+            <version>1.14-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 
 		<!--bStats -->
 		<dependency>

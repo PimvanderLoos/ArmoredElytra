@@ -116,7 +116,15 @@ public class NBTEditor
             setTag         = NBTTagCompound.getMethod("set", String.class, NBTBase);
 
             NBTTagList  = getNMSClass("NBTTagList");
-            addCompound = NBTTagList.getMethod("add", NBTBase);
+            // Starting in 1.14, you also need to provide an int value when adding nbt tags.
+            try
+            {
+                addCompound = NBTTagList.getMethod("add", NBTBase);
+            }
+            catch (Exception e)
+            {
+                addCompound = NBTTagList.getMethod("add", int.class, NBTBase);
+            }
 
             setCompoundTagList = NBTTagCompound.getMethod("set", String.class, NBTBase);
             setCompoundByte    = NBTTagCompound.getMethod("set", String.class, NBTBase);
@@ -128,6 +136,14 @@ public class NBTEditor
             e.printStackTrace();
             success = false;
         }
+    }
+
+    private void addCompound(Object instance, Object nbtbase) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    {
+        if (addCompound.getParameterCount() == 2)
+            addCompound.invoke(instance, 0, nbtbase);
+        else
+            addCompound.invoke(instance, nbtbase);
     }
 
     // Add armor to the supplied item, based on the armorTier.
@@ -155,7 +171,7 @@ public class NBTEditor
             setTag.invoke     (armor, "UUIDLeast",     NBTTagIntCtor.newInstance(894654));
             setTag.invoke     (armor, "UUIDMost",      NBTTagIntCtor.newInstance(2872));
             setTag.invoke     (armor, "Slot",          NBTTagStringCtor.newInstance("chest"));
-            addCompound.invoke(modifiers, armor);
+            addCompound(modifiers, armor);
 
             Object armorTough = NBTTagCompound.newInstance();
             setTag.invoke     (armorTough, "AttributeName", NBTTagStringCtor.newInstance("generic.armorToughness"));
@@ -165,7 +181,7 @@ public class NBTEditor
             setTag.invoke     (armorTough, "UUIDLeast",     NBTTagIntCtor.newInstance(894654));
             setTag.invoke     (armorTough, "UUIDMost",      NBTTagIntCtor.newInstance(2872));
             setTag.invoke     (armorTough, "Slot",          NBTTagStringCtor.newInstance("chest"));
-            addCompound.invoke(modifiers, armorTough);
+            addCompound(modifiers, armorTough);
 
             if (unbreakable)
                 setCompoundByte.invoke(compound, "Unbreakable", NBTTagByteCtor.newInstance((byte) 1));
