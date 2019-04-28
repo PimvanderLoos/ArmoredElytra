@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.util.ConfigOption;
 
 public class ConfigLoader
 {
@@ -28,17 +27,17 @@ public class ConfigLoader
     private int       DIAMONDS_TO_FULL;
     private boolean noFlightDurability;
     private List<String> allowedEnchantments;
-    
+
     private ArrayList<ConfigOption> configOptionsList;
     private ArmoredElytra plugin;
-    
-    public ConfigLoader(ArmoredElytra plugin) 
+
+    public ConfigLoader(ArmoredElytra plugin)
     {
         this.plugin = plugin;
-        configOptionsList = new ArrayList<ConfigOption>();
+        configOptionsList = new ArrayList<>();
         makeConfig();
     }
-    
+
     // Read the current config, the make a new one based on the old one or default values, whichever is applicable.
     public void makeConfig()
     {
@@ -53,12 +52,12 @@ public class ConfigLoader
              "Setting this to true will cause armored elytras to not lose any durability while flying.",
              "This is not a permanent option and will affect ALL elytras."
             };
-        String[] repairComment         = 
+        String[] repairComment         =
             {
                 "Amount of items it takes to fully repair an armored elytra",
                 "Repair cost for every tier of armored elytra in number of items to repair 100%."
             };
-        String[] enchantmentsComment   = 
+        String[] enchantmentsComment   =
             {
                 "List of enchantments that are allowed to be put on an armored elytra.",
                 "If you do not want to allow any enchantments at all, remove them all and add \"NONE\"",
@@ -66,11 +65,11 @@ public class ConfigLoader
                 "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html",
                 "Note that only 1 protection enchantment (PROTECTION_FIRE, PROTECTION_ENVIRONMENTAL etc) can be active on an elytra."
             };
-        String[] updateComment         = 
+        String[] updateComment         =
             {
                 "Allow this plugin to check for updates on startup. It will not download new versions!"
             };
-        String[] bStatsComment         = 
+        String[] bStatsComment         =
             {
                 "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                 "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
@@ -91,18 +90,18 @@ public class ConfigLoader
             {
                 "Specify a language file to be used. Note that en_US.txt will get regenerated!"
             };
-        
-        
-        
+
+
+
         FileConfiguration config = plugin.getConfig();
-        
+
         // Read all the options from the config, then put them in a configOption with their name, value and comment.
         // THen put all configOptions into an ArrayList.
         unbreakable           = config.getBoolean   ("unbreakable"       , false);
         configOptionsList.add(new ConfigOption      ("unbreakable"       , unbreakable       , unbreakableComment  ));
         noFlightDurability    = config.getBoolean   ("noFlightDurability", false);
         configOptionsList.add(new ConfigOption      ("noFlightDurability", noFlightDurability, flyDurabilityComment));
-        
+
         LEATHER_TO_FULL       = config.getInt       ("leatherRepair" , 6);
         configOptionsList.add(new ConfigOption      ("leatherRepair" , LEATHER_TO_FULL, repairComment));
         GOLD_TO_FULL          = config.getInt       ("goldRepair"    , 5);
@@ -111,10 +110,10 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption      ("ironRepair"    , IRON_TO_FULL));
         DIAMONDS_TO_FULL      = config.getInt       ("diamondsRepair", 3);
         configOptionsList.add(new ConfigOption      ("diamondsRepair", DIAMONDS_TO_FULL));
-        
+
         allowedEnchantments   = config.getStringList("allowedEnchantments");
         configOptionsList.add(new ConfigOption      ("allowedEnchantments", allowedEnchantments, enchantmentsComment));
-        
+
         checkForUpdates       = config.getBoolean   ("checkForUpdates", true );
         configOptionsList.add(new ConfigOption      ("checkForUpdates", checkForUpdates, updateComment));
         allowStats            = config.getBoolean   ("allowStats"     , true );
@@ -125,10 +124,10 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption      ("uninstallMode"  , uninstallMode, uninstallComment));
         languageFile          = config.getString    ("languageFile"   , "en_US");
         configOptionsList.add(new ConfigOption      ("languageFile"   , languageFile, languageFileComment));
-        
+
         writeConfig();
     }
-    
+
     // Write new config file.
     public void writeConfig()
     {
@@ -149,10 +148,10 @@ public class ConfigLoader
             }
             FileWriter  fw = new FileWriter(saveTo, true);
             PrintWriter pw = new PrintWriter(fw);
-            
+
             for (ConfigOption configOption : configOptionsList)
                 pw.println(configOption.toString());
-             
+
             pw.flush();
             pw.close();
         }
@@ -162,7 +161,7 @@ public class ConfigLoader
             e.printStackTrace();
         }
     }
-    
+
     public Integer getInt(String path)
     {
         for (ConfigOption configOption : configOptionsList)
@@ -170,7 +169,7 @@ public class ConfigLoader
                 return configOption.getInt();
         return null;
     }
-    
+
     public Boolean getBool(String path)
     {
         for (ConfigOption configOption : configOptionsList)
@@ -178,7 +177,7 @@ public class ConfigLoader
                 return configOption.getBool();
         return null;
     }
-    
+
     public String getString(String path)
     {
         for (ConfigOption configOption : configOptionsList)
@@ -186,7 +185,7 @@ public class ConfigLoader
                 return configOption.getString();
         return null;
     }
-    
+
     public List<String> getStringList(String path)
     {
         for (ConfigOption configOption : configOptionsList)

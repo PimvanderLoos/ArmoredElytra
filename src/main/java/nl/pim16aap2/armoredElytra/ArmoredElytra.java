@@ -92,9 +92,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             // Y u do dis? :(
             myLogger(Level.INFO, "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
-        locale = config.getString("languageFile");
-
-
         // Load the files for the correct version of Minecraft.
         if (compatibleMCVer())
         {
@@ -139,6 +136,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
         // Check if the plugin should go into uninstall mode.
         uninstallMode = config.getBool("uninstallMode");
+
+        locale = config.getString("languageFile");
     }
 
     public Messages getMyMessages()
@@ -223,6 +222,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
     public String getLocale()
     {
+        if (locale == null)
+            System.out.println("locale is null!");
+        else
+            System.out.println("Locale is " + locale);
         return locale == null ? "en_US" : locale;
     }
 
