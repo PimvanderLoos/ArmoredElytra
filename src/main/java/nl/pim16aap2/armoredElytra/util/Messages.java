@@ -15,12 +15,17 @@ public class Messages
 {
     private Map<String, String> messageMap = new HashMap<>();
     private ArmoredElytra plugin;
-    private File        textFile;
+    private File textFile;
 
     public Messages(ArmoredElytra plugin)
     {
         this.plugin = plugin;
-        textFile = new File(plugin.getDataFolder(), plugin.getLocale() + ".txt");
+        textFile = new File(plugin.getDataFolder(), plugin.getConfigLoader().languageFile() + ".txt");
+        if (!textFile.exists())
+        {
+            plugin.myLogger(Level.WARNING, "Failed to load language file: \"" + textFile + "\": File not found! Using default file instead!");
+            textFile = new File(plugin.getDataFolder(), "en_US.txt");
+        }
         readFile();
     }
 
@@ -51,8 +56,8 @@ public class Messages
                     continue;
                 String key, value;
                 String[] parts = sCurrentLine.split("=", 2);
-                key    = parts[0];
-                value  = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+                key = parts[0];
+                value = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
                 String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
 
                 String values = newLineSplitter[0];

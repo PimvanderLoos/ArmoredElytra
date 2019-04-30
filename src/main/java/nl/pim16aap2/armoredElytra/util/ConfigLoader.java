@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -15,31 +16,33 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 
 public class ConfigLoader
 {
-    private boolean         allowStats;
-    private boolean        unbreakable;
-    private boolean        enableDebug;
-    private String        languageFile;
-    private int           GOLD_TO_FULL;
-    private int           IRON_TO_FULL;
-    private boolean      uninstallMode;
-    private boolean    checkForUpdates;
-    private int        LEATHER_TO_FULL;
-    private int       DIAMONDS_TO_FULL;
+    private final String header;
+    private boolean allowStats;
+    private boolean unbreakable;
+    private boolean enableDebug;
+    private String languageFile;
+    private int GOLD_TO_FULL;
+    private int IRON_TO_FULL;
+    private boolean uninstallMode;
+    private boolean checkForUpdates;
+    private int LEATHER_TO_FULL;
+    private int DIAMONDS_TO_FULL;
     private boolean noFlightDurability;
     private List<String> allowedEnchantments;
 
-    private ArrayList<ConfigOption> configOptionsList;
+    private ArrayList<ConfigOption<?>> configOptionsList;
     private ArmoredElytra plugin;
 
     public ConfigLoader(ArmoredElytra plugin)
     {
         this.plugin = plugin;
         configOptionsList = new ArrayList<>();
+        header = "Config file for ArmoredElytra. Don't forget to make a backup before making changes!";
         makeConfig();
     }
 
     // Read the current config, the make a new one based on the old one or default values, whichever is applicable.
-    public void makeConfig()
+    private void makeConfig()
     {
         // All the comments for the various config options.
         String[] unbreakableComment    =
@@ -91,45 +94,38 @@ public class ConfigLoader
                 "Specify a language file to be used. Note that en_US.txt will get regenerated!"
             };
 
-
+        // Set default list of allowed enchantments.
+        allowedEnchantments = new ArrayList<>(Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
+                                                                  "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL", "THORNS",
+                                                                  "BINDING_CURSE", "VANISHING_CURSE"));
 
         FileConfiguration config = plugin.getConfig();
 
-        // Read all the options from the config, then put them in a configOption with their name, value and comment.
-        // THen put all configOptions into an ArrayList.
-        unbreakable           = config.getBoolean   ("unbreakable"       , false);
-        configOptionsList.add(new ConfigOption      ("unbreakable"       , unbreakable       , unbreakableComment  ));
-        noFlightDurability    = config.getBoolean   ("noFlightDurability", false);
-        configOptionsList.add(new ConfigOption      ("noFlightDurability", noFlightDurability, flyDurabilityComment));
-
-        LEATHER_TO_FULL       = config.getInt       ("leatherRepair" , 6);
-        configOptionsList.add(new ConfigOption      ("leatherRepair" , LEATHER_TO_FULL, repairComment));
-        GOLD_TO_FULL          = config.getInt       ("goldRepair"    , 5);
-        configOptionsList.add(new ConfigOption      ("goldRepair"    , GOLD_TO_FULL));
-        IRON_TO_FULL          = config.getInt       ("ironRepair"    , 4);
-        configOptionsList.add(new ConfigOption      ("ironRepair"    , IRON_TO_FULL));
-        DIAMONDS_TO_FULL      = config.getInt       ("diamondsRepair", 3);
-        configOptionsList.add(new ConfigOption      ("diamondsRepair", DIAMONDS_TO_FULL));
-
-        allowedEnchantments   = config.getStringList("allowedEnchantments");
-        configOptionsList.add(new ConfigOption      ("allowedEnchantments", allowedEnchantments, enchantmentsComment));
-
-        checkForUpdates       = config.getBoolean   ("checkForUpdates", true );
-        configOptionsList.add(new ConfigOption      ("checkForUpdates", checkForUpdates, updateComment));
-        allowStats            = config.getBoolean   ("allowStats"     , true );
-        configOptionsList.add(new ConfigOption      ("allowStats"     , allowStats, bStatsComment));
-        enableDebug           = config.getBoolean   ("enableDebug"    , false);
-        configOptionsList.add(new ConfigOption      ("enableDebug"    , enableDebug, debugComment));
-        uninstallMode         = config.getBoolean   ("uninstallMode"  , false);
-        configOptionsList.add(new ConfigOption      ("uninstallMode"  , uninstallMode, uninstallComment));
-        languageFile          = config.getString    ("languageFile"   , "en_US");
-        configOptionsList.add(new ConfigOption      ("languageFile"   , languageFile, languageFileComment));
+        unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
+        noFlightDurability = addNewConfigOption(config, "noFlightDurability", false, flyDurabilityComment);
+        LEATHER_TO_FULL = addNewConfigOption(config, "leatherRepair", 6, repairComment);
+        GOLD_TO_FULL = addNewConfigOption(config, "goldRepair", 5, null);
+        IRON_TO_FULL = addNewConfigOption(config, "ironRepair", 4, null);
+        DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
+        allowedEnchantments = addNewConfigOption(config, "allowedEnchantments", allowedEnchantments, enchantmentsComment);
+        checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
+        allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
+        enableDebug = addNewConfigOption(config, "enableDebug", false, debugComment);
+        uninstallMode = addNewConfigOption(config, "uninstallMode", false, uninstallComment);
+        languageFile = addNewConfigOption(config, "languageFile", "en_US", languageFileComment);
 
         writeConfig();
     }
 
+    private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, String[] comment)
+    {
+        ConfigOption<T> option = new ConfigOption<>(plugin, config, optionName, defaultValue, comment);
+        configOptionsList.add(option);
+        return option.getValue();
+    }
+
     // Write new config file.
-    public void writeConfig()
+    private void writeConfig()
     {
         // Write all the config options to the config.yml.
         try
@@ -149,8 +145,14 @@ public class ConfigLoader
             FileWriter  fw = new FileWriter(saveTo, true);
             PrintWriter pw = new PrintWriter(fw);
 
-            for (ConfigOption configOption : configOptionsList)
-                pw.println(configOption.toString());
+            if (header != null)
+                pw.println("# " + header + "\n");
+
+            for (int idx = 0; idx < configOptionsList.size(); ++idx)
+                pw.println(configOptionsList.get(idx).toString() +
+                // Only print an additional newLine if the next config option has a comment.
+                    (idx < configOptionsList.size() - 1 && configOptionsList.get(idx + 1).getComment() == null ? ""
+                                                                                                               : "\n"));
 
             pw.flush();
             pw.close();
@@ -162,35 +164,64 @@ public class ConfigLoader
         }
     }
 
-    public Integer getInt(String path)
+
+    public boolean allowStats()
     {
-        for (ConfigOption configOption : configOptionsList)
-            if (configOption.getName().equals(path))
-                return configOption.getInt();
-        return null;
+        return allowStats;
     }
 
-    public Boolean getBool(String path)
+    public boolean unbreakable()
     {
-        for (ConfigOption configOption : configOptionsList)
-            if (configOption.getName().equals(path))
-                return configOption.getBool();
-        return null;
+        return unbreakable;
     }
 
-    public String getString(String path)
+    public boolean enableDebug()
     {
-        for (ConfigOption configOption : configOptionsList)
-            if (configOption.getName().equals(path))
-                return configOption.getString();
-        return null;
+        return enableDebug;
     }
 
-    public List<String> getStringList(String path)
+    public String languageFile()
     {
-        for (ConfigOption configOption : configOptionsList)
-            if (configOption.getName().equals(path))
-                return configOption.getStringList();
-        return null;
+        return languageFile;
+    }
+
+    public int LEATHER_TO_FULL()
+    {
+        return LEATHER_TO_FULL;
+    }
+
+    public int GOLD_TO_FULL()
+    {
+        return GOLD_TO_FULL;
+    }
+
+    public int IRON_TO_FULL()
+    {
+        return IRON_TO_FULL;
+    }
+
+    public int DIAMONDS_TO_FULL()
+    {
+        return DIAMONDS_TO_FULL;
+    }
+
+    public boolean uninstallMode()
+    {
+        return uninstallMode;
+    }
+
+    public boolean checkForUpdates()
+    {
+        return checkForUpdates;
+    }
+
+    public boolean noFlightDurability()
+    {
+        return noFlightDurability;
+    }
+
+    public List<String> allowedEnchantments()
+    {
+        return allowedEnchantments;
     }
 }

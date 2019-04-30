@@ -24,28 +24,26 @@ import nl.pim16aap2.armoredElytra.util.Update;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
-    private NBTEditor          nbtEditor;
-    private Messages            messages;
-    private ConfigLoader          config;
+    private NBTEditor nbtEditor;
+    private Messages messages;
+    private ConfigLoader config;
 
     private String leatherName, ironName, goldName, chainName, diamondName;
     private String elytraReceivedMessage;
-    private String    usageDeniedMessage;
-    private boolean        uninstallMode;
-    private String            elytraLore;
-    private boolean             upToDate;
-    private String                locale;
-    private boolean                is1_9;
+    private String usageDeniedMessage;
+    private String elytraLore;
+    private boolean upToDate;
+    private boolean is1_9;
 
     @Override
     public void onEnable()
     {
-        readConfigValues();
+        config = new ConfigLoader(this);
         messages = new Messages(this);
         readMessages();
 
         // Check if the user allows checking for updates.
-        if (config.getBool("checkForUpdates"))
+        if (config.checkForUpdates())
         {
             // Check for updates in a new thread, so the server won't hang when it cannot contact the update servers.
             final Thread thread = new Thread(() ->
@@ -81,7 +79,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         else
             myLogger(Level.INFO, "Plugin update checking not enabled! You will not receive any messages about new updates for this plugin. Please consider turning this on in the config.");
 
-        if (config.getBool("allowStats"))
+        if (config.allowStats())
         {
             myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
             @SuppressWarnings("unused")
@@ -106,10 +104,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         }
 
         // Load the plugin normally if not in uninstall mode.
-        if (!uninstallMode)
+        if (!config.uninstallMode())
         {
             // Check if the user wants to disable durability penalty for flying with an armored elytra.
-            if (config.getBool("noFlightDurability"))
+            if (config.noFlightDurability())
             {
                 Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(nbtEditor), this);
                 myLogger(Level.INFO, "Durability penalty for flying disabled!");
@@ -119,7 +117,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
-            for (final String s : config.getStringList("allowedEnchantments"))
+            for (final String s : config.allowedEnchantments())
                 myLogger(Level.INFO, " - " + s);
         }
         else
@@ -127,17 +125,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.WARNING, "Plugin in uninstall mode!");
             Bukkit.getPluginManager().registerEvents(new Uninstaller(this, nbtEditor), this);
         }
-    }
-
-    public void readConfigValues()
-    {
-        // Load the settings from the config file.
-        config = new ConfigLoader(this);
-
-        // Check if the plugin should go into uninstall mode.
-        uninstallMode = config.getBool("uninstallMode");
-
-        locale = config.getString("languageFile");
     }
 
     public Messages getMyMessages()
@@ -220,15 +207,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return string.replace("%ARMOR_TIER%", ChatColor.stripColor(getArmoredElytrName(armorTier)));
     }
 
-    public String getLocale()
-    {
-        if (locale == null)
-            System.out.println("locale is null!");
-        else
-            System.out.println("Locale is " + locale);
-        return locale == null ? "en_US" : locale;
-    }
-
     // Print a string to the log.
     public void myLogger(Level level, String str)
     {
@@ -238,7 +216,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     // Log message that only gets printed when debugging is enabled in the config file.
     public void debugMsg(Level level, String str)
     {
-        if (config.getBool("enableDebug"))
+        if (config.enableDebug())
             myLogger(level, str);
     }
 
@@ -290,10 +268,5 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public void setUpToDate(boolean upToDate)
     {
         this.upToDate = upToDate;
-    }
-
-    public boolean getUninstallMode()
-    {
-        return uninstallMode;
     }
 }

@@ -1,5 +1,7 @@
 package nl.pim16aap2.armoredElytra.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
 
 import org.bukkit.Material;
@@ -9,6 +11,20 @@ import org.bukkit.inventory.ItemStack;
 
 public class Util
 {
+    public static String errorToString(Error e)
+    {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    public static String exceptionToString(Exception e)
+    {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
     // Check if an item is broken or not.
     public static boolean isBroken(ItemStack item)
     {

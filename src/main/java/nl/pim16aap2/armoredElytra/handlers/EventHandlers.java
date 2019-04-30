@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
@@ -32,13 +31,8 @@ import nl.pim16aap2.armoredElytra.util.Util;
 
 public class EventHandlers implements Listener
 {
-    private final int             DIAMONDS_TO_FULL;
-    private final int              LEATHER_TO_FULL;
-    private final int                 GOLD_TO_FULL;
-    private final int                 IRON_TO_FULL;
     private final NBTEditor              nbtEditor;
     private final ArmoredElytra             plugin;
-    private final List<String> allowedEnchantments;
     private final boolean                    is1_9;
 
     public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, boolean is1_9)
@@ -46,13 +40,6 @@ public class EventHandlers implements Listener
         this.plugin    = plugin;
         this.nbtEditor = nbtEditor;
         this.is1_9     = is1_9;
-
-        // Get the values of the config options.
-        allowedEnchantments = plugin.getConfigLoader().getStringList("allowedEnchantments");
-        LEATHER_TO_FULL     = plugin.getConfigLoader().getInt("leatherRepair");
-        GOLD_TO_FULL        = plugin.getConfigLoader().getInt("goldRepair");
-        IRON_TO_FULL        = plugin.getConfigLoader().getInt("ironRepair");
-        DIAMONDS_TO_FULL    = plugin.getConfigLoader().getInt("diamondsRepair");
     }
 
     // Remove item from player's chestplate slot and puts it in their normal inventory.
@@ -89,7 +76,7 @@ public class EventHandlers implements Listener
     // Check if the enchantment is allowed on elytras.
     private boolean isAllowedEnchantment(Enchantment enchant)
     {
-        for (String s : allowedEnchantments)
+        for (String s : plugin.getConfigLoader().allowedEnchantments())
             if (Enchantment.getByName(s) != null)
                 if (Enchantment.getByName(s).equals(enchant))
                     return true;
@@ -164,16 +151,16 @@ public class EventHandlers implements Listener
         // Get the multiplier for the repair items.
         double mult = 0.01;
         if (     repairItem.getType() == Material.LEATHER)
-            mult *= (100 / LEATHER_TO_FULL);
+            mult *= (100.0f / plugin.getConfigLoader().LEATHER_TO_FULL());
 
         else if (repairItem.getType() == Material.GOLD_INGOT)
-            mult *= (100 / GOLD_TO_FULL);
+            mult *= (100.0f / plugin.getConfigLoader().GOLD_TO_FULL());
 
         else if (repairItem.getType() == Material.IRON_INGOT)
-            mult *= (100 / IRON_TO_FULL);
+            mult *= (100.0f / plugin.getConfigLoader().IRON_TO_FULL());
 
         else if (repairItem.getType() == Material.DIAMOND)
-            mult *= (100 / DIAMONDS_TO_FULL);
+            mult *= (100.0f / plugin.getConfigLoader().DIAMONDS_TO_FULL());
 
         int maxDurability = Material.ELYTRA.getMaxDurability();
         int newDurability = (int) (curDur - (maxDurability * mult));
@@ -330,7 +317,7 @@ public class EventHandlers implements Listener
                     result.addUnsafeEnchantments(enchantments);
                 result.setDurability(durability);
 
-                result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().getBool("unbreakable"));
+                result = nbtEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable());
                 event.setResult(result);
             }
         }
@@ -379,7 +366,7 @@ public class EventHandlers implements Listener
             {
                 // Create a new armored elytra and give that one to the player instead of the result.
                 // This is done because after putting item0 in AFTER item1, the first letter of the color code shows up, this gets rid of that problem.
-                ItemStack result = nbtEditor.addArmorNBTTags(anvilInventory.getItem(2), armortier, plugin.getConfigLoader().getBool("unbreakable"));
+                ItemStack result = nbtEditor.addArmorNBTTags(anvilInventory.getItem(2), armortier, plugin.getConfigLoader().unbreakable());
                 // Give the result to the player and clear the anvil's inventory.
                 if (e.isShiftClick())
                 {
