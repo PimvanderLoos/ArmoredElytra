@@ -87,7 +87,7 @@ public class Messages
         value = messageMap.get(key);
         if (value == null)
         {
-            value = "BigDoors: Translation not found! Contact server admin!";
+            value = "ArmoredElytra: Translation not found! Contact server admin!";
             plugin.myLogger(Level.WARNING, "Failed to get translation for key " + key);
         }
         return value;

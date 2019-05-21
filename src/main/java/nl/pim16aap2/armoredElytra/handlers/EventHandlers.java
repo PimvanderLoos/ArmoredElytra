@@ -303,9 +303,11 @@ public class EventHandlers implements Listener
                     enchantments = combineEnchantments(enchantments, meta.getStoredEnchants());
                     break;
                 }
+                //$FALL-THROUGH$
             case BLOCK:
                 event.setResult(null);
                 player.updateInventory();
+                //$FALL-THROUGH$
             case NONE:
                 return;
             }

@@ -22,9 +22,12 @@ public class FlyDurabilityHandler implements Listener
     @EventHandler
     public void onItemDamage(PlayerItemDamageEvent e)
     {
-        if (e.getItem().getType() == Material.ELYTRA)
-            if (nbtEditor.getArmorTier(e.getItem()) != ArmorTier.NONE)
-                if (e.getPlayer().isFlying())
-                    e.setCancelled(true);
+        if (e.getItem().getType() != Material.ELYTRA)
+            return;
+        if (!e.getPlayer().isFlying())
+            return;
+
+        if (nbtEditor.getArmorTier(e.getItem()) != ArmorTier.NONE)
+            e.setCancelled(true);
     }
 }

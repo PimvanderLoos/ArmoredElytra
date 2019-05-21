@@ -110,10 +110,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             if (config.noFlightDurability())
             {
                 Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(nbtEditor), this);
-                myLogger(Level.INFO, "Durability penalty for flying disabled!");
+                myLogger(Level.INFO, "Durability penalty for flying enabled!");
             }
             else
-                myLogger(Level.INFO, "Durability penalty for flying enabled!");
+                myLogger(Level.INFO, "Durability penalty for flying disabled!");
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
