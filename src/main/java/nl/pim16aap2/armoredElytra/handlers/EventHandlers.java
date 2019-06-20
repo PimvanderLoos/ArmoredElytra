@@ -28,6 +28,7 @@ import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.Util;
+import nl.pim16aap2.armoredElytra.util.XMaterial;
 
 public class EventHandlers implements Listener
 {
@@ -46,7 +47,7 @@ public class EventHandlers implements Listener
     private void unenquipChestPlayer(Player p)
     {
         if (is1_9)
-            p.getInventory().getChestplate().setType(Material.AIR);
+            p.getInventory().getChestplate().setType(XMaterial.AIR.parseMaterial());
         else
         {
             p.getInventory().addItem(p.getInventory().getChestplate());
@@ -60,7 +61,7 @@ public class EventHandlers implements Listener
     {
         if (is1_9)
         {
-            ItemStack air = new ItemStack(Material.AIR, 1);
+            ItemStack air = new ItemStack(XMaterial.AIR.parseMaterial(), 1);
             anvilInventory.setItem(0, air);
             anvilInventory.setItem(1, air);
             anvilInventory.setItem(2, air);
@@ -112,7 +113,7 @@ public class EventHandlers implements Listener
                     combined.put(entry.getKey(), enchantLevel);
                 }
             }
-            else if (enchantLevel == null)
+            else
                 combined.put(entry.getKey(), entry.getValue());
         }
 
@@ -150,16 +151,16 @@ public class EventHandlers implements Listener
     {
         // Get the multiplier for the repair items.
         double mult = 0.01;
-        if (     repairItem.getType() == Material.LEATHER)
+        if (     repairItem.getType().equals(Material.LEATHER))
             mult *= (100.0f / plugin.getConfigLoader().LEATHER_TO_FULL());
 
-        else if (repairItem.getType() == Material.GOLD_INGOT)
+        else if (repairItem.getType().equals(Material.GOLD_INGOT))
             mult *= (100.0f / plugin.getConfigLoader().GOLD_TO_FULL());
 
-        else if (repairItem.getType() == Material.IRON_INGOT)
+        else if (repairItem.getType().equals(Material.IRON_INGOT))
             mult *= (100.0f / plugin.getConfigLoader().IRON_TO_FULL());
 
-        else if (repairItem.getType() == Material.DIAMOND)
+        else if (repairItem.getType().equals(Material.DIAMOND))
             mult *= (100.0f / plugin.getConfigLoader().DIAMONDS_TO_FULL());
 
         int maxDurability = Material.ELYTRA.getMaxDurability();
@@ -466,7 +467,8 @@ public class EventHandlers implements Listener
         }
     }
 
-    // Because the armored elytra doesn't actually give any armor, the damage received by players wearing an armored elytra is calculated here.
+    // Because the armored elytra doesn't actually give any armor, the damage
+    // received by players wearing an armored elytra is calculated here.
     @EventHandler(ignoreCancelled = true)
     public void onPlayerDamage(EntityDamageEvent e)
     {

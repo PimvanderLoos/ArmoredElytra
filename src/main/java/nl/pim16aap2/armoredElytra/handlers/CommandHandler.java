@@ -41,7 +41,6 @@ public class CommandHandler implements CommandExecutor
                 return true;
             }
 
-
             if (cmd.getName().equalsIgnoreCase("ArmoredElytra"))
                 if (args.length == 1 || args.length == 2)
                 {
@@ -111,11 +110,8 @@ public class CommandHandler implements CommandExecutor
                     plugin.myLogger(Level.INFO, ("Giving an armored elytra of the " + ArmorTier.getArmor(armorTier) + " armor tier to player " + player.getName()));
                     return true;
                 }
-                else
-                {
-                    plugin.myLogger(Level.INFO, ("Player " + args[1] + " not found!"));
-                    return true;
-                }
+                plugin.myLogger(Level.INFO, ("Player " + args[1] + " not found!"));
+                return true;
             }
         }
         return false;

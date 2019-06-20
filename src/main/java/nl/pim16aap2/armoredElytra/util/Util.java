@@ -32,16 +32,19 @@ public class Util
     }
 
     // Get the armor tier from a chest plate.
-    public static ArmorTier armorToTier(Material item)
+    public static ArmorTier armorToTier(Material mat)
     {
         ArmorTier ret = ArmorTier.NONE;
+        XMaterial xmat = XMaterial.matchXMaterial(mat);
+        if (xmat == null)
+            return ret;
 
-        switch (item)
+        switch (xmat)
         {
         case LEATHER_CHESTPLATE:
             ret = ArmorTier.LEATHER;
             break;
-        case GOLD_CHESTPLATE:
+        case GOLDEN_CHESTPLATE:
             ret = ArmorTier.GOLD;
             break;
         case CHAINMAIL_CHESTPLATE:
@@ -62,9 +65,12 @@ public class Util
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {
-        if (mat == Material.LEATHER_CHESTPLATE   || mat == Material.GOLD_CHESTPLATE ||
-            mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE ||
-            mat == Material.DIAMOND_CHESTPLATE)
+        XMaterial xmat = XMaterial.matchXMaterial(mat);
+        if (xmat == null)
+            return false;
+        if (xmat == XMaterial.LEATHER_CHESTPLATE   || xmat == XMaterial.GOLDEN_CHESTPLATE ||
+            xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
+            xmat == XMaterial.DIAMOND_CHESTPLATE)
             return true;
         return false;
     }
