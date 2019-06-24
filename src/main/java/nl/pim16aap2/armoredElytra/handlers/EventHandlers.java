@@ -117,32 +117,35 @@ public class EventHandlers implements Listener
                 combined.put(entry.getKey(), entry.getValue());
         }
 
-        // Get the protection enchantment rating for both enchantment sets.
-        int protVal0 = Util.getProtectionEnchantmentsVal(enchantments0);
-        int protVal1 = Util.getProtectionEnchantmentsVal(enchantments1);
+        if (!plugin.getConfigLoader().allowMultipleProtectionEnchantments())
+        {
+            // Get the protection enchantment rating for both enchantment sets.
+            int protVal0 = Util.getProtectionEnchantmentsVal(enchantments0);
+            int protVal1 = Util.getProtectionEnchantmentsVal(enchantments1);
 
-        // If they have different protection enchantments, keep enchantment1's enchantments
-        // And remove the protection enchantment from enchantments0. Yes, this system only works
-        // If there is 1 protection enchantment on
-        if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
-            switch(protVal0)
-            {
-            case 1:
-                combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
-                break;
-            case 2:
-                combined.remove(Enchantment.PROTECTION_EXPLOSIONS);
-                break;
-            case 4:
-                combined.remove(Enchantment.PROTECTION_FALL);
-                break;
-            case 8:
-                combined.remove(Enchantment.PROTECTION_FIRE);
-                break;
-            case 16:
-                combined.remove(Enchantment.PROTECTION_PROJECTILE);
-                break;
-            }
+            // If they have different protection enchantments, keep enchantment1's enchantments
+            // And remove the protection enchantment from enchantments0. Yes, this system only works
+            // If there is 1 protection enchantment on
+            if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
+                switch(protVal0)
+                {
+                case 1:
+                    combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
+                    break;
+                case 2:
+                    combined.remove(Enchantment.PROTECTION_EXPLOSIONS);
+                    break;
+                case 4:
+                    combined.remove(Enchantment.PROTECTION_FALL);
+                    break;
+                case 8:
+                    combined.remove(Enchantment.PROTECTION_FIRE);
+                    break;
+                case 16:
+                    combined.remove(Enchantment.PROTECTION_PROJECTILE);
+                    break;
+                }
+        }
         return combined;
     }
 

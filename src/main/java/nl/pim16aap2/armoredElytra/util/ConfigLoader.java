@@ -29,6 +29,7 @@ public class ConfigLoader
     private int DIAMONDS_TO_FULL;
     private boolean noFlightDurability;
     private List<String> allowedEnchantments;
+    private boolean allowMultipleProtectionEnchantments;
 
     private ArrayList<ConfigOption<?>> configOptionsList;
     private ArmoredElytra plugin;
@@ -93,6 +94,14 @@ public class ConfigLoader
             {
                 "Specify a language file to be used. Note that en_US.txt will get regenerated!"
             };
+        String[] allowMultipleProtectionEnchantmentsComment =
+            {
+                "Allow more than 1 type of protection enchantment on a single armored elytra. ",
+                "If true, you could have both blast protection and environmental protection at the same time.",
+                "If false, the second enchantment (while crafting) will override the first. So combining an armored",
+                "elytra that has the protection enchantment with an enchanted book that has the blast protection enchantment",
+                "would result in removal of the protection enchantment and addition of the blast protection enchantment."
+            };
 
         // Set default list of allowed enchantments.
         allowedEnchantments = new ArrayList<>(Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
@@ -108,6 +117,7 @@ public class ConfigLoader
         IRON_TO_FULL = addNewConfigOption(config, "ironRepair", 4, null);
         DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
         allowedEnchantments = addNewConfigOption(config, "allowedEnchantments", allowedEnchantments, enchantmentsComment);
+        allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false, allowMultipleProtectionEnchantmentsComment);
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
         allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
         enableDebug = addNewConfigOption(config, "enableDebug", false, debugComment);
@@ -203,6 +213,11 @@ public class ConfigLoader
     public int DIAMONDS_TO_FULL()
     {
         return DIAMONDS_TO_FULL;
+    }
+
+    public boolean allowMultipleProtectionEnchantments()
+    {
+        return allowMultipleProtectionEnchantments;
     }
 
     public boolean uninstallMode()

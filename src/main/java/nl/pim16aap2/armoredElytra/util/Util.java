@@ -76,6 +76,7 @@ public class Util
     }
 
     // Function that returns which/how many protection enchantments there are.
+    // TODO: Use bit flags for this.
     public static int getProtectionEnchantmentsVal(Map<Enchantment, Integer> enchantments)
     {
         int ret  =  0;
