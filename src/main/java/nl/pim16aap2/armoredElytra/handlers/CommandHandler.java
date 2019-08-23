@@ -18,7 +18,7 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 public class CommandHandler implements CommandExecutor
 {
     private final ArmoredElytra plugin;
-    private final NBTEditor  nbtEditor;
+    private final NBTEditor nbtEditor;
 
     public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor)
     {

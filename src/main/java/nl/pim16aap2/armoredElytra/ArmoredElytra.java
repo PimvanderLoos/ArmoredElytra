@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra;
 import java.util.Objects;
 import java.util.logging.Level;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,8 +20,12 @@ import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Messages;
-import nl.pim16aap2.armoredElytra.util.Metrics;
 import nl.pim16aap2.armoredElytra.util.Update;
+
+// TODO: Use this for NBT stuff: https://www.spigotmc.org/resources/item-entity-tile-nbt-api.7939/
+// TODO: Figure out if the config really does read the list of enchantments accurately. A bug report with a customized config seemed to load the default settings...
+// TODO: Verify enchantments on startup. Remove them from the list if they're invalid.
+// TODO: Don't delete the config file. Look at BigDoors.
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
@@ -149,6 +154,16 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage   );
         elytraReceivedMessage = (Objects.equals(elytraReceivedMessage, new String("NONE")) ? null : elytraReceivedMessage);
         elytraLore            = (Objects.equals(elytraLore,            new String("NONE")) ? null : elytraLore           );
+    }
+
+    public boolean playerHasCraftPerm(Player player, ArmorTier armorTier)
+    {
+        return getConfigLoader().bypassCraftPerm() || player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
+    }
+
+    public boolean playerHasWearPerm(Player player, ArmorTier armorTier)
+    {
+        return getConfigLoader().bypassWearPerm() || player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));
     }
 
     // Returns true if this is the latest version of this plugin.

@@ -30,6 +30,8 @@ public class ConfigLoader
     private boolean noFlightDurability;
     private List<String> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
+    public boolean bypassWearPerm;
+    public boolean bypassCraftPerm;
 
     private ArrayList<ConfigOption<?>> configOptionsList;
     private ArmoredElytra plugin;
@@ -87,7 +89,7 @@ public class ConfigLoader
                 "Setting this to true will disable this plugin and remove any armored elytras it can find.",
                 "It will check player's inventories and their end chest upon login and any regular chest when it is opened.",
                 "This means it will take a while for all armored elytras to be removed from your server, but it doesn't take up ",
-                "a lot of resources, so you can just leave it installed and ignore it.",
+                "a lot of resources, so you can just leave the plugin enabled and ignore it.",
                 "Please do not forget to MAKE A BACKUP before enabling this option!"
             };
         String[] languageFileComment   =
@@ -102,11 +104,16 @@ public class ConfigLoader
                 "elytra that has the protection enchantment with an enchanted book that has the blast protection enchantment",
                 "would result in removal of the protection enchantment and addition of the blast protection enchantment."
             };
+        String[] permissionsComment =
+            {
+                "Globally bypass permissions for wearing and/or crafting amored elytras. Useful if permissions are unavailable."
+            };
+
 
         // Set default list of allowed enchantments.
         allowedEnchantments = new ArrayList<>(Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
                                                                   "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL", "THORNS",
-                                                                  "BINDING_CURSE", "VANISHING_CURSE"));
+                                                                  "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
 
         FileConfiguration config = plugin.getConfig();
 
@@ -123,6 +130,8 @@ public class ConfigLoader
         enableDebug = addNewConfigOption(config, "enableDebug", false, debugComment);
         uninstallMode = addNewConfigOption(config, "uninstallMode", false, uninstallComment);
         languageFile = addNewConfigOption(config, "languageFile", "en_US", languageFileComment);
+        bypassWearPerm = addNewConfigOption(config, "bypassWearPermissions", true, permissionsComment);
+        bypassCraftPerm = addNewConfigOption(config, "bypassCraftPermissions", true, null);
 
         writeConfig();
     }
@@ -238,5 +247,15 @@ public class ConfigLoader
     public List<String> allowedEnchantments()
     {
         return allowedEnchantments;
+    }
+
+    public boolean bypassWearPerm()
+    {
+        return bypassWearPerm;
+    }
+
+    public boolean bypassCraftPerm()
+    {
+        return bypassCraftPerm;
     }
 }

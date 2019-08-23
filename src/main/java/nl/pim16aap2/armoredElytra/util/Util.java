@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class Util
@@ -91,15 +90,5 @@ public class Util
         if (enchantments.containsKey(Enchantment.PROTECTION_PROJECTILE))
             ret += 16;
         return ret;
-    }
-
-    public static boolean playerHasCraftPerm(Player player, ArmorTier armorTier)
-    {
-        return player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
-    }
-
-    public static boolean playerHasWearPerm(Player player, ArmorTier armorTier)
-    {
-        return player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));
     }
 }

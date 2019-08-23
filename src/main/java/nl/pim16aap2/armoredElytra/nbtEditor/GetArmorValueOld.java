@@ -21,7 +21,6 @@ public class GetArmorValueOld implements GetArmorValue
             String stringAtPos = nbtString.substring(pos, pos + 1);
             return Integer.parseInt(stringAtPos);
         }
-        else
-            return 0;
+        return 0;
     }
 }

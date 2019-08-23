@@ -37,7 +37,11 @@ public class Messages
 
         // Load the default en_US from the resources.
         plugin.saveResource("en_US.txt", true);
-        defaultFile.setWritable(false);
+        if (!defaultFile.setWritable(false))
+        {
+            plugin.myLogger(Level.WARNING, "Could not set default language file to read-only!");
+            plugin.myLogger(Level.WARNING, "This is not a big problem. Just remember not to edit the file!");
+        }
     }
 
     // Read locale file.
@@ -58,7 +62,7 @@ public class Messages
                 String[] parts = sCurrentLine.split("=", 2);
                 key = parts[0];
                 value = parts[1].replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-                String[] newLineSplitter = value.split("\\\\n"); // Wut? Can I haz more backslash?
+                String[] newLineSplitter = value.split("\\\\n");
 
                 String values = newLineSplitter[0];
 
@@ -83,22 +87,11 @@ public class Messages
     // Get a string from a key. Returns "null" if null.
     public String getString(String key)
     {
-        String value = null;
-        value = messageMap.get(key);
-        if (value == null)
-        {
-            value = "ArmoredElytra: Translation not found! Contact server admin!";
-            plugin.myLogger(Level.WARNING, "Failed to get translation for key " + key);
-        }
-        return value;
-    }
+        String value = messageMap.get(key);
+        if (value != null)
+            return value;
 
-    public String getStringReverse(String value)
-    {
-        return messageMap.entrySet().stream()
-            .filter(e -> e.getValue().equals(value))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
+        plugin.myLogger(Level.WARNING, "Failed to get the translation for key " + key);
+        return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
 }

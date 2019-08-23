@@ -28,7 +28,6 @@ public class GetArmorValueNew implements GetArmorValue
                 plugin.myLogger(Level.INFO, "Failed to obtain armor value from NBT!");
                 return 0;
             }
-        else
-            return 0;
+        return 0;
     }
 }

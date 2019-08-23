@@ -163,7 +163,7 @@ public class NBTEditor
             Object nmsStack   = asNMSCopy.invoke(null, item);
             Object compound   = ((boolean) hasTag.invoke(nmsStack) ? getTag.invoke(nmsStack) : NBTTagCompound.newInstance());
             Object modifiers  = NBTTagList.newInstance();
-            Object armor      = NBTTagCompound.newInstance();
+            Object armor      = NBTTagCompound.newInstance(); // I should be able to simply add custom tags here!
             setTag.invoke     (armor, "AttributeName", NBTTagStringCtor.newInstance("generic.armor"));
             setTag.invoke     (armor, "Name",          NBTTagStringCtor.newInstance("generic.armor"));
             setTag.invoke     (armor, "Amount",        NBTTagIntCtor.newInstance(armorProtection));
