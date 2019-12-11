@@ -1,7 +1,10 @@
 package nl.pim16aap2.armoredElytra;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -18,6 +21,7 @@ import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Messages;
 import nl.pim16aap2.armoredElytra.util.Update;
@@ -33,7 +37,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private Messages messages;
     private ConfigLoader config;
 
-    private String leatherName, ironName, goldName, chainName, diamondName;
+//    private String leatherName, ironName, goldName, chainName, diamondName;
+    private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap(ArmorTier.class);
     private String elytraReceivedMessage;
     private String usageDeniedMessage;
     private String elytraLore;
@@ -137,18 +142,29 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return messages;
     }
 
+    private final String getColorCodedStringFromConfig(final String configEntry)
+    {
+        return getMyMessages().getString(configEntry).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+    }
+
     private void readMessages()
     {
         // Replace color codes by the corresponding colors.
-        usageDeniedMessage    = getMyMessages().getString("MESSAGES.UsageDenied"   ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        elytraReceivedMessage = getMyMessages().getString("MESSAGES.ElytraReceived").replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        elytraLore            = getMyMessages().getString("MESSAGES.Lore"          ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+        usageDeniedMessage = getColorCodedStringFromConfig("MESSAGES.UsageDenied");
+        elytraReceivedMessage = getColorCodedStringFromConfig("MESSAGES.ElytraReceived");
+        elytraLore = getColorCodedStringFromConfig("MESSAGES.Lore");
 
-        leatherName           = getMyMessages().getString("TIER.Leather"           ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        goldName              = getMyMessages().getString("TIER.Gold"              ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        chainName             = getMyMessages().getString("TIER.Chain"             ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        ironName              = getMyMessages().getString("TIER.Iron"              ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
-        diamondName           = getMyMessages().getString("TIER.Diamond"           ).replaceAll("&((?i)[0-9a-fk-or])", "\u00A7$1");
+        armorTierNames.put(ArmorTier.NONE, new ArmorTierName("NONE", "NONE")); // Shouldn't be used.
+        armorTierNames.put(ArmorTier.LEATHER, new ArmorTierName(getColorCodedStringFromConfig("TIER.Leather"),
+                                                                getColorCodedStringFromConfig("TIER.SHORT.Leather")));
+        armorTierNames.put(ArmorTier.GOLD, new ArmorTierName(getColorCodedStringFromConfig("TIER.Gold"),
+                                                             getColorCodedStringFromConfig("TIER.SHORT.Gold")));
+        armorTierNames.put(ArmorTier.CHAIN, new ArmorTierName(getColorCodedStringFromConfig("TIER.Chain"),
+                                                              getColorCodedStringFromConfig("TIER.SHORT.Chain")));
+        armorTierNames.put(ArmorTier.IRON, new ArmorTierName(getColorCodedStringFromConfig("TIER.Iron"),
+                                                             getColorCodedStringFromConfig("TIER.SHORT.Iron")));
+        armorTierNames.put(ArmorTier.DIAMOND, new ArmorTierName(getColorCodedStringFromConfig("TIER.Diamond"),
+                                                                getColorCodedStringFromConfig("TIER.SHORT.Diamond")));
 
         // Change the string to null if it says "NONE".
         usageDeniedMessage    = (Objects.equals(usageDeniedMessage,    new String("NONE")) ? null : usageDeniedMessage   );
@@ -216,10 +232,20 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         }
     }
 
+    private static final Pattern ARMOR_TIER = Pattern.compile("%ARMOR_TIER%");
+    private static final Pattern ARMOR_TIER_SHORT = Pattern.compile("%ARMOR_TIER_SHORT%");
+
     // Replace %ARMOR_TIER% by the name of that armor tier in a string, but strip %ARMOR_TIER% of its color.
     public String fillInArmorTierInStringNoColor(String string, ArmorTier armorTier)
     {
-        return string.replace("%ARMOR_TIER%", ChatColor.stripColor(getArmoredElytrName(armorTier)));
+        if (armorTier == null)
+        {
+            getLogger().log(Level.INFO, "ArmorTier was null! Failed to obtain proper string!");
+            return string;
+        }
+        final ArmorTierName tierName = armorTierNames.get(armorTier);
+        return ARMOR_TIER_SHORT.matcher(ARMOR_TIER.matcher(string).replaceAll(ChatColor.stripColor(tierName.getLongName())))
+            .replaceAll(ChatColor.stripColor(tierName.getShortName()));
     }
 
     // Print a string to the log.
@@ -254,30 +280,14 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return elytraLore;
     }
 
-    public String getArmoredElytrName(ArmorTier tier)
+    public String getArmoredElytraName(ArmorTier tier)
     {
-        String ret;
-        switch(tier)
+        if (tier == null)
         {
-        case LEATHER:
-            ret = leatherName;
-            break;
-        case GOLD:
-            ret = goldName;
-            break;
-        case CHAIN:
-            ret = chainName;
-            break;
-        case IRON:
-            ret = ironName;
-            break;
-        case DIAMOND:
-            ret = diamondName;
-            break;
-        default:
-            ret = "NONE";
+            getLogger().log(Level.INFO, "ArmorTier was null! Failed to obtain proper string!");
+            return "NULL";
         }
-        return ret;
+        return armorTierNames.get(tier).getLongName();
     }
 
     public void setUpToDate(boolean upToDate)

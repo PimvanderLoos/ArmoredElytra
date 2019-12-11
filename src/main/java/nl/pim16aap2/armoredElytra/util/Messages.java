@@ -56,7 +56,7 @@ public class Messages
             while ((sCurrentLine = br.readLine()) != null)
             {
                 // Ignore comments.
-                if (sCurrentLine.startsWith("#"))
+                if (sCurrentLine.startsWith("#") || sCurrentLine.isEmpty())
                     continue;
                 String key, value;
                 String[] parts = sCurrentLine.split("=", 2);

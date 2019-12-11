@@ -48,6 +48,7 @@ public class CommandHandler implements CommandExecutor
                     String tier = null;
                     Player receiver;
                     boolean allowed = false;
+
                     if (args.length == 1)
                     {
                         receiver = player;

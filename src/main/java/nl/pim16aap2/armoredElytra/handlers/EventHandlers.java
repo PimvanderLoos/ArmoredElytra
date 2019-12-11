@@ -277,8 +277,9 @@ public class EventHandlers implements Listener
 
             // If the armored elytra is not of the leather tier, but itemTwo is leather,
             // Pick the block action, as that would repair the elytra by default (vanilla).
-            // Also block Armored Elytra + Elytra.
-            if (tier != ArmorTier.LEATHER && matTwo == Material.LEATHER || matTwo == Material.ELYTRA)
+            // Also block Armored Elytra + Elytra and Elytra + Membrane
+            if (tier != ArmorTier.LEATHER && matTwo == Material.LEATHER || matTwo == Material.ELYTRA ||
+                matTwo.equals(XMaterial.PHANTOM_MEMBRANE.parseMaterial()))
                 return Action.BLOCK;
         }
         return Action.NONE;

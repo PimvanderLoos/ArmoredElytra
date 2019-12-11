@@ -62,6 +62,7 @@ public enum XMaterial
     GOLDEN_CHESTPLATE(0, "GOLD_CHESTPLATE"),
     IRON_CHESTPLATE(0, ""),
     LEATHER_CHESTPLATE(0, ""),
+    PHANTOM_MEMBRANE(0, "1.13"),
 
     AIR(0, ""),
     ;

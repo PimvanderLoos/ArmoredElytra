@@ -66,7 +66,7 @@ public class NBTEditor
         String version;
         try
         {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
         catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
         {
@@ -74,9 +74,11 @@ public class NBTEditor
             return;
         }
 
-        // Old versions use the old format. It is assumed here that all versions from 1.13.2 on will use the new format.
-        // Spigot's 1.13.1 uses the old format, but 1.13.2 uses the new format. They share the same version number though.
-        if (version.equals("v1_9_R1" ) || version.equals("v1_9_R2" ) || version.equals("v1_10_R1") ||
+        // Old versions use the old format. It is assumed here that all versions from
+        // 1.13.2 on will use the new format.
+        // Spigot's 1.13.1 uses the old format, but 1.13.2 uses the new format. They
+        // share the same version number though.
+        if (version.equals("v1_9_R1") || version.equals("v1_9_R2") || version.equals("v1_10_R1") ||
             version.equals("v1_11_R1") || version.equals("v1_12_R1") || version.equals("v1_13_R1") ||
             version.equals("v1_13_R2") && Bukkit.getVersion().split(" ")[2].equals("1.13.1)"))
             getArmorValue = new GetArmorValueOld(plugin);
@@ -98,24 +100,27 @@ public class NBTEditor
             getTag = NMSItemStack.getMethod("getTag");
 
             CraftItemStack = getCraftClass("inventory.CraftItemStack");
-            asNMSCopy      = CraftItemStack.getMethod("asNMSCopy", ItemStack.class);
-            asBukkitCopy   = CraftItemStack.getMethod("asBukkitCopy", NMSItemStack);
+            asNMSCopy = CraftItemStack.getMethod("asNMSCopy", ItemStack.class);
+            asBukkitCopy = CraftItemStack.getMethod("asBukkitCopy", NMSItemStack);
 
             NBTBase = getNMSClass("NBTBase");
 
-            NBTTagString     = getNMSClass("NBTTagString");
-            NBTTagStringCtor = NBTTagString.getConstructor(String.class);
+            NBTTagString = getNMSClass("NBTTagString");
+            NBTTagStringCtor = NBTTagString.getDeclaredConstructor(String.class);
+            NBTTagStringCtor.setAccessible(true);
 
-            NBTTagByte     = getNMSClass("NBTTagByte");
-            NBTTagByteCtor = NBTTagByte.getConstructor(byte.class);
+            NBTTagByte = getNMSClass("NBTTagByte");
+            NBTTagByteCtor = NBTTagByte.getDeclaredConstructor(byte.class);
+            NBTTagByteCtor.setAccessible(true);
 
-            NBTTagInt     = getNMSClass("NBTTagInt");
-            NBTTagIntCtor = NBTTagInt.getConstructor(int.class);
+            NBTTagInt = getNMSClass("NBTTagInt");
+            NBTTagIntCtor = NBTTagInt.getDeclaredConstructor(int.class);
+            NBTTagIntCtor.setAccessible(true);
 
             NBTTagCompound = getNMSClass("NBTTagCompound");
-            setTag         = NBTTagCompound.getMethod("set", String.class, NBTBase);
+            setTag = NBTTagCompound.getMethod("set", String.class, NBTBase);
 
-            NBTTagList  = getNMSClass("NBTTagList");
+            NBTTagList = getNMSClass("NBTTagList");
             // Starting in 1.14, you also need to provide an int value when adding nbt tags.
             try
             {
@@ -127,7 +132,7 @@ public class NBTEditor
             }
 
             setCompoundTagList = NBTTagCompound.getMethod("set", String.class, NBTBase);
-            setCompoundByte    = NBTTagCompound.getMethod("set", String.class, NBTBase);
+            setCompoundByte = NBTTagCompound.getMethod("set", String.class, NBTBase);
 
             success = true;
         }
@@ -138,7 +143,8 @@ public class NBTEditor
         }
     }
 
-    private void addCompound(Object instance, Object nbtbase) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    private void addCompound(Object instance, Object nbtbase)
+        throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
     {
         if (addCompound.getParameterCount() == 2)
             addCompound.invoke(instance, 0, nbtbase);
@@ -151,36 +157,38 @@ public class NBTEditor
     {
         try
         {
-            ItemMeta itemmeta   = item.getItemMeta();
+            ItemMeta itemmeta = item.getItemMeta();
             int armorProtection = ArmorTier.getArmor(armorTier);
-            int armorToughness  = ArmorTier.getToughness(armorTier);
+            int armorToughness = ArmorTier.getToughness(armorTier);
 
-            itemmeta.setDisplayName(plugin.getArmoredElytrName(armorTier));
+            itemmeta.setDisplayName(plugin.getArmoredElytraName(armorTier));
             if (plugin.getElytraLore() != null)
-                itemmeta.setLore(Arrays.asList(plugin.fillInArmorTierInStringNoColor(plugin.getElytraLore(), armorTier)));
+                itemmeta
+                    .setLore(Arrays.asList(plugin.fillInArmorTierInStringNoColor(plugin.getElytraLore(), armorTier)));
             item.setItemMeta(itemmeta);
 
-            Object nmsStack   = asNMSCopy.invoke(null, item);
-            Object compound   = ((boolean) hasTag.invoke(nmsStack) ? getTag.invoke(nmsStack) : NBTTagCompound.newInstance());
-            Object modifiers  = NBTTagList.newInstance();
-            Object armor      = NBTTagCompound.newInstance(); // I should be able to simply add custom tags here!
-            setTag.invoke     (armor, "AttributeName", NBTTagStringCtor.newInstance("generic.armor"));
-            setTag.invoke     (armor, "Name",          NBTTagStringCtor.newInstance("generic.armor"));
-            setTag.invoke     (armor, "Amount",        NBTTagIntCtor.newInstance(armorProtection));
-            setTag.invoke     (armor, "Operation",     NBTTagIntCtor.newInstance(0));
-            setTag.invoke     (armor, "UUIDLeast",     NBTTagIntCtor.newInstance(894654));
-            setTag.invoke     (armor, "UUIDMost",      NBTTagIntCtor.newInstance(2872));
-            setTag.invoke     (armor, "Slot",          NBTTagStringCtor.newInstance("chest"));
+            Object nmsStack = asNMSCopy.invoke(null, item);
+            Object compound = ((boolean) hasTag.invoke(nmsStack) ? getTag.invoke(nmsStack) :
+                NBTTagCompound.newInstance());
+            Object modifiers = NBTTagList.newInstance();
+            Object armor = NBTTagCompound.newInstance(); // I should be able to simply add custom tags here!
+            setTag.invoke(armor, "AttributeName", NBTTagStringCtor.newInstance("generic.armor"));
+            setTag.invoke(armor, "Name", NBTTagStringCtor.newInstance("generic.armor"));
+            setTag.invoke(armor, "Amount", NBTTagIntCtor.newInstance(armorProtection));
+            setTag.invoke(armor, "Operation", NBTTagIntCtor.newInstance(0));
+            setTag.invoke(armor, "UUIDLeast", NBTTagIntCtor.newInstance(894654));
+            setTag.invoke(armor, "UUIDMost", NBTTagIntCtor.newInstance(2872));
+            setTag.invoke(armor, "Slot", NBTTagStringCtor.newInstance("chest"));
             addCompound(modifiers, armor);
 
             Object armorTough = NBTTagCompound.newInstance();
-            setTag.invoke     (armorTough, "AttributeName", NBTTagStringCtor.newInstance("generic.armorToughness"));
-            setTag.invoke     (armorTough, "Name",          NBTTagStringCtor.newInstance("generic.armorToughness"));
-            setTag.invoke     (armorTough, "Amount",        NBTTagIntCtor.newInstance(armorToughness));
-            setTag.invoke     (armorTough, "Operation",     NBTTagIntCtor.newInstance(0));
-            setTag.invoke     (armorTough, "UUIDLeast",     NBTTagIntCtor.newInstance(894654));
-            setTag.invoke     (armorTough, "UUIDMost",      NBTTagIntCtor.newInstance(2872));
-            setTag.invoke     (armorTough, "Slot",          NBTTagStringCtor.newInstance("chest"));
+            setTag.invoke(armorTough, "AttributeName", NBTTagStringCtor.newInstance("generic.armorToughness"));
+            setTag.invoke(armorTough, "Name", NBTTagStringCtor.newInstance("generic.armorToughness"));
+            setTag.invoke(armorTough, "Amount", NBTTagIntCtor.newInstance(armorToughness));
+            setTag.invoke(armorTough, "Operation", NBTTagIntCtor.newInstance(0));
+            setTag.invoke(armorTough, "UUIDLeast", NBTTagIntCtor.newInstance(894654));
+            setTag.invoke(armorTough, "UUIDMost", NBTTagIntCtor.newInstance(2872));
+            setTag.invoke(armorTough, "Slot", NBTTagStringCtor.newInstance("chest"));
             addCompound(modifiers, armorTough);
 
             if (unbreakable)
@@ -192,7 +200,8 @@ public class NBTEditor
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            // TODO: Log this or something. Pretty serious issue for a plugin based entirely on this code.
+            // TODO: Log this or something. Pretty serious issue for a plugin based entirely
+            // on this code.
             e.printStackTrace();
         }
         return item;
