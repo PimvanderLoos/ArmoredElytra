@@ -511,8 +511,8 @@ public class EventHandlers implements Listener
     public void onEquip(ArmorEquipEvent e)
     {
         if (!e.getType().equals(ArmorType.CHESTPLATE) ||
-            !e.getNewArmorPiece().getType().equals(Material.ELYTRA) ||
-            e.getNewArmorPiece() == null)
+            e.getNewArmorPiece() == null ||
+            !e.getNewArmorPiece().getType().equals(Material.ELYTRA) )
             return;
 
         ArmorTier armorTier = nbtEditor.getArmorTier(e.getNewArmorPiece());
