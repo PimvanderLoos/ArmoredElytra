@@ -1,7 +1,8 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import java.util.logging.Level;
-
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,19 +12,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import java.util.logging.Level;
 
 public class CommandHandler implements CommandExecutor
 {
     private final ArmoredElytra plugin;
-    private final NBTEditor nbtEditor;
 
-    public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor)
+    public CommandHandler(ArmoredElytra plugin)
     {
-        this.plugin    = plugin;
-        this.nbtEditor = nbtEditor;
+        this.plugin = plugin;
     }
 
     @Override
@@ -52,7 +49,7 @@ public class CommandHandler implements CommandExecutor
                     if (args.length == 1)
                     {
                         receiver = player;
-                        tier     = args[0];
+                        tier = args[0];
                     }
                     else
                     {
@@ -77,11 +74,13 @@ public class CommandHandler implements CommandExecutor
                     if (allowed)
                     {
                         plugin.elytraReceivedMessage(receiver, armorTier);
-                        newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier, plugin.getConfigLoader().unbreakable());
+                        newElytra = NBTEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
+                                                              plugin.getConfigLoader().unbreakable());
                         plugin.giveArmoredElytraToPlayer(receiver, newElytra);
                     }
                     else
-                        plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(plugin.getMyMessages().getString("MESSAGES.NoGivePermission"), armorTier));
+                        plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(
+                            plugin.getMyMessages().getString("MESSAGES.NoGivePermission"), armorTier));
                     return true;
                 }
         }
@@ -96,7 +95,7 @@ public class CommandHandler implements CommandExecutor
             if (args.length == 2)
             {
                 ItemStack newElytra = null;
-                String tier = args[1];
+                final String tier = args[1];
                 if (Bukkit.getPlayer(args[0]) != null)
                 {
                     player = Bukkit.getPlayer(args[0]);
@@ -106,9 +105,11 @@ public class CommandHandler implements CommandExecutor
                         return false;
 
                     plugin.elytraReceivedMessage(player, armorTier);
-                    newElytra = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier, plugin.getConfigLoader().unbreakable());
+                    newElytra = NBTEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
+                                                          plugin.getConfigLoader().unbreakable());
                     plugin.giveArmoredElytraToPlayer(player, newElytra);
-                    plugin.myLogger(Level.INFO, ("Giving an armored elytra of the " + ArmorTier.getArmor(armorTier) + " armor tier to player " + player.getName()));
+                    plugin.myLogger(Level.INFO, ("Giving an armored elytra of the " + ArmorTier.getArmor(armorTier) +
+                        " armor tier to player " + player.getName()));
                     return true;
                 }
                 plugin.myLogger(Level.INFO, ("Player " + args[1] + " not found!"));

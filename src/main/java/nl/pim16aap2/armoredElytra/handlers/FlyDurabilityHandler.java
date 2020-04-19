@@ -1,20 +1,16 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
-
 public class FlyDurabilityHandler implements Listener
 {
-    private final NBTEditor nbtEditor;
-
-    public FlyDurabilityHandler(NBTEditor nbtEditor)
+    public FlyDurabilityHandler()
     {
-        this.nbtEditor = nbtEditor;
     }
 
     // Do not decrease elytra durability while flying. This also cancels durability decrease when
@@ -24,10 +20,11 @@ public class FlyDurabilityHandler implements Listener
     {
         if (e.getItem().getType() != Material.ELYTRA)
             return;
-        if (!e.getPlayer().isFlying())
+
+        if (!e.getPlayer().isGliding())
             return;
 
-        if (nbtEditor.getArmorTier(e.getItem()) != ArmorTier.NONE)
+        if (NBTEditor.getArmorTier(e.getItem()) != ArmorTier.NONE)
             e.setCancelled(true);
     }
 }

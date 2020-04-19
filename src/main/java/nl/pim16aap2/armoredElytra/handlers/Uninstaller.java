@@ -1,5 +1,8 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,19 +15,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
-
 public class Uninstaller implements Listener
 {
     private final ArmoredElytra plugin;
-    private final NBTEditor  nbtEditor;
 
-    public Uninstaller(ArmoredElytra plugin, NBTEditor nbtEditor)
+    public Uninstaller(ArmoredElytra plugin)
     {
-        this.plugin    = plugin;
-        this.nbtEditor = nbtEditor;
+        this.plugin = plugin;
     }
 
     public int removeArmoredElytras(Inventory inv)
@@ -33,7 +30,7 @@ public class Uninstaller implements Listener
         for (ItemStack is : inv)
             if (is != null)
                 if (is.getType() == Material.ELYTRA)
-                    if (nbtEditor.getArmorTier(is) != ArmorTier.NONE)
+                    if (NBTEditor.getArmorTier(is) != ArmorTier.NONE)
                     {
                         inv.remove(is);
                         ++count;
@@ -54,7 +51,8 @@ public class Uninstaller implements Listener
                     Inventory inv = event.getInventory();
                     int removed = removeArmoredElytras(inv);
                     if (removed != 0)
-                        plugin.messagePlayer((Player) (event.getPlayer()), ChatColor.RED, "Removed " + removed + " armored elytras from your chest!");
+                        plugin.messagePlayer((Player) (event.getPlayer()), ChatColor.RED,
+                                             "Removed " + removed + " armored elytras from your chest!");
                 }
             }.runTaskLater(plugin, 20);
     }
@@ -71,7 +69,8 @@ public class Uninstaller implements Listener
                 Inventory inv = event.getPlayer().getInventory();
                 int removed = removeArmoredElytras(inv);
                 if (removed != 0)
-                    plugin.messagePlayer(event.getPlayer(), ChatColor.RED, "Removed " + removed + " armored elytras from your inventory!");
+                    plugin.messagePlayer(event.getPlayer(), ChatColor.RED,
+                                         "Removed " + removed + " armored elytras from your inventory!");
             }
         }.runTaskLater(plugin, 20);
     }

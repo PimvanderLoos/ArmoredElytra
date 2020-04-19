@@ -1,149 +1,132 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NBTEditor
 {
-    private final ArmoredElytra plugin;
-    private final String NMSbase;
-    private final String CraftBase;
-    private Method asNMSCopy;
-    private Method asBukkitCopy;
-    private Class<?> NMSItemStack;
-    private Class<?> CraftItemStack;
+    private static final String versionString = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+    private static final MinecraftVersion minecraftVersion = MinecraftVersion.get(versionString);
+    private static final String NMSbase = "net.minecraft.server." + versionString + ".";
+    private static final String CraftBase = "org.bukkit.craftbukkit." + versionString + ".";
 
-    private Class<?> NBTTagCompound;
-    private Class<?> NBTTagList;
-    private Class<?> NBTBase;
-    private Class<?> NBTTagString;
-    private Class<?> NBTTagByte;
-    private Class<?> NBTTagInt;
+    private static Method asNMSCopy;
+    private static Method asBukkitCopy;
+    private static Class<?> NMSItemStack;
+    private static Class<?> CraftItemStack;
 
-    private Method hasTag;
-    private Method getTag;
+    private static Class<?> NBTTagCompound;
+    private static Class<?> NBTTagList;
+    private static Class<?> NBTBase;
+    private static Class<?> NBTTagString;
+    private static Class<?> NBTTagByte;
+    private static Class<?> NBTTagInt;
 
-    private Method addCompound;
+    private static Method hasTag;
+    private static Method getTag;
 
-    private Method setTag;
+    private static Method addCompound;
 
-    private Method setCompoundByte;
-    private Method setCompoundTagList;
+    private static Method setTag;
 
-    private Constructor<?> NBTTagStringCtor;
-    private Constructor<?> NBTTagByteCtor;
-    private Constructor<?> NBTTagIntCtor;
+    private static Method setCompoundByte;
+    private static Method setCompoundTagList;
 
-    private boolean success = false;
-    private GetArmorValue getArmorValue;
+    private static Method getCompoundTagList;
+    private static Method getTagListSize;
+    private static Method getTagListAtIndex;
 
-    public NBTEditor(ArmoredElytra plugin)
+    private static Constructor<?> NBTTagStringCtor;
+    private static Constructor<?> NBTTagByteCtor;
+    private static Constructor<?> NBTTagIntCtor;
+
+    private static boolean success;
+
+    private static Function<String, Integer> getArmorValue;
+
+
+    private static final Pattern pattern_findAmount_double = Pattern.compile("Amount:[0-9]+.[0-9]+d[,}]*");
+    private static final Pattern pattern_findAmount_int = Pattern.compile("Amount:[0-9]+[,}]*");
+    private static final Pattern pattern_getDouble = Pattern.compile("[0-9]+.[0-9]+");
+    private static final Pattern pattern_getInt = Pattern.compile("[0-9]+");
+    private static final Pattern pattern_isArmor = Pattern.compile("\"generic.armor\"");
+
+
+    static
     {
-        this.plugin = plugin;
-        final String versionString = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-        NMSbase = "net.minecraft.server." + versionString + ".";
-        CraftBase = "org.bukkit.craftbukkit." + versionString + ".";
-
-        constructNMSClasses();
-        getTagReadingMethod();
-    }
-
-    private void getTagReadingMethod()
-    {
-        if (!success)
-            return;
-
-        String version;
-        try
-        {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        }
-        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
-        {
+        if (minecraftVersion == null)
             success = false;
-            return;
-        }
-
-        // Old versions use the old format. It is assumed here that all versions from
-        // 1.13.2 on will use the new format.
-        // Spigot's 1.13.1 uses the old format, but 1.13.2 uses the new format. They
-        // share the same version number though.
-        if (version.equals("v1_9_R1") || version.equals("v1_9_R2") || version.equals("v1_10_R1") ||
-            version.equals("v1_11_R1") || version.equals("v1_12_R1") || version.equals("v1_13_R1") ||
-            version.equals("v1_13_R2") && Bukkit.getVersion().split(" ")[2].equals("1.13.1)"))
-            getArmorValue = new GetArmorValueOld(plugin);
         else
-            getArmorValue = new GetArmorValueNew(plugin);
-    }
-
-    public boolean succes()
-    {
-        return success;
-    }
-
-    private void constructNMSClasses()
-    {
-        try
-        {
-            NMSItemStack = getNMSClass("ItemStack");
-            hasTag = NMSItemStack.getMethod("hasTag");
-            getTag = NMSItemStack.getMethod("getTag");
-
-            CraftItemStack = getCraftClass("inventory.CraftItemStack");
-            asNMSCopy = CraftItemStack.getMethod("asNMSCopy", ItemStack.class);
-            asBukkitCopy = CraftItemStack.getMethod("asBukkitCopy", NMSItemStack);
-
-            NBTBase = getNMSClass("NBTBase");
-
-            NBTTagString = getNMSClass("NBTTagString");
-            NBTTagStringCtor = NBTTagString.getDeclaredConstructor(String.class);
-            NBTTagStringCtor.setAccessible(true);
-
-            NBTTagByte = getNMSClass("NBTTagByte");
-            NBTTagByteCtor = NBTTagByte.getDeclaredConstructor(byte.class);
-            NBTTagByteCtor.setAccessible(true);
-
-            NBTTagInt = getNMSClass("NBTTagInt");
-            NBTTagIntCtor = NBTTagInt.getDeclaredConstructor(int.class);
-            NBTTagIntCtor.setAccessible(true);
-
-            NBTTagCompound = getNMSClass("NBTTagCompound");
-            setTag = NBTTagCompound.getMethod("set", String.class, NBTBase);
-
-            NBTTagList = getNMSClass("NBTTagList");
-            // Starting in 1.14, you also need to provide an int value when adding nbt tags.
             try
             {
-                addCompound = NBTTagList.getMethod("add", NBTBase);
+                // 1.13 and lower use integer armor values while 1.14 and newer use double armor values.
+                getArmorValue = minecraftVersion.isNewerThan(MinecraftVersion.v1_13) ?
+                                NBTEditor::getArmorValueDouble : NBTEditor::getArmorValueInt;
+
+                NMSItemStack = getNMSClass("ItemStack");
+                hasTag = NMSItemStack.getMethod("hasTag");
+                getTag = NMSItemStack.getMethod("getTag");
+
+                CraftItemStack = getCraftClass("inventory.CraftItemStack");
+                asNMSCopy = CraftItemStack.getMethod("asNMSCopy", ItemStack.class);
+                asBukkitCopy = CraftItemStack.getMethod("asBukkitCopy", NMSItemStack);
+
+                NBTBase = getNMSClass("NBTBase");
+
+                NBTTagString = getNMSClass("NBTTagString");
+                NBTTagStringCtor = NBTTagString.getDeclaredConstructor(String.class);
+                NBTTagStringCtor.setAccessible(true);
+
+                NBTTagByte = getNMSClass("NBTTagByte");
+                NBTTagByteCtor = NBTTagByte.getDeclaredConstructor(byte.class);
+                NBTTagByteCtor.setAccessible(true);
+
+                NBTTagInt = getNMSClass("NBTTagInt");
+                NBTTagIntCtor = NBTTagInt.getDeclaredConstructor(int.class);
+                NBTTagIntCtor.setAccessible(true);
+
+                NBTTagCompound = getNMSClass("NBTTagCompound");
+                setTag = NBTTagCompound.getMethod("set", String.class, NBTBase);
+
+                NBTTagList = getNMSClass("NBTTagList");
+                getTagListSize = NBTTagList.getMethod("size");
+                getTagListAtIndex = NBTTagList.getMethod("get", int.class);
+                // Starting in 1.14, you also need to provide an int value when adding nbt tags.
+                try
+                {
+                    addCompound = NBTTagList.getMethod("add", NBTBase);
+                }
+                catch (Exception e)
+                {
+                    addCompound = NBTTagList.getMethod("add", int.class, NBTBase);
+                }
+
+                setCompoundTagList = NBTTagCompound.getMethod("set", String.class, NBTBase);
+                setCompoundByte = NBTTagCompound.getMethod("set", String.class, NBTBase);
+                getCompoundTagList = NBTTagCompound.getMethod("getList", String.class, int.class);
+
+                success = true;
             }
-            catch (Exception e)
+            catch (NoSuchMethodException | SecurityException | ClassNotFoundException e)
             {
-                addCompound = NBTTagList.getMethod("add", int.class, NBTBase);
+                e.printStackTrace();
+                success = false;
             }
-
-            setCompoundTagList = NBTTagCompound.getMethod("set", String.class, NBTBase);
-            setCompoundByte = NBTTagCompound.getMethod("set", String.class, NBTBase);
-
-            success = true;
-        }
-        catch (NoSuchMethodException | SecurityException | ClassNotFoundException e)
-        {
-            e.printStackTrace();
-            success = false;
-        }
     }
 
-    private void addCompound(Object instance, Object nbtbase)
+    private static void addCompound(Object instance, Object nbtbase)
         throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
     {
         if (addCompound.getParameterCount() == 2)
@@ -153,7 +136,7 @@ public class NBTEditor
     }
 
     // Add armor to the supplied item, based on the armorTier.
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
+    public static ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
     {
         try
         {
@@ -161,15 +144,17 @@ public class NBTEditor
             int armorProtection = ArmorTier.getArmor(armorTier);
             int armorToughness = ArmorTier.getToughness(armorTier);
 
-            itemmeta.setDisplayName(plugin.getArmoredElytraName(armorTier));
-            if (plugin.getElytraLore() != null)
+            itemmeta.setDisplayName(ArmoredElytra.getInstance().getArmoredElytraName(armorTier));
+            if (ArmoredElytra.getInstance().getElytraLore() != null)
                 itemmeta
-                    .setLore(Arrays.asList(plugin.fillInArmorTierInStringNoColor(plugin.getElytraLore(), armorTier)));
+                    .setLore(Arrays.asList(ArmoredElytra.getInstance().fillInArmorTierInStringNoColor(
+                        ArmoredElytra.getInstance().getElytraLore(), armorTier)));
+
             item.setItemMeta(itemmeta);
 
             Object nmsStack = asNMSCopy.invoke(null, item);
             Object compound = ((boolean) hasTag.invoke(nmsStack) ? getTag.invoke(nmsStack) :
-                NBTTagCompound.newInstance());
+                               NBTTagCompound.newInstance());
             Object modifiers = NBTTagList.newInstance();
             Object armor = NBTTagCompound.newInstance(); // I should be able to simply add custom tags here!
             setTag.invoke(armor, "AttributeName", NBTTagStringCtor.newInstance("generic.armor"));
@@ -196,60 +181,195 @@ public class NBTEditor
 
             setCompoundTagList.invoke(compound, "AttributeModifiers", modifiers);
             item = (ItemStack) asBukkitCopy.invoke(null, nmsStack);
-
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            // TODO: Log this or something. Pretty serious issue for a plugin based entirely
-            // on this code.
             e.printStackTrace();
         }
         return item;
     }
 
-    // Get the armor tier of the supplied item.
-    public ArmorTier getArmorTier(ItemStack item)
+    /**
+     * Gets the armor amount from an NBT attribute.
+     *
+     * @param string      The NBT attribute as a String.
+     * @param findAmount  The {@link Pattern} that finds the amount in a String.
+     * @param parseAmount The {@link Pattern} that extracts the amount from the String found by "findAmount".
+     * @return The String containing the armor value. This can either be an integer or a double value.
+     */
+    private static String getArmorAmount(final String string, final Pattern findAmount, final Pattern parseAmount)
+    {
+        final Matcher amountMatcher = findAmount.matcher(string);
+        if (!amountMatcher.find())
+        {
+            ArmoredElytra.getInstance()
+                         .myLogger(Level.SEVERE,
+                                   "Failed to obtain armor value from NBT! No armor amount found: " + string);
+            return "0";
+        }
+
+        final String amountName = amountMatcher.group();
+        final Matcher amountString = parseAmount.matcher(amountName);
+        if (!amountString.find())
+        {
+            ArmoredElytra.getInstance()
+                         .myLogger(Level.SEVERE,
+                                   "Failed to obtain armor value from NBT! Could not parse value: " + amountName);
+            return "0";
+        }
+        return amountString.group();
+    }
+
+    /**
+     * Gets the amount of an attribute in the format of: "something something, amount:2.0d,". The amount is cast to and
+     * returned as an integer value.
+     *
+     * @param string The nbt attribute as String.
+     * @return The integer value of the amount.
+     */
+    private static int getArmorValueDouble(final String string)
     {
         try
         {
-            if (item == null)
-                return ArmorTier.NONE;
-            if (item.getType() != Material.ELYTRA)
-                return ArmorTier.NONE;
+            return (int) Double.parseDouble(getArmorAmount(string, pattern_findAmount_double, pattern_getDouble));
+        }
+        catch (NumberFormatException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
-            // Get the NBT tags from the item.
+    /**
+     * Gets the amount of an attribute in the format of: "something something, amount:2.0d,". The amount is cast to and
+     * returned as an integer value.
+     *
+     * @param string The nbt attribute as String.
+     * @return The integer value of the amount.
+     */
+    private static int getArmorValueInt(final String string)
+    {
+        try
+        {
+            return Integer.parseInt(getArmorAmount(string, pattern_findAmount_int, pattern_getInt));
+        }
+        catch (NumberFormatException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static ArmorTier getArmorTier(ItemStack item)
+    {
+//        {
+//            double armorValue_2 = 0;
+//            net.minecraft.server.v1_15_R1.ItemStack nmsStack_2 = org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack
+//                .asNMSCopy(item);
+//
+//            net.minecraft.server.v1_15_R1.NBTTagCompound compound_2 =
+//                nmsStack_2.hasTag() ? nmsStack_2.getTag() : new net.minecraft.server.v1_15_R1.NBTTagCompound();
+//
+//            net.minecraft.server.v1_15_R1.NBTTagList modifiers_2 = compound_2.getList("AttributeModifiers", 10);
+//        }
+
+        try
+        {
             Object compound = getTag.invoke(asNMSCopy.invoke(null, item));
             if (compound == null)
                 return ArmorTier.NONE;
 
-            switch (getArmorValue.armorValueFromNBTString(compound.toString()))
+            Object modifiers = getCompoundTagList.invoke(compound, "AttributeModifiers", 10); // Number 10 = Compound.
+            int size = (int) getTagListSize.invoke(modifiers);
+
+
+            for (int idx = 0; idx < size; ++idx)
             {
-            case 3:
-                return ArmorTier.LEATHER;
-            case 5:
-                return ArmorTier.GOLD;
-            case 6:
-                return ArmorTier.IRON;
-            case 8:
-                return ArmorTier.DIAMOND;
-            default:
-                return ArmorTier.NONE;
+//                final String result = modifiers.get(idx).asString();
+                final String result = getTagListAtIndex.invoke(modifiers, idx).toString();
+
+                if (!pattern_isArmor.matcher(result).find())
+                    continue;
+
+                int armorValue = getArmorValue.apply(result);
+                switch (armorValue)
+                {
+                    case 3:
+                        return ArmorTier.LEATHER;
+                    case 5:
+                        return ArmorTier.GOLD;
+                    case 6:
+                        return ArmorTier.IRON;
+                    case 8:
+                        return ArmorTier.DIAMOND;
+                    default:
+                        return ArmorTier.NONE;
+                }
             }
+            return ArmorTier.NONE;
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
             e.printStackTrace();
-            return null;
+            return ArmorTier.NONE;
         }
     }
 
-    private Class<?> getNMSClass(String name) throws ClassNotFoundException
+    private static Class<?> getNMSClass(String name)
+        throws ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private Class<?> getCraftClass(String name) throws ClassNotFoundException
+    private static Class<?> getCraftClass(String name)
+        throws ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
+    }
+
+    public static boolean success()
+    {
+        return success;
+    }
+
+    private enum MinecraftVersion
+    {
+        v1_9("1_9", 0),
+        v1_10("1_10", 1),
+        v1_11("1_11", 2),
+        v1_12("1_12", 3),
+        v1_13("1_13", 4),
+        v1_14("1_14", 5),
+        v1_15("1_15", 6);
+
+        private int index;
+        private String name;
+
+        MinecraftVersion(String name, int index)
+        {
+            this.name = name;
+            this.index = index;
+        }
+
+        /**
+         * Checks if this version is newer than the other version.
+         *
+         * @param other The other version to check against.
+         * @return True if this version is newer than the other version.
+         */
+        public boolean isNewerThan(final MinecraftVersion other)
+        {
+            return this.index > other.index;
+        }
+
+        public static MinecraftVersion get(final String versionName)
+        {
+            if (versionName == null)
+                return null;
+            for (final MinecraftVersion mcVersion : MinecraftVersion.values())
+                if (versionName.contains(mcVersion.name))
+                    return mcVersion;
+            return null;
+        }
     }
 }

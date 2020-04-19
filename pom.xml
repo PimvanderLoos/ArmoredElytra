@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>ArmoredElytra</artifactId>
@@ -11,10 +11,14 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
+        <!-- bStats -->
         <repository>
             <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public</url>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+
+        <!-- Item-NBT-API-->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -22,17 +26,19 @@
     </repositories>
 
     <dependencies>
+        <!-- Spigot API (docs) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.14.2-R0.1-SNAPSHOT</version>
+            <artifactId>spigot-api</artifactId>
+            <version>1.15.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
+        <!-- Spigot API + (Craft)Bukkit API + NMS -->
         <dependency>
-            <groupId>com.github.tr7zw</groupId>
-            <artifactId>Item-NBT-API</artifactId>
-            <version>master-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.15.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -43,7 +49,7 @@
             <version>1.5</version>
             <scope>compile</scope>
         </dependency>
-    
+
         <!--
         <dependency>
             <groupId>com.github.Arnuh</groupId>
@@ -86,10 +92,6 @@
                             <pattern>org.bstats</pattern>
                             <shadedPattern>nl.pim16aap2.armoredElytra</shadedPattern>
                         </relocation>
-                        <!--<relocation>
-                            <pattern>com.codingforcookies</pattern>
-                            <shadedPattern>nl.pim16aap2.armoredElytra</shadedPattern>
-                        </relocation>-->
                     </relocations>
                 </configuration>
                 <executions>
@@ -124,7 +126,7 @@
                         <configuration>
                             <target>
                                 <ant antfile="${basedir}/mover.xml">
-                                    <target name="copyAll" />
+                                    <target name="copyAll"/>
                                 </ant>
                             </target>
                         </configuration>
