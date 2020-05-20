@@ -10,7 +10,7 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Messages;
-import nl.pim16aap2.armoredElytra.util.Update;
+import nl.pim16aap2.armoredElytra.util.UpdateManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,10 +25,10 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-// TODO: Use this for NBT stuff: https://www.spigotmc.org/resources/item-entity-tile-nbt-api.7939/
 // TODO: Figure out if the config really does read the list of enchantments accurately. A bug report with a customized config seemed to load the default settings...
 // TODO: Verify enchantments on startup. Remove them from the list if they're invalid.
-// TODO: Don't delete the config file. Look at BigDoors.
+// TODO: Don't delete the config/translation file. Look at BigDoors.
+// TODO: Enchanting should require XP.
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
@@ -36,13 +36,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private Messages messages;
     private ConfigLoader config;
 
-    //    private String leatherName, ironName, goldName, chainName, diamondName;
-    private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap(ArmorTier.class);
+    private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap<>(ArmorTier.class);
     private String elytraReceivedMessage;
     private String usageDeniedMessage;
     private String elytraLore;
     private boolean upToDate;
     private boolean is1_9;
+    private UpdateManager updateManager;
 
     @Override
     public void onEnable()
@@ -52,48 +52,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         messages = new Messages(this);
         readMessages();
 
+        updateManager = new UpdateManager(this, 47136);
+
         // Check if the user allows checking for updates.
-        if (config.checkForUpdates())
-        {
-            // Check for updates in a new thread, so the server won't hang when it cannot contact the update servers.
-            final Thread thread = new Thread(
-                () ->
-                {
-                    final ArmoredElytra plugin = getPlugin();
-                    final Update update = new Update(278437, plugin);
-                    final String latestVersion = update.getLatestVersion();
-
-                    if (latestVersion == null)
-                        plugin.myLogger(Level.WARNING,
-                                        "Encountered problem contacting update servers! Please check manually! The error above does not affect the plugin!");
-                    else
-                    {
-                        final String thisVersion = plugin.getDescription().getVersion();
-                        // Check if this is the latest version or not.
-                        final int updateStatus = update.versionCompare(latestVersion, thisVersion);
-
-                        if (updateStatus > 0)
-                        {
-                            // Load the loginHandler to show messages to the user when they join.
-                            Bukkit.getPluginManager()
-                                  .registerEvents(new LoginHandler(plugin, "The Armored Elytra plugin is out of date!"),
-                                                  plugin);
-                            plugin.myLogger(Level.INFO, "Plugin out of date! You are using version " + thisVersion +
-                                " but the latest version is version " + latestVersion + "!");
-                            plugin.setUpToDate(false);
-                        }
-                        else
-                        {
-                            plugin.setUpToDate(true);
-                            plugin.myLogger(Level.INFO, "You seem to be using the latest version of this plugin!");
-                        }
-                    }
-                });
-            thread.start();
-        }
-        else
-            myLogger(Level.INFO,
-                     "Plugin update checking not enabled! You will not receive any messages about new updates for this plugin. Please consider turning this on in the config.");
+        updateManager.setEnabled(config.checkForUpdates(), config.autoDLUpdate());
 
         if (config.allowStats())
         {
@@ -278,6 +240,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     {
         if (item != null)
             player.getInventory().addItem(item);
+    }
+
+    public UpdateManager getUpdateManager()
+    {
+        return updateManager;
     }
 
     // Check + initialize for the correct version of Minecraft.
