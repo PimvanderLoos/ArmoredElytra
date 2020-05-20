@@ -11,6 +11,7 @@ import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
+import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -525,7 +526,7 @@ public class EventHandlers implements Listener
             case ALLOWED:
                 break;
             case BROKEN:
-                plugin.messagePlayer(e.getPlayer(), plugin.getMyMessages().getString("MESSAGES.RepairNeeded"));
+                plugin.messagePlayer(e.getPlayer(), plugin.getMyMessages().getString(Message.MESSAGES_REPAIRNEEDED));
                 e.setCancelled(true);
                 break;
             case NOPERMISSION:

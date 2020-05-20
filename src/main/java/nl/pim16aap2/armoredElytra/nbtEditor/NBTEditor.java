@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.nbtEditor;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -145,10 +146,9 @@ public class NBTEditor
             int armorToughness = ArmorTier.getToughness(armorTier);
 
             itemmeta.setDisplayName(ArmoredElytra.getInstance().getArmoredElytraName(armorTier));
-            if (ArmoredElytra.getInstance().getElytraLore() != null)
-                itemmeta
-                    .setLore(Arrays.asList(ArmoredElytra.getInstance().fillInArmorTierInStringNoColor(
-                        ArmoredElytra.getInstance().getElytraLore(), armorTier)));
+            final String message = ChatColor.stripColor(ArmoredElytra.getInstance().getElytraLore(armorTier));
+            if (message != null)
+                itemmeta.setLore(Arrays.asList(message));
 
             item.setItemMeta(itemmeta);
 

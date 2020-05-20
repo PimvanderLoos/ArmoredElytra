@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.handlers;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -34,7 +35,7 @@ public class CommandHandler implements CommandExecutor
 
             if (plugin.getConfigLoader().uninstallMode())
             {
-                plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.UninstallMode"));
+                plugin.messagePlayer(player, plugin.getMyMessages().getString(Message.MESSAGES_UNINSTALLMODE));
                 return true;
             }
 
@@ -67,7 +68,8 @@ public class CommandHandler implements CommandExecutor
                         allowed = player.hasPermission("armoredelytra.give." + ArmorTier.getName(armorTier));
                     else
                     {
-                        plugin.messagePlayer(player, plugin.getMyMessages().getString("MESSAGES.UnsupportedTier"));
+                        plugin.messagePlayer(player, plugin.getMyMessages()
+                                                           .getString(Message.MESSAGES_UNSUPPORTEDTIER));
                         return false;
                     }
 
@@ -79,8 +81,7 @@ public class CommandHandler implements CommandExecutor
                         plugin.giveArmoredElytraToPlayer(receiver, newElytra);
                     }
                     else
-                        plugin.messagePlayer(player, plugin.fillInArmorTierInStringNoColor(
-                            plugin.getMyMessages().getString("MESSAGES.NoGivePermission"), armorTier));
+                        plugin.sendNoGivePermissionMessage(player, armorTier);
                     return true;
                 }
         }
@@ -94,7 +95,7 @@ public class CommandHandler implements CommandExecutor
 
             if (args.length == 2)
             {
-                ItemStack newElytra = null;
+                ItemStack newElytra;
                 final String tier = args[1];
                 if (Bukkit.getPlayer(args[0]) != null)
                 {
