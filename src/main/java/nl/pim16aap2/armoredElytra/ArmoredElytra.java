@@ -198,7 +198,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public String getElytraLore(ArmorTier armorTier)
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_LORE, armorTier);
-        Bukkit.broadcastMessage(message);
         return message.equals("NONE") ? null : message;
     }
 
