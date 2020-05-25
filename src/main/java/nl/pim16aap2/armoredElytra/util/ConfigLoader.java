@@ -99,7 +99,7 @@ public class ConfigLoader
             };
         String[] languageFileComment =
             {
-                "Specify a language file to be used. Note that en_US.txt will get regenerated!"
+                "Specify a language file to be used."
             };
         String[] allowMultipleProtectionEnchantmentsComment =
             {

@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.util.UpdateChecker.UpdateReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -51,15 +50,7 @@ public final class UpdateManager
         if (!checkForUpdates || updater.getLastResult() == null)
             return false;
 
-        // There's a newer version available.
-        if (updater.getLastResult().requiresUpdate())
-            return true;
-
-        // The plugin is "up-to-date", but this is a dev-build, so it must be newer.
-        if (updater.getLastResult().getReason().equals(UpdateReason.UP_TO_DATE))
-            return true;
-
-        return false;
+        return updater.getLastResult().requiresUpdate();
     }
 
     public void checkForUpdates()
