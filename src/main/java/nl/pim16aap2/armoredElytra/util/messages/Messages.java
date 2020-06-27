@@ -42,6 +42,7 @@ public class Messages
     public Messages(final ArmoredElytra plugin)
     {
         this.plugin = plugin;
+        writeDefaultFile();
         final String fileName = plugin.getConfigLoader().languageFile();
         // Only append .txt if the provided name doesn't already have it.
         textFile = new File(plugin.getDataFolder(), fileName.endsWith(".txt") ? fileName : (fileName + ".txt"));
@@ -49,7 +50,7 @@ public class Messages
         if (!textFile.exists())
         {
             plugin.myLogger(Level.WARNING, "Failed to load language file: \"" + textFile +
-                "\": File not found! Using default file instead!");
+                "\": File not found! Using default file (\"" + DEFAULTFILENAME + "\") instead!");
             textFile = new File(plugin.getDataFolder(), DEFAULTFILENAME);
         }
         populateMessageMap();

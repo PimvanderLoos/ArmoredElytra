@@ -6,7 +6,8 @@ import org.bukkit.inventory.ItemStack;
 public interface INBTEditor
 {
     /**
-     * Adds a given {@link ArmorTier} to an item. The item will be cloned.
+     * Adds a given {@link ArmorTier} to an item. The item will be cloned. Note that setting the armor tier to {@link
+     * ArmorTier#NONE} has no effect (besides making a copy of the item).
      *
      * @param item        The item.
      * @param armorTier   The {@link ArmorTier} that will be added to it.

@@ -39,10 +39,12 @@ public class EventHandlers implements Listener
 
     private final Consumer<AnvilInventory> cleanAnvilInventory;
     private final Consumer<Player> moveChestplateToInventory;
+    private final boolean creationEnabled;
 
-    public EventHandlers(ArmoredElytra plugin, boolean is1_9)
+    public EventHandlers(ArmoredElytra plugin, boolean is1_9, boolean creationEnabled)
     {
         this.plugin = plugin;
+        this.creationEnabled = creationEnabled;
         initializeArmorEquipEvent();
         if (is1_9)
         {
@@ -197,6 +199,9 @@ public class EventHandlers implements Listener
         else if (repairItem.getType().equals(Material.DIAMOND))
             mult *= (100.0f / plugin.getConfigLoader().DIAMONDS_TO_FULL());
 
+        else if (repairItem.getType().equals(XMaterial.NETHERITE_INGOT.parseMaterial()))
+            mult *= (100.0f / plugin.getConfigLoader().NETHERITE_TO_FULL());
+
         int maxDurability = Material.ELYTRA.getMaxDurability();
         int newDurability = (int) (curDur - (maxDurability * mult));
         return (short) (newDurability <= 0 ? 0 : newDurability);
@@ -264,12 +269,13 @@ public class EventHandlers implements Listener
 
             // If the armored elytra is to be repaired using its repair item...
             if (ArmorTier.getRepairItem(tier) == matTwo)
-                return Action.REPAIR;
+                return itemOne.getDurability() == 0 ? Action.NONE : Action.REPAIR;
 
             // If the armored elytra is to be combined with another armored elytra of the
             // same tier...
+            // TODO: Should this also be disabled by "creationEnabled"?
             if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemTwo) == tier)
-                return Action.COMBINE;
+                return creationEnabled ? Action.COMBINE : Action.NONE;
 
             // If the armored elytra is not of the leather tier, but itemTwo is leather,
             // Pick the block action, as that would repair the elytra by default (vanilla).
@@ -289,6 +295,11 @@ public class EventHandlers implements Listener
         ItemStack itemA = event.getInventory().getItem(0);
         ItemStack itemB = event.getInventory().getItem(1);
         ItemStack result = null;
+
+//        if (itemA != null && itemB == null)
+//        {
+//
+//        }
 
         if (itemA != null && itemB != null)
             // If itemB is the elytra, while itemA isn't, switch itemA and itemB.
@@ -361,11 +372,11 @@ public class EventHandlers implements Listener
             }
         }
 
-        // Check if either itemA or itemB is unoccupied.
-        if ((itemA == null || itemB == null) &&
-            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE)
-            // If Item2 is occupied despite itemA or itemB not being occupied. (only for
-            // armored elytra)/
+        // If one of the input items is null and the other an armored elytra, remove the result.
+        // This prevent some naming issues.
+        // TODO: Allow renaming armored elytras.
+        if ((itemA == null ^ itemB == null) &&
+            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
             event.setResult(null);
         player.updateInventory();
     }

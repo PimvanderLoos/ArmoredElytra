@@ -27,14 +27,16 @@ public class ConfigLoader
     private boolean autoDLUpdate;
     private int LEATHER_TO_FULL;
     private int DIAMONDS_TO_FULL;
+    private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
     private List<String> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
-    public boolean bypassWearPerm;
-    public boolean bypassCraftPerm;
+    private boolean craftingInSmithingTable;
+    private boolean bypassWearPerm;
+    private boolean bypassCraftPerm;
 
-    private ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
-    private ArmoredElytra plugin;
+    private final ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
+    private final ArmoredElytra plugin;
 
     public ConfigLoader(ArmoredElytra plugin)
     {
@@ -113,14 +115,17 @@ public class ConfigLoader
             {
                 "Globally bypass permissions for wearing and/or crafting amored elytras. Useful if permissions are unavailable."
             };
+        String[] craftingInSmithingTableComment =
+            {
+                "This option only works on 1.16+! When enabled, armored elytra creation in anvils is disabled. ",
+                "Instead, you will have to craft them in a smithy. Enchanting/repairing them still works via the anvil."
+            };
 
 
         // Set default list of allowed enchantments.
         allowedEnchantments = new ArrayList<>(Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
                                                             "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL",
-                                                            "THORNS",
-                                                            "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
-
+                                                            "THORNS", "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
         FileConfiguration config = plugin.getConfig();
 
         unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
@@ -129,6 +134,11 @@ public class ConfigLoader
         GOLD_TO_FULL = addNewConfigOption(config, "goldRepair", 5, null);
         IRON_TO_FULL = addNewConfigOption(config, "ironRepair", 4, null);
         DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
+        NETHERITE_TO_FULL = addNewConfigOption(config, "netheriteIngotsRepair", 3, null);
+
+//        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", true, craftingInSmithingTableComment);
+        craftingInSmithingTable = false;
+
         allowedEnchantments = addNewConfigOption(config, "allowedEnchantments", allowedEnchantments,
                                                  enchantmentsComment);
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
@@ -200,6 +210,12 @@ public class ConfigLoader
         return allowStats;
     }
 
+    public boolean craftingInSmithingTable()
+    {
+        return ArmoredElytra.getInstance().getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15) &&
+            craftingInSmithingTable;
+    }
+
     public boolean unbreakable()
     {
         return unbreakable;
@@ -233,6 +249,11 @@ public class ConfigLoader
     public int DIAMONDS_TO_FULL()
     {
         return DIAMONDS_TO_FULL;
+    }
+
+    public int NETHERITE_TO_FULL()
+    {
+        return NETHERITE_TO_FULL;
     }
 
     public boolean allowMultipleProtectionEnchantments()

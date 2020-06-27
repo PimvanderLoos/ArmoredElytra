@@ -57,7 +57,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             return;
         }
-        
+
         nbtEditor = minecraftVersion.isNewerThan(MinecraftVersion.v1_15) ? new NBTEditor() : new NBTEditor_legacy();
 
         config = new ConfigLoader(this);
@@ -82,7 +82,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         // Load the files for the correct version of Minecraft.
         if (compatibleMCVer())
         {
-            Bukkit.getPluginManager().registerEvents(new EventHandlers(this, is1_9), this);
+            Bukkit.getPluginManager()
+                  .registerEvents(new EventHandlers(this, is1_9, config.craftingInSmithingTable()), this);
             getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
         }
         else
@@ -142,6 +143,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                              messages.getString(Message.TIER_SHORT_IRON)));
         armorTierNames.put(ArmorTier.DIAMOND, new ArmorTierName(messages.getString(Message.TIER_DIAMOND),
                                                                 messages.getString(Message.TIER_SHORT_DIAMOND)));
+        armorTierNames.put(ArmorTier.NETHERITE, new ArmorTierName(messages.getString(Message.TIER_NETHERITE),
+                                                                  messages.getString(Message.TIER_SHORT_NETHERITE)));
     }
 
     public boolean playerHasCraftPerm(Player player, ArmorTier armorTier)

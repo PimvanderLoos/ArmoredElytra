@@ -1,12 +1,12 @@
 package nl.pim16aap2.armoredElytra.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Map;
 
 public class Util
 {
@@ -40,23 +40,26 @@ public class Util
 
         switch (xmat)
         {
-        case LEATHER_CHESTPLATE:
-            ret = ArmorTier.LEATHER;
-            break;
-        case GOLDEN_CHESTPLATE:
-            ret = ArmorTier.GOLD;
-            break;
-        case CHAINMAIL_CHESTPLATE:
-            ret = ArmorTier.CHAIN;
-            break;
-        case IRON_CHESTPLATE:
-            ret = ArmorTier.IRON;
-            break;
-        case DIAMOND_CHESTPLATE:
-            ret = ArmorTier.DIAMOND;
-            break;
-        default:
-            break;
+            case LEATHER_CHESTPLATE:
+                ret = ArmorTier.LEATHER;
+                break;
+            case GOLDEN_CHESTPLATE:
+                ret = ArmorTier.GOLD;
+                break;
+            case CHAINMAIL_CHESTPLATE:
+                ret = ArmorTier.CHAIN;
+                break;
+            case IRON_CHESTPLATE:
+                ret = ArmorTier.IRON;
+                break;
+            case DIAMOND_CHESTPLATE:
+                ret = ArmorTier.DIAMOND;
+                break;
+            case NETHERITE_CHESTPLATE:
+                ret = ArmorTier.NETHERITE;
+                break;
+            default:
+                break;
         }
         return ret;
     }
@@ -64,29 +67,37 @@ public class Util
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {
-        XMaterial xmat = XMaterial.matchXMaterial(mat);
-        if (xmat == null)
+        try
+        {
+            XMaterial xmat = XMaterial.matchXMaterial(mat);
+            if (xmat == null)
+                return false;
+            if (xmat == XMaterial.LEATHER_CHESTPLATE || xmat == XMaterial.GOLDEN_CHESTPLATE ||
+                xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
+                xmat == XMaterial.DIAMOND_CHESTPLATE || xmat == XMaterial.NETHERITE_CHESTPLATE)
+                return true;
             return false;
-        if (xmat == XMaterial.LEATHER_CHESTPLATE   || xmat == XMaterial.GOLDEN_CHESTPLATE ||
-            xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
-            xmat == XMaterial.DIAMOND_CHESTPLATE)
-            return true;
-        return false;
+        }
+        catch (IllegalArgumentException e)
+        {
+            // No need to handle this, this is just XMaterial complaining the material doesn't exist.
+            return false;
+        }
     }
 
     // Function that returns which/how many protection enchantments there are.
     // TODO: Use bit flags for this.
     public static int getProtectionEnchantmentsVal(Map<Enchantment, Integer> enchantments)
     {
-        int ret  =  0;
+        int ret = 0;
         if (enchantments.containsKey(Enchantment.PROTECTION_ENVIRONMENTAL))
-            ret +=  1;
+            ret += 1;
         if (enchantments.containsKey(Enchantment.PROTECTION_EXPLOSIONS))
-            ret +=  2;
+            ret += 2;
         if (enchantments.containsKey(Enchantment.PROTECTION_FALL))
-            ret +=  4;
+            ret += 4;
         if (enchantments.containsKey(Enchantment.PROTECTION_FIRE))
-            ret +=  8;
+            ret += 8;
         if (enchantments.containsKey(Enchantment.PROTECTION_PROJECTILE))
             ret += 16;
         return ret;
