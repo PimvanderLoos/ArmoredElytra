@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
@@ -76,8 +75,9 @@ public class CommandHandler implements CommandExecutor
                     if (allowed)
                     {
                         plugin.elytraReceivedMessage(receiver, armorTier);
-                        newElytra = NBTEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
-                                                              plugin.getConfigLoader().unbreakable());
+                        newElytra = ArmoredElytra.getInstance().getNbtEditor()
+                                                 .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
+                                                                  plugin.getConfigLoader().unbreakable());
                         plugin.giveArmoredElytraToPlayer(receiver, newElytra);
                     }
                     else
@@ -106,8 +106,9 @@ public class CommandHandler implements CommandExecutor
                         return false;
 
                     plugin.elytraReceivedMessage(player, armorTier);
-                    newElytra = NBTEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
-                                                          plugin.getConfigLoader().unbreakable());
+                    newElytra = ArmoredElytra.getInstance().getNbtEditor()
+                                             .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), armorTier,
+                                                              plugin.getConfigLoader().unbreakable());
                     plugin.giveArmoredElytraToPlayer(player, newElytra);
                     plugin.myLogger(Level.INFO, ("Giving an armored elytra of the " + ArmorTier.getArmor(armorTier) +
                         " armor tier to player " + player.getName()));

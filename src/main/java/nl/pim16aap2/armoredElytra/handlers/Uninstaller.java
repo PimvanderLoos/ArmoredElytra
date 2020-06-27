@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,13 +27,12 @@ public class Uninstaller implements Listener
     {
         int count = 0;
         for (ItemStack is : inv)
-            if (is != null)
-                if (is.getType() == Material.ELYTRA)
-                    if (NBTEditor.getArmorTier(is) != ArmorTier.NONE)
-                    {
-                        inv.remove(is);
-                        ++count;
-                    }
+            if (is != null && is.getType() == Material.ELYTRA &&
+                ArmoredElytra.getInstance().getNbtEditor().getArmorTier(is) != ArmorTier.NONE)
+            {
+                inv.remove(is);
+                ++count;
+            }
         return count;
     }
 

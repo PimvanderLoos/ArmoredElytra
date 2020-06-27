@@ -1,6 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -24,7 +24,7 @@ public class FlyDurabilityHandler implements Listener
         if (!e.getPlayer().isGliding())
             return;
 
-        if (NBTEditor.getArmorTier(e.getItem()) != ArmorTier.NONE)
+        if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(e.getItem()) != ArmorTier.NONE)
             e.setCancelled(true);
     }
 }

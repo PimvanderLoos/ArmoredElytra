@@ -5,7 +5,6 @@ import com.codingforcookies.armorequip.ArmorListener;
 import com.codingforcookies.armorequip.ArmorType;
 import com.codingforcookies.armorequip.DispenserArmorListener;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
@@ -131,13 +130,13 @@ public class EventHandlers implements Listener
             Integer enchantLevel = enchantments0.get(entry.getKey());
             if (enchantLevel != null)
             {
-                if (entry.getValue() == enchantLevel && entry.getValue() < entry.getKey().getMaxLevel())
+                if (entry.getValue().equals(enchantLevel) && entry.getValue() < entry.getKey().getMaxLevel())
                     enchantLevel = entry.getValue() + 1;
                 else if (entry.getValue() > enchantLevel)
                     enchantLevel = entry.getValue();
 
                 // If the enchantment level has changed,
-                if (enchantLevel != enchantments0.get(entry.getKey()))
+                if (!enchantLevel.equals(enchantments0.get(entry.getKey())))
                 {
                     combined.remove(entry.getKey());
                     combined.put(entry.getKey(), enchantLevel);
@@ -255,7 +254,7 @@ public class EventHandlers implements Listener
         if (Util.isChestPlate(matTwo))
             return Action.CREATE;
 
-        ArmorTier tier = NBTEditor.getArmorTier(itemOne);
+        ArmorTier tier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemOne);
 
         if (tier != ArmorTier.NONE)
         {
@@ -269,7 +268,7 @@ public class EventHandlers implements Listener
 
             // If the armored elytra is to be combined with another armored elytra of the
             // same tier...
-            if (NBTEditor.getArmorTier(itemTwo) == tier)
+            if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemTwo) == tier)
                 return Action.COMBINE;
 
             // If the armored elytra is not of the leather tier, but itemTwo is leather,
@@ -306,7 +305,7 @@ public class EventHandlers implements Listener
         {
             Action action = isValidInput(itemA, itemB);
             ArmorTier newTier = ArmorTier.NONE;
-            ArmorTier curTier = NBTEditor.getArmorTier(itemA);
+            ArmorTier curTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA);
             short durability = 0;
             Map<Enchantment, Integer> enchantments = itemA.getEnchantments();
             enchantments = fixEnchantments(enchantments);
@@ -356,14 +355,15 @@ public class EventHandlers implements Listener
                     result.addUnsafeEnchantments(enchantments);
                 result.setDurability(durability);
 
-                result = NBTEditor.addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable());
+                result = ArmoredElytra.getInstance().getNbtEditor()
+                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable());
                 event.setResult(result);
             }
         }
 
         // Check if either itemA or itemB is unoccupied.
         if ((itemA == null || itemB == null) &&
-            NBTEditor.getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE)
+            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(event.getInventory().getItem(2)) != ArmorTier.NONE)
             // If Item2 is occupied despite itemA or itemB not being occupied. (only for
             // armored elytra)/
             event.setResult(null);
@@ -404,7 +404,7 @@ public class EventHandlers implements Listener
         if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
             anvilInventory.getItem(2) != null)
         {
-            ArmorTier armortier = NBTEditor.getArmorTier(anvilInventory.getItem(2));
+            ArmorTier armortier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(anvilInventory.getItem(2));
 
             // If there's an armored elytra in the final slot...
             if (armortier != ArmorTier.NONE && plugin.playerHasCraftPerm(player, armortier))
@@ -413,8 +413,9 @@ public class EventHandlers implements Listener
                 // result.
                 // This is done because after putting item0 in AFTER item1, the first letter of
                 // the color code shows up, this gets rid of that problem.
-                ItemStack result = NBTEditor.addArmorNBTTags(anvilInventory.getItem(2), armortier,
-                                                             plugin.getConfigLoader().unbreakable());
+                ItemStack result = ArmoredElytra.getInstance().getNbtEditor()
+                                                .addArmorNBTTags(anvilInventory.getItem(2), armortier,
+                                                                 plugin.getConfigLoader().unbreakable());
 
                 // Give the result to the player and clear the anvil's inventory.
                 if (e.isShiftClick())
@@ -465,7 +466,8 @@ public class EventHandlers implements Listener
             if (p.getInventory().getChestplate() == null)
                 return;
 
-            if (NBTEditor.getArmorTier(p.getInventory().getChestplate()) == ArmorTier.NONE)
+            if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(p.getInventory().getChestplate()) ==
+                ArmorTier.NONE)
                 return;
 
             ItemStack elytra = p.getInventory().getChestplate();
@@ -519,7 +521,7 @@ public class EventHandlers implements Listener
             !e.getNewArmorPiece().getType().equals(Material.ELYTRA))
             return;
 
-        ArmorTier armorTier = NBTEditor.getArmorTier(e.getNewArmorPiece());
+        ArmorTier armorTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(e.getNewArmorPiece());
         AllowedToWearEnum allowed = isAllowedToWear(e.getNewArmorPiece(), e.getPlayer(), armorTier);
         switch (allowed)
         {

@@ -1,9 +1,9 @@
 package nl.pim16aap2.armoredElytra.util;
 
+import org.bukkit.Material;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.Material;
 
 public enum ArmorTier
 {
@@ -19,7 +19,8 @@ public enum ArmorTier
     private final int     toughness;
     private final Material   repair;
     private final String       name;
-    private static Map<String, ArmorTier> map = new HashMap<>();
+    private static Map<String,  ArmorTier> map = new HashMap<>();
+    private static Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
 
     private ArmorTier (int armor, int toughness, Material repair, String name)
     {
@@ -42,9 +43,18 @@ public enum ArmorTier
 
     public static ArmorTier valueOfName  (String name)    { return map.get(name);  }
 
+    public static ArmorTier getArmorTier(int armor)
+    {
+        ArmorTier tier = armorValueMap.get(armor);
+        return tier == null ? ArmorTier.NONE : tier;
+    }
+
     static
     {
         for (ArmorTier tier : ArmorTier.values())
+        {
             map.put(tier.name, tier);
+            armorValueMap.put(tier.armor, tier);
+        }
     }
 }

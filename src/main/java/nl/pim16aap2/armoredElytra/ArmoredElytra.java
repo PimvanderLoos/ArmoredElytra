@@ -5,10 +5,13 @@ import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
 import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor_legacy;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.MinecraftVersion;
 import nl.pim16aap2.armoredElytra.util.UpdateManager;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import nl.pim16aap2.armoredElytra.util.messages.Messages;
@@ -31,6 +34,9 @@ import java.util.logging.Level;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
+    private static final MinecraftVersion minecraftVersion = MinecraftVersion
+        .get(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
+
     private static ArmoredElytra instance;
     private Messages messages;
     private ConfigLoader config;
@@ -40,10 +46,20 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private boolean is1_9;
     private UpdateManager updateManager;
 
+    private INBTEditor nbtEditor;
+
     @Override
     public void onEnable()
     {
         instance = this;
+        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_8))
+        {
+            myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
+            return;
+        }
+        
+        nbtEditor = minecraftVersion.isNewerThan(MinecraftVersion.v1_15) ? new NBTEditor() : new NBTEditor_legacy();
+
         config = new ConfigLoader(this);
         messages = new Messages(this);
         readMessages();
@@ -108,6 +124,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return messages;
     }
 
+    public INBTEditor getNbtEditor()
+    {
+        return nbtEditor;
+    }
+
     private void readMessages()
     {
         armorTierNames.put(ArmorTier.NONE, new ArmorTierName("NONE", "NONE")); // Shouldn't be used.
@@ -127,6 +148,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     {
         return getConfigLoader().bypassCraftPerm() ||
             player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
+    }
+
+    public static MinecraftVersion getMinecraftVersion()
+    {
+        return minecraftVersion;
     }
 
     public boolean playerHasWearPerm(Player player, ArmorTier armorTier)
@@ -229,7 +255,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     // Check + initialize for the correct version of Minecraft.
     public boolean compatibleMCVer()
     {
-        return NBTEditor.success();
+        return minecraftVersion.isNewerThan(MinecraftVersion.v1_8);
     }
 
     public static ArmoredElytra getInstance()

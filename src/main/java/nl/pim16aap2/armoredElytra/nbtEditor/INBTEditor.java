@@ -1,0 +1,25 @@
+package nl.pim16aap2.armoredElytra.nbtEditor;
+
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import org.bukkit.inventory.ItemStack;
+
+public interface INBTEditor
+{
+    /**
+     * Adds a given {@link ArmorTier} to an item. The item will be cloned.
+     *
+     * @param item        The item.
+     * @param armorTier   The {@link ArmorTier} that will be added to it.
+     * @param unbreakable Whether the resulting item should be unbreakable.
+     * @return The NEW item.
+     */
+    ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable);
+
+    /**
+     * Checks which {@link ArmorTier} is on an item.
+     *
+     * @param item The item to check.
+     * @return The {@link ArmorTier} that is on the item. If none is found, {@link ArmorTier#NONE} is returned.
+     */
+    ArmorTier getArmorTier(ItemStack item);
+}
