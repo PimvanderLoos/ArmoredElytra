@@ -59,6 +59,16 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         }
 
         nbtEditor = minecraftVersion.isNewerThan(MinecraftVersion.v1_15) ? new NBTEditor() : new NBTEditor_legacy();
+        if (isBlacklistedVersion())
+        {
+            myLogger(Level.SEVERE,
+                     "You are trying to run this plugin on a blacklisted version of Spigot! Please update Spigot!");
+            Bukkit.getPluginManager().registerEvents(
+                new LoginHandler(this, ChatColor.RED +
+                    "[ArmoredElytra] The plugin failed to start because you are running on a " +
+                    "blacklisted version of Spiogt! Please update Spigot!"), this);
+            return;
+        }
 
         config = new ConfigLoader(this);
         messages = new Messages(this);
@@ -118,6 +128,24 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.WARNING, "Plugin in uninstall mode!");
             Bukkit.getPluginManager().registerEvents(new Uninstaller(this), this);
         }
+    }
+
+    /**
+     * Checks if the current version is blacklisted.
+     * <p>
+     * This is needed for 1.16, as on the initial release there was a bug with NBT stuff that would crash clients when
+     * they saw an Armored Elytra. When they obtained one using a command they wouldn't be able to rejoin the game again
+     * until an NBTEditor was used to remove the item from their inventory.
+     *
+     * @return True if the current version is blacklisted.
+     */
+    public boolean isBlacklistedVersion()
+    {
+        if (minecraftVersion != MinecraftVersion.v1_16)
+            return false;
+
+        String[] parts = Bukkit.getVersion().substring("git-Spigot-".length()).split("-");
+        return parts.length > 0 && parts[0].equals("758abbe");
     }
 
     public Messages getMyMessages()
