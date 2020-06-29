@@ -296,11 +296,6 @@ public class EventHandlers implements Listener
         ItemStack itemB = event.getInventory().getItem(1);
         ItemStack result = null;
 
-//        if (itemA != null && itemB == null)
-//        {
-//
-//        }
-
         if (itemA != null && itemB != null)
             // If itemB is the elytra, while itemA isn't, switch itemA and itemB.
             if (itemB.getType() == Material.ELYTRA && itemA.getType() != Material.ELYTRA)
