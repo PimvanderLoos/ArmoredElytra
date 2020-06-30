@@ -14,7 +14,7 @@ public enum ArmorTier
     CHAIN(3, 5, 0, 0, Material.IRON_INGOT, "chain"),
     IRON(4, 6, 0, 0, Material.IRON_INGOT, "iron"),
     DIAMOND(5, 8, 2, 0, Material.DIAMOND, "diamond"),
-    NETHERITE(6, 8, 2, 0.1, XMaterial.NETHERITE_INGOT.parseMaterial(), "netherite"),
+    NETHERITE(6, 8, 3, 0.1, XMaterial.NETHERITE_INGOT.parseMaterial(), "netherite"),
     ;
 
     private final int tierID;
