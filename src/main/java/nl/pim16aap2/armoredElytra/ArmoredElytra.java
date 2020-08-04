@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 // TODO: Figure out if the config really does read the list of enchantments accurately. A bug report with a customized config seemed to load the default settings...
-// TODO: Verify enchantments on startup. Remove them from the list if they're invalid.
-// TODO: Don't delete the config/translation file. Look at BigDoors.
+// TODO: Verify enchantments on startup.
 // TODO: Enchanting should require XP.
 
 public class ArmoredElytra extends JavaPlugin implements Listener
@@ -57,6 +56,12 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             return;
         }
+
+////        Material mat = Material.ELYTRA;
+////        n3kas.ae.Core.canApplyTo(mat);
+//        for (String str : n3kas.ae.api.getAllEnchantments())
+//            System.out.println(str);
+//        System.exit(0);
 
         nbtEditor = minecraftVersion.isNewerThan(MinecraftVersion.v1_15) ? new NBTEditor() : new NBTEditor_legacy();
         if (isBlacklistedVersion())

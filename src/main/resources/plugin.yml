@@ -2,6 +2,7 @@ name: ArmoredElytra
 main: nl.pim16aap2.armoredElytra.ArmoredElytra
 version: ${project.version}
 author: pim16aap2
+softdepend: [AdvancedEnchantments]
 api-version: 1.13
 commands:
   ArmoredElytra:

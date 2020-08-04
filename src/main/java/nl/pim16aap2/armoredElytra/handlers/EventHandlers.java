@@ -98,9 +98,12 @@ public class EventHandlers implements Listener
     // Clean >=1.10 inventories.
     private void cleanAnvilNew(AnvilInventory anvilInventory)
     {
-        anvilInventory.getItem(0).setAmount(0);
-        anvilInventory.getItem(1).setAmount(anvilInventory.getItem(1).getAmount() - 1);
-        anvilInventory.getItem(2).setAmount(0);
+        if (anvilInventory.getItem(0) != null)
+            anvilInventory.getItem(0).setAmount(0);
+        if (anvilInventory.getItem(1) != null)
+            anvilInventory.getItem(1).setAmount(anvilInventory.getItem(1).getAmount() - 1);
+        if (anvilInventory.getItem(2) != null)
+            anvilInventory.getItem(2).setAmount(0);
     }
 
     // Check if the enchantment is allowed on elytras.
@@ -408,7 +411,7 @@ public class EventHandlers implements Listener
         int slot = e.getRawSlot();
 
         if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
-            anvilInventory.getItem(2) != null)
+            anvilInventory.getItem(2) != null && anvilInventory.getItem(2).getType() == Material.ELYTRA)
         {
             ArmorTier armortier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(anvilInventory.getItem(2));
 

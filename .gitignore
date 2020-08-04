@@ -24,3 +24,14 @@ hs_err_pid*
 # Mac Files #
 **/.DS_Store
 /target/
+/lib/
+.classpath
+.directory
+.externalToolBuilders/
+.idea/
+.project
+.settings/
+ArmoredElytra (1).iml
+NBTChange
+dependency-reduced-pom.xml
+mover.xml
