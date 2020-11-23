@@ -24,7 +24,6 @@ public class ConfigLoader
     private int IRON_TO_FULL;
     private boolean uninstallMode;
     private boolean checkForUpdates;
-    private boolean autoDLUpdate;
     private int LEATHER_TO_FULL;
     private int DIAMONDS_TO_FULL;
     private int NETHERITE_TO_FULL;
@@ -75,12 +74,7 @@ public class ConfigLoader
             };
         String[] updateComment =
             {
-                "Allow this plugin to check for updates on startup. It will not download new versions unless \"auto-update is enabled\'!"
-            };
-        String[] autoDLUpdateComment =
-            {
-                "Allow this plugin to automatically download new updates. They will be applied on restart.",
-                "This option has no effect if \"checkForUpdates\" is disabled."
+                "Allow this plugin to check for updates on startup. It will not download new versions on its own!"
             };
         String[] bStatsComment =
             {
@@ -144,7 +138,6 @@ public class ConfigLoader
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
-        autoDLUpdate = addNewConfigOption(config, "auto-update", true, autoDLUpdateComment);
         allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
         enableDebug = addNewConfigOption(config, "enableDebug", false, debugComment);
         uninstallMode = addNewConfigOption(config, "uninstallMode", false, uninstallComment);
@@ -269,11 +262,6 @@ public class ConfigLoader
     public boolean checkForUpdates()
     {
         return checkForUpdates;
-    }
-
-    public boolean autoDLUpdate()
-    {
-        return autoDLUpdate;
     }
 
     public boolean noFlightDurability()

@@ -7,13 +7,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.apache.commons.lang.math.NumberUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -63,7 +58,6 @@ public final class UpdateChecker
     private static final String USER_AGENT = "ArmoredElytra-update-checker";
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
-    private final String downloadURL;
 
     private static UpdateChecker instance;
 
@@ -78,7 +72,6 @@ public final class UpdateChecker
         this.plugin = plugin;
         this.pluginID = pluginID;
         this.versionScheme = versionScheme;
-        downloadURL = "https://api.spiget.org/v2/resources/" + pluginID + "/download";
     }
 
     /**
@@ -92,7 +85,7 @@ public final class UpdateChecker
         return CompletableFuture.supplyAsync(
             () ->
             {
-                int responseCode = -1;
+                int responseCode;
                 try
                 {
                     URL url = new URL(String.format(UPDATE_URL, pluginID));
@@ -182,89 +175,6 @@ public final class UpdateChecker
     }
 
     /**
-     * Gets the url to download the latest version from.
-     *
-     * @return The url to download the latest version from.
-     */
-    public String getDownloadUrl()
-    {
-        return downloadURL;
-    }
-
-    /**
-     * Downloads the latest update.
-     *
-     * @return True if the download was successful.
-     */
-    public boolean downloadUpdate()
-    {
-        boolean downloadSuccessfull = false;
-        try
-        {
-            File updateFolder = Bukkit.getUpdateFolderFile();
-            if (!updateFolder.exists())
-                if (!updateFolder.mkdirs())
-                    throw new RuntimeException("Failed to create update folder!");
-
-            String fileName = plugin.getName() + ".jar";
-            File updateFile = new File(updateFolder + "/" + fileName);
-
-            // Follow any and all redirects until we've finally found the actual file.
-            String location = downloadURL;
-            HttpURLConnection httpConnection = null;
-            for (; ; )
-            {
-                URL url = new URL(location);
-                httpConnection = (HttpURLConnection) url.openConnection();
-                httpConnection.setInstanceFollowRedirects(false);
-                httpConnection.setRequestProperty("User-Agent", "ArmoredElytraUpdater");
-                String redirectLocation = httpConnection.getHeaderField("Location");
-                if (redirectLocation == null)
-                    break;
-                location = redirectLocation;
-                httpConnection.disconnect();
-            }
-
-            if (httpConnection == null)
-            {
-                plugin.myLogger(Level.WARNING, "Failed to construct connection: " + location);
-                return false;
-            }
-
-            if (httpConnection.getResponseCode() != 200)
-            {
-                plugin.myLogger(Level.WARNING,
-                                Util.exceptionToString(new RuntimeException("Download returned status #"
-                                                                                + httpConnection
-                                    .getResponseCode() + "\n for URL: " + downloadURL)));
-                return false;
-            }
-
-            int grabSize = 4096;
-            BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-            FileOutputStream fos = new FileOutputStream(updateFile);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
-
-            byte[] data = new byte[grabSize];
-            int grab;
-            while ((grab = in.read(data, 0, grabSize)) >= 0)
-                bout.write(data, 0, grab);
-
-            bout.flush();
-            bout.close();
-            in.close();
-            fos.flush();
-            fos.close();
-            downloadSuccessfull = true;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return downloadSuccessfull;
-    }
-
-    /**
      * Initializes this update checker with the specified values and return its instance. If an instance of
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
@@ -327,7 +237,7 @@ public final class UpdateChecker
      * A functional interface to compare two version Strings with similar version schemes.
      */
     @FunctionalInterface
-    public static interface VersionScheme
+    public interface VersionScheme
     {
 
         /**
@@ -338,14 +248,14 @@ public final class UpdateChecker
          * @param second the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
-        public String compareVersions(String first, String second);
+        String compareVersions(String first, String second);
 
     }
 
     /**
      * A constant reason for the result of {@link UpdateResult}.
      */
-    public static enum UpdateReason
+    public enum UpdateReason
     {
 
         /**

@@ -82,7 +82,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         updateManager = new UpdateManager(this, 47136);
 
         // Check if the user allows checking for updates.
-        updateManager.setEnabled(config.checkForUpdates(), config.autoDLUpdate());
+        updateManager.setEnabled(config.checkForUpdates());
 
         if (config.allowStats())
         {

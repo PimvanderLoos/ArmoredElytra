@@ -13,10 +13,8 @@ public final class UpdateManager
 {
     private final ArmoredElytra plugin;
     private boolean checkForUpdates = false;
-    private boolean downloadUpdates = false;
-    private boolean updateDownloaded = false;
 
-    private UpdateChecker updater;
+    private final UpdateChecker updater;
     private BukkitTask updateRunner = null;
 
     public UpdateManager(final ArmoredElytra plugin, final int pluginID)
@@ -25,16 +23,10 @@ public final class UpdateManager
         updater = UpdateChecker.init(plugin, pluginID);
     }
 
-    public void setEnabled(final boolean newCheckForUpdates, final boolean newDownloadUpdates)
+    public void setEnabled(final boolean newCheckForUpdates)
     {
         checkForUpdates = newCheckForUpdates;
-        downloadUpdates = newDownloadUpdates;
         initUpdater();
-    }
-
-    public boolean hasUpdateBeenDownloaded()
-    {
-        return updateDownloaded;
     }
 
     public String getNewestVersion()
@@ -62,19 +54,6 @@ public final class UpdateManager
                 if (updateAvailable)
                     plugin.myLogger(Level.INFO,
                                     "A new update is available: " + plugin.getUpdateManager().getNewestVersion());
-
-                if (downloadUpdates && updateAvailable)
-                {
-                    updateDownloaded = updater.downloadUpdate();
-                    if (updateDownloaded)
-                        plugin.myLogger(Level.INFO, "Update downloaded! Restart to apply it! " +
-                            "New version is " + updater.getLastResult().getNewestVersion() +
-                            ", Currently running " + plugin.getDescription().getVersion());
-                    else
-                        plugin.myLogger(Level.INFO,
-                                        "Failed to download latest version! You can download it manually at: " +
-                                            updater.getDownloadUrl());
-                }
             });
     }
 
@@ -91,7 +70,7 @@ public final class UpdateManager
                     {
                         checkForUpdates();
                     }
-                }.runTaskTimer(plugin, 0L, 288000L); // Run immediately, then every 4 hours.
+                }.runTaskTimer(plugin, 0L, 864000L); // Run immediately, then every 12 hours.
         }
         else
         {
