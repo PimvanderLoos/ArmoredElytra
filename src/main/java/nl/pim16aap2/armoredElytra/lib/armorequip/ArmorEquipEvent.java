@@ -1,4 +1,4 @@
-package com.codingforcookies.armorequip;
+package nl.pim16aap2.armoredElytra.lib.armorequip;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +28,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
      * @param newArmorPiece The ItemStack of the armor added.
      */
     public ArmorEquipEvent(final Player player, final EquipMethod equipType, final ArmorType type,
-        final ItemStack oldArmorPiece, final ItemStack newArmorPiece)
+                           final ItemStack oldArmorPiece, final ItemStack newArmorPiece)
     {
         super(player);
         this.equipType = equipType;
@@ -86,8 +86,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * Returns the last equipped armor piece, could be a piece of armor,
-     * {@link Material#Air}, or null.
+     * Returns the last equipped armor piece, could be a piece of armor, {@link Material#Air}, or null.
      */
     public final ItemStack getOldArmorPiece()
     {
@@ -100,8 +99,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
     }
 
     /**
-     * Returns the newly equipped armor, could be a piece of armor,
-     * {@link Material#Air}, or null.
+     * Returns the newly equipped armor, could be a piece of armor, {@link Material#Air}, or null.
      */
     public final ItemStack getNewArmorPiece()
     {
@@ -136,18 +134,15 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
          */
         PICK_DROP,
         /**
-         * When you right click an armor piece in the hotbar without the inventory open
-         * to equip.
+         * When you right click an armor piece in the hotbar without the inventory open to equip.
          */
         HOTBAR,
         /**
-         * When you press the hotbar slot number while hovering over the armor slot to
-         * equip or unequip
+         * When you press the hotbar slot number while hovering over the armor slot to equip or unequip
          */
         HOTBAR_SWAP,
         /**
-         * When in range of a dispenser that shoots an armor piece to equip.<br>
-         * Requires the spigot version to have
+         * When in range of a dispenser that shoots an armor piece to equip.<br> Requires the spigot version to have
          * {@link org.bukkit.event.block.BlockDispenseArmorEvent} implemented.
          */
         DISPENSER,
@@ -158,6 +153,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
         /**
          * When you die causing all armor to unequip
          */
-        DEATH,;
+        DEATH,
+        ;
     }
 }

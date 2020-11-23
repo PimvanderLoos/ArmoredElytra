@@ -2,7 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>nl.pim16aap2</groupId>
+    <groupId>nl.pim16aap2.armoredElytra</groupId>
     <artifactId>ArmoredElytra</artifactId>
     <version>3.0</version>
 
@@ -74,7 +74,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>nl.pim16aap2.armoredElytra</shadedPattern>
+                            <shadedPattern>nl.pim16aap2.armoredElytra.lib.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -95,27 +95,6 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>deploy-artifact</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <ant antfile="${basedir}/mover.xml">
-                                    <target name="copyAll"/>
-                                </ant>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

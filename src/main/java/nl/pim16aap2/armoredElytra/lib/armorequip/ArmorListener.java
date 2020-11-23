@@ -1,6 +1,6 @@
-package com.codingforcookies.armorequip;
+package nl.pim16aap2.armoredElytra.lib.armorequip;
 
-import com.codingforcookies.armorequip.ArmorEquipEvent.EquipMethod;
+import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorEquipEvent.EquipMethod;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -1,11 +1,11 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import com.codingforcookies.armorequip.ArmorEquipEvent;
-import com.codingforcookies.armorequip.ArmorListener;
-import com.codingforcookies.armorequip.ArmorType;
-import com.codingforcookies.armorequip.DispenserArmorListener;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.enchantment.EnchantmentManager;
+import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorEquipEvent;
+import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorListener;
+import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorType;
+import nl.pim16aap2.armoredElytra.lib.armorequip.DispenserArmorListener;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;

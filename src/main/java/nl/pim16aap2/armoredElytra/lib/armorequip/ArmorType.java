@@ -1,4 +1,4 @@
-package com.codingforcookies.armorequip;
+package nl.pim16aap2.armoredElytra.lib.armorequip;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -9,10 +9,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public enum ArmorType
 {
-    HELMET (5),
-    CHESTPLATE (6),
-    LEGGINGS (7),
-    BOOTS (8);
+    HELMET(5),
+    CHESTPLATE(6),
+    LEGGINGS(7),
+    BOOTS(8);
 
     private final int slot;
 
