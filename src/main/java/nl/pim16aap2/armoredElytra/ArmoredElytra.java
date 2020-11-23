@@ -26,21 +26,16 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-// TODO: Figure out if the config really does read the list of enchantments accurately. A bug report with a customized config seemed to load the default settings...
-// TODO: Verify enchantments on startup.
-// TODO: Enchanting should require XP.
-
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
     private static final MinecraftVersion minecraftVersion = MinecraftVersion
         .get(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
 
-    private static ArmoredElytra instance;
+    private static ArmoredElytra INSTANCE;
     private Messages messages;
     private ConfigLoader config;
 
     private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap<>(ArmorTier.class);
-    private boolean upToDate;
     private UpdateManager updateManager;
 
     private INBTEditor nbtEditor;
@@ -48,7 +43,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
-        instance = this;
+        INSTANCE = this;
         if (minecraftVersion.isOlderThan(MinecraftVersion.v1_15))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
@@ -87,22 +82,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.INFO,
                      "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
-        // Load the files for the correct version of Minecraft.
-        if (compatibleMCVer())
-        {
-            Bukkit.getPluginManager()
-                  .registerEvents(new EventHandlers(this, config.craftingInSmithingTable()), this);
-            getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
-        }
-        else
-        {
-            Bukkit.getPluginManager().registerEvents(new LoginHandler(this,
-                                                                      "The Armored Elytra plugin failed to start correctly! Please send the startup log to pim16aap2!"),
-                                                     this);
-            myLogger(Level.WARNING,
-                     "Plugin failed to load! Either your version isn't supported or something went horribly wrong! Please contact pim16aap2!");
-            return;
-        }
+        Bukkit.getPluginManager().registerEvents(new EventHandlers(this, config.craftingInSmithingTable()), this);
+        getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
 
         // Load the plugin normally if not in uninstall mode.
         if (!config.uninstallMode())
@@ -179,27 +160,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
     }
 
-    public static MinecraftVersion getMinecraftVersion()
-    {
-        return minecraftVersion;
-    }
-
     public boolean playerHasWearPerm(Player player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassWearPerm() ||
             player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));
-    }
-
-    // Returns true if this is the latest version of this plugin.
-    public boolean isUpToDate()
-    {
-        return upToDate;
-    }
-
-    // Get this.
-    public ArmoredElytra getPlugin()
-    {
-        return this;
     }
 
     // Returns the config handler.
@@ -281,15 +245,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return updateManager;
     }
 
-    // Check + initialize for the correct version of Minecraft.
-    public boolean compatibleMCVer()
-    {
-        return minecraftVersion.isNewerThan(MinecraftVersion.v1_8);
-    }
-
     public static ArmoredElytra getInstance()
     {
-        return instance;
+        return INSTANCE;
     }
 
     public String getArmoredElytraName(ArmorTier tier)
@@ -300,10 +258,5 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             return "NULL";
         }
         return armorTierNames.get(tier).getLongName();
-    }
-
-    public void setUpToDate(boolean upToDate)
-    {
-        this.upToDate = upToDate;
     }
 }

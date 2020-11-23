@@ -9,17 +9,15 @@ import java.util.List;
 
 public class EnchantmentManager
 {
-    private final ArmoredElytra armoredElytra;
     private final List<EnchantmentContainer> containers = new ArrayList<>();
     private Integer count = null;
 
     public EnchantmentManager(final ItemStack is)
     {
-        armoredElytra = ArmoredElytra.getInstance();
         EnchantmentPlatformManager.get().getPlatforms().forEach(platform ->
                                                                     containers.add(platform.getEnchantments(is)));
 
-        Collection<String> filter = armoredElytra.getConfigLoader().allowedEnchantments();
+        Collection<String> filter = ArmoredElytra.getInstance().getConfigLoader().allowedEnchantments();
         containers.forEach(container -> container.filter(filter));
     }
 

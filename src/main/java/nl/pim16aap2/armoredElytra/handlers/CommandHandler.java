@@ -97,10 +97,9 @@ public class CommandHandler implements CommandExecutor
             {
                 ItemStack newElytra;
                 final String tier = args[1];
-                if (Bukkit.getPlayer(args[0]) != null)
+                player = Bukkit.getPlayer(args[0]);
+                if (player != null)
                 {
-                    player = Bukkit.getPlayer(args[0]);
-
                     ArmorTier armorTier = ArmorTier.valueOfName(tier.toLowerCase());
                     if (armorTier == null)
                         return false;

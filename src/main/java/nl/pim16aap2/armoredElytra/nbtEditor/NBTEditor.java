@@ -14,19 +14,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Collection;
 import java.util.UUID;
 
-// TODO: Consider using static UUIDs, to ensure attributes aren't stacked.
 public class NBTEditor implements INBTEditor
 {
-//    private static final Map<ArmorTier, NamespacedKey> namespaceKeys;
-//
-//    static
-//    {
-//        final Map<ArmorTier, NamespacedKey> namespaceKeysTmp = new EnumMap<ArmorTier, NamespacedKey>(ArmorTier.class);
-//        for (final ArmorTier tier : ArmorTier.values())
-//            namespaceKeysTmp.put(tier, new NamespacedKey(ArmoredElytra.getInstance(), "ARMORTIER_" + tier.name()));
-//        namespaceKeys = Collections.unmodifiableMap(namespaceKeysTmp);
-//    }
-
     private static final NamespacedKey armorTierKey = new NamespacedKey(ArmoredElytra.getInstance(),
                                                                         "ARMOR_TIER_LEVEL");
 

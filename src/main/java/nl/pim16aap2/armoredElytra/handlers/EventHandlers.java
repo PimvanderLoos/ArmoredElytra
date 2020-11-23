@@ -45,18 +45,8 @@ public class EventHandlers implements Listener
 
     private void initializeArmorEquipEvent()
     {
-        Bukkit.getPluginManager().registerEvents(new ArmorListener(new ArrayList<String>()), plugin);
-        try
-        {
-            // Older versions did not have this event. So try to load it if possible, but
-            // don't worry
-            // about it not working.
-            Class.forName("org.bukkit.event.block.BlockDispenseArmorEvent");
-            plugin.getServer().getPluginManager().registerEvents(new DispenserArmorListener(), plugin);
-        }
-        catch (Exception ignored)
-        {
-        }
+        Bukkit.getPluginManager().registerEvents(new ArmorListener(new ArrayList<>()), plugin);
+        Bukkit.getPluginManager().registerEvents(new DispenserArmorListener(), plugin);
     }
 
     private void moveChestplateToInventory(Player player)

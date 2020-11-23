@@ -35,8 +35,6 @@ public class Util
     {
         ArmorTier ret = ArmorTier.NONE;
         XMaterial xmat = XMaterial.matchXMaterial(mat);
-        if (xmat == null)
-            return ret;
 
         switch (xmat)
         {
@@ -70,13 +68,10 @@ public class Util
         try
         {
             XMaterial xmat = XMaterial.matchXMaterial(mat);
-            if (xmat == null)
-                return false;
-            if (xmat == XMaterial.LEATHER_CHESTPLATE || xmat == XMaterial.GOLDEN_CHESTPLATE ||
+
+            return xmat == XMaterial.LEATHER_CHESTPLATE || xmat == XMaterial.GOLDEN_CHESTPLATE ||
                 xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
-                xmat == XMaterial.DIAMOND_CHESTPLATE || xmat == XMaterial.NETHERITE_CHESTPLATE)
-                return true;
-            return false;
+                xmat == XMaterial.DIAMOND_CHESTPLATE || xmat == XMaterial.NETHERITE_CHESTPLATE;
         }
         catch (IllegalArgumentException e)
         {
@@ -86,7 +81,6 @@ public class Util
     }
 
     // Function that returns which/how many protection enchantments there are.
-    // TODO: Use bit flags for this.
     public static int getProtectionEnchantmentsVal(Map<Enchantment, Integer> enchantments)
     {
         int ret = 0;

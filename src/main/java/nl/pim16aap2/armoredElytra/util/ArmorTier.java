@@ -23,9 +23,9 @@ public enum ArmorTier
     private final double knockbackResistance;
     private final Material repair;
     private final String name;
-    private static Map<String, ArmorTier> map = new HashMap<>();
-    private static Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
-    private static Map<Integer, ArmorTier> armorIDMap = new HashMap<>();
+    private static final Map<String, ArmorTier> map = new HashMap<>();
+    private static final Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
+    private static final Map<Integer, ArmorTier> armorIDMap = new HashMap<>();
 
     ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair, String name)
     {
@@ -101,6 +101,7 @@ public enum ArmorTier
         // This value is the same as netherite's tier. However, with the introduction of the NETHERITE armor tier,
         // a new system was introduced that doesn't rely on the armor value for determining the armortier.
         // Therefore, when using the old backup system, it is always going to be the diamond tier instead.
+        // While no new elytras cna be created using the old system, some may still be around from when it was still used.
         armorValueMap.put(ArmorTier.DIAMOND.armor, ArmorTier.DIAMOND);
     }
 }
