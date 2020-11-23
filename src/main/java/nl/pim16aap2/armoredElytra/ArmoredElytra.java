@@ -7,7 +7,6 @@ import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
-import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor_legacy;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
@@ -51,7 +50,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public void onEnable()
     {
         instance = this;
-        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_9))
+        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_15))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             this.setEnabled(false);
@@ -64,7 +63,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 //            System.out.println(str);
 //        System.exit(0);
 
-        nbtEditor = minecraftVersion.isNewerThan(MinecraftVersion.v1_15) ? new NBTEditor() : new NBTEditor_legacy();
+        nbtEditor = new NBTEditor();
         if (isBlacklistedVersion())
         {
             myLogger(Level.SEVERE,

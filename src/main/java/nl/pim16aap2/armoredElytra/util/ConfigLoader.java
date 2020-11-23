@@ -196,8 +196,7 @@ public class ConfigLoader
             e.printStackTrace();
         }
     }
-
-
+    
     public boolean allowStats()
     {
         return allowStats;
@@ -205,8 +204,7 @@ public class ConfigLoader
 
     public boolean craftingInSmithingTable()
     {
-        return ArmoredElytra.getInstance().getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15) &&
-            craftingInSmithingTable;
+        return craftingInSmithingTable;
     }
 
     public boolean unbreakable()
