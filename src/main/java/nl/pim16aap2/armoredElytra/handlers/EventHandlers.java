@@ -30,32 +30,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class EventHandlers implements Listener
 {
     private final ArmoredElytra plugin;
 
-    private final Consumer<AnvilInventory> cleanAnvilInventory;
-    private final Consumer<Player> moveChestplateToInventory;
     private final boolean creationEnabled;
 
-    public EventHandlers(ArmoredElytra plugin, boolean is1_9, boolean creationEnabled)
+    public EventHandlers(ArmoredElytra plugin, boolean creationEnabled)
     {
         this.plugin = plugin;
         this.creationEnabled = creationEnabled;
         initializeArmorEquipEvent();
-        if (is1_9)
-        {
-            cleanAnvilInventory = this::cleanAnvilOld;
-            moveChestplateToInventory = this::moveChestplateToInventoryOld;
-        }
-        else
-        {
-            cleanAnvilInventory = this::cleanAnvilNew;
-            moveChestplateToInventory = this::moveChestplateToInventoryNew;
-        }
     }
 
     private void initializeArmorEquipEvent()
@@ -74,29 +61,14 @@ public class EventHandlers implements Listener
         }
     }
 
-    private void moveChestplateToInventoryOld(Player player)
-    {
-        player.getInventory().getChestplate().setType(XMaterial.AIR.parseMaterial());
-    }
-
-    private void moveChestplateToInventoryNew(Player player)
+    private void moveChestplateToInventory(Player player)
     {
         player.getInventory().addItem(player.getInventory().getChestplate());
         player.getInventory().getChestplate().setAmount(0);
         player.updateInventory();
     }
 
-    // Clean 1.9 inventories.
-    private void cleanAnvilOld(AnvilInventory anvilInventory)
-    {
-        ItemStack air = new ItemStack(XMaterial.AIR.parseMaterial(), 1);
-        anvilInventory.setItem(0, air);
-        anvilInventory.setItem(1, air);
-        anvilInventory.setItem(2, air);
-    }
-
-    // Clean >=1.10 inventories.
-    private void cleanAnvilNew(AnvilInventory anvilInventory)
+    private void cleanAnvilInventory(AnvilInventory anvilInventory)
     {
         if (anvilInventory.getItem(0) != null)
             anvilInventory.getItem(0).setAmount(0);
@@ -438,7 +410,7 @@ public class EventHandlers implements Listener
                     player.setItemOnCursor(result);
 
                 // Clean the anvil's inventory after transferring the items.
-                cleanAnvilInventory.accept(anvilInventory);
+                cleanAnvilInventory(anvilInventory);
                 player.updateInventory();
                 return;
             }
@@ -503,7 +475,7 @@ public class EventHandlers implements Listener
                     // If the durability equals/exceeds maxDurability, it's broken (0 = full item
                     // durability).
                     if (durability >= maxDurability)
-                        moveChestplateToInventory.accept(p);
+                        moveChestplateToInventory(p);
                     else
                         newDurability = durability + durabilityDelta;
                 }
@@ -511,7 +483,7 @@ public class EventHandlers implements Listener
                 if (newDurability >= maxDurability)
                 {
                     newDurability = maxDurability;
-                    moveChestplateToInventory.accept(p);
+                    moveChestplateToInventory(p);
                 }
                 elytra.setDurability((short) (newDurability));
             }

@@ -51,9 +51,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     public void onEnable()
     {
         instance = this;
-        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_8))
+        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_9))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
+            this.setEnabled(false);
             return;
         }
 
@@ -98,7 +99,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         if (compatibleMCVer())
         {
             Bukkit.getPluginManager()
-                  .registerEvents(new EventHandlers(this, is1_9, config.craftingInSmithingTable()), this);
+                  .registerEvents(new EventHandlers(this, config.craftingInSmithingTable()), this);
             getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
         }
         else
