@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -28,7 +29,7 @@ public class ConfigLoader
     private int DIAMONDS_TO_FULL;
     private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
-    private List<String> allowedEnchantments;
+    private LinkedHashSet<String> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
     private boolean bypassWearPerm;
@@ -117,9 +118,11 @@ public class ConfigLoader
 
 
         // Set default list of allowed enchantments.
-        allowedEnchantments = new ArrayList<>(Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
-                                                            "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL",
-                                                            "THORNS", "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
+        List<String> defaultAllowedEnchantments = new ArrayList<>(
+            Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
+                          "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL",
+                          "THORNS", "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
+
         FileConfiguration config = plugin.getConfig();
 
         unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
@@ -133,8 +136,11 @@ public class ConfigLoader
 //        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", true, craftingInSmithingTableComment);
         craftingInSmithingTable = false;
 
-        allowedEnchantments = addNewConfigOption(config, "allowedEnchantments", allowedEnchantments,
-                                                 enchantmentsComment);
+        defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
+                                                        enchantmentsComment);
+        defaultAllowedEnchantments.replaceAll(String::toUpperCase);
+        allowedEnchantments = new LinkedHashSet<>(defaultAllowedEnchantments);
+
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
@@ -267,7 +273,7 @@ public class ConfigLoader
         return noFlightDurability;
     }
 
-    public List<String> allowedEnchantments()
+    public LinkedHashSet<String> allowedEnchantments()
     {
         return allowedEnchantments;
     }

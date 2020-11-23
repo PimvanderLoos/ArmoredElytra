@@ -41,7 +41,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
     private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap<>(ArmorTier.class);
     private boolean upToDate;
-    private boolean is1_9;
     private UpdateManager updateManager;
 
     private INBTEditor nbtEditor;
@@ -57,13 +56,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             return;
         }
 
-////        Material mat = Material.ELYTRA;
-////        n3kas.ae.Core.canApplyTo(mat);
-//        for (String str : n3kas.ae.api.getAllEnchantments())
-//            System.out.println(str);
-//        System.exit(0);
-
-        nbtEditor = new NBTEditor();
         if (isBlacklistedVersion())
         {
             myLogger(Level.SEVERE,
@@ -74,6 +66,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                     "blacklisted version of Spiogt! Please update Spigot!"), this);
             return;
         }
+        nbtEditor = new NBTEditor();
 
         config = new ConfigLoader(this);
         messages = new Messages(this);

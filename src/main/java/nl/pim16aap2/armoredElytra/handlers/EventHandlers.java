@@ -5,6 +5,7 @@ import com.codingforcookies.armorequip.ArmorListener;
 import com.codingforcookies.armorequip.ArmorType;
 import com.codingforcookies.armorequip.DispenserArmorListener;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.enchantment.EnchantmentManager;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
@@ -24,11 +25,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
@@ -78,85 +76,6 @@ public class EventHandlers implements Listener
             anvilInventory.getItem(2).setAmount(0);
     }
 
-    // Check if the enchantment is allowed on elytras.
-    private boolean isAllowedEnchantment(Enchantment enchant)
-    {
-        for (String s : plugin.getConfigLoader().allowedEnchantments())
-            if (Enchantment.getByName(s) != null)
-                if (Enchantment.getByName(s).equals(enchant))
-                    return true;
-        return false;
-    }
-
-    // Combine 2 maps of enchantments (and remove any invalid ones).
-    private Map<Enchantment, Integer> combineEnchantments(Map<Enchantment, Integer> enchantments0,
-                                                          Map<Enchantment, Integer> enchantments1)
-    {
-        enchantments0 = fixEnchantments(enchantments0);
-        Map<Enchantment, Integer> combined = new HashMap<>(fixEnchantments(enchantments0));
-
-        // If the second set of enchantments is null, the combined enchantments are just
-        // the first enchantments.
-        if (enchantments1 == null)
-            return combined;
-
-        enchantments1 = fixEnchantments(enchantments1);
-        // Loop through the enchantments of item1.
-        for (Map.Entry<Enchantment, Integer> entry : enchantments1.entrySet())
-        {
-            Integer enchantLevel = enchantments0.get(entry.getKey());
-            if (enchantLevel != null)
-            {
-                if (entry.getValue().equals(enchantLevel) && entry.getValue() < entry.getKey().getMaxLevel())
-                    enchantLevel = entry.getValue() + 1;
-                else if (entry.getValue() > enchantLevel)
-                    enchantLevel = entry.getValue();
-
-                // If the enchantment level has changed,
-                if (!enchantLevel.equals(enchantments0.get(entry.getKey())))
-                {
-                    combined.remove(entry.getKey());
-                    combined.put(entry.getKey(), enchantLevel);
-                }
-            }
-            else
-                combined.put(entry.getKey(), entry.getValue());
-        }
-
-        if (!plugin.getConfigLoader().allowMultipleProtectionEnchantments())
-        {
-            // Get the protection enchantment rating for both enchantment sets.
-            int protVal0 = Util.getProtectionEnchantmentsVal(enchantments0);
-            int protVal1 = Util.getProtectionEnchantmentsVal(enchantments1);
-
-            // If they have different protection enchantments, keep enchantment1's
-            // enchantments
-            // And remove the protection enchantment from enchantments0. Yes, this system
-            // only works
-            // If there is 1 protection enchantment on
-            if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
-                switch (protVal0)
-                {
-                    case 1:
-                        combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
-                        break;
-                    case 2:
-                        combined.remove(Enchantment.PROTECTION_EXPLOSIONS);
-                        break;
-                    case 4:
-                        combined.remove(Enchantment.PROTECTION_FALL);
-                        break;
-                    case 8:
-                        combined.remove(Enchantment.PROTECTION_FIRE);
-                        break;
-                    case 16:
-                        combined.remove(Enchantment.PROTECTION_PROJECTILE);
-                        break;
-                }
-        }
-        return combined;
-    }
-
     // Repair an Armored Elytra
     private short repairItem(short curDur, ItemStack repairItem)
     {
@@ -182,32 +101,12 @@ public class EventHandlers implements Listener
         return (short) (newDurability <= 0 ? 0 : newDurability);
     }
 
-    // Remove any disallowed enchantments in the map.
-    private Map<Enchantment, Integer> fixEnchantments(Map<Enchantment, Integer> enchantments)
-    {
-        Map<Enchantment, Integer> ret = new HashMap<>(enchantments);
-        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
-            if (!isAllowedEnchantment(entry.getKey()))
-                ret.remove(entry.getKey());
-        return ret;
-    }
-
-    // Verify there aren't any disallowed enchantments in the map.
-    private int verifyEnchantments(Map<Enchantment, Integer> enchantments)
-    {
-        int ret = 0;
-        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
-            if (!isAllowedEnchantment(entry.getKey()))
-                ++ret;
-        return ret;
-    }
-
     // Valid inputs:
     //  - Elytra (armored or not)    + chestplate             -> Create Armored Elytra
     //  - Elytra (armored)           + enchanted book         -> Enchant
     //  - Elytra (armored)           + its repair item        -> Repair
     //  - Elytra (armored)           + other elytra (armored) -> Combine (Enchant + Repair)
-    //  ! Elytra (armored, !leather) + leather                -> Block
+    //  ! Elytra (armored, !leather) + leather/membrane       -> Block
     //
     // Ignoring:
     //  - Elytra (not armored)       + !chestplate            -> None
@@ -288,8 +187,7 @@ public class EventHandlers implements Listener
             ArmorTier newTier = ArmorTier.NONE;
             ArmorTier curTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA);
             short durability = 0;
-            Map<Enchantment, Integer> enchantments = itemA.getEnchantments();
-            enchantments = fixEnchantments(enchantments);
+            EnchantmentManager enchantments = new EnchantmentManager(itemA);
 
             switch (action)
             {
@@ -302,22 +200,23 @@ public class EventHandlers implements Listener
                     durability = (short) (-itemA.getType().getMaxDurability() - itemA.getDurability()
                         - itemB.getDurability());
                     durability = durability < 0 ? 0 : durability;
-                    enchantments = combineEnchantments(enchantments, itemB.getEnchantments());
+                    enchantments.merge(new EnchantmentManager(itemB));
                     break;
                 case CREATE:
                     newTier = Util.armorToTier(itemB.getType());
                     durability = 0;
-                    enchantments = combineEnchantments(enchantments, itemB.getEnchantments());
+                    enchantments.merge(new EnchantmentManager(itemB));
                     break;
                 case ENCHANT:
-                    EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemB.getItemMeta();
                     newTier = curTier;
                     durability = itemA.getDurability();
+
                     // If there aren't any illegal enchantments on the book, continue as normal.
                     // Otherwise... Block.
-                    if (verifyEnchantments(meta.getStoredEnchants()) != meta.getStoredEnchants().size())
+                    EnchantmentManager enchantmentsB = new EnchantmentManager(itemB);
+                    if (enchantmentsB.getEnchantmentCount() > 0)
                     {
-                        enchantments = combineEnchantments(enchantments, meta.getStoredEnchants());
+                        enchantments.merge(enchantmentsB);
                         break;
                     }
                     //$FALL-THROUGH$
@@ -332,8 +231,7 @@ public class EventHandlers implements Listener
             if (plugin.playerHasCraftPerm(player, newTier))
             {
                 result = new ItemStack(Material.ELYTRA, 1);
-                if (enchantments != null)
-                    result.addUnsafeEnchantments(enchantments);
+                enchantments.apply(result);
                 result.setDurability(durability);
 
                 result = ArmoredElytra.getInstance().getNbtEditor()
