@@ -133,8 +133,15 @@ public class ConfigLoader
         DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
         NETHERITE_TO_FULL = addNewConfigOption(config, "netheriteIngotsRepair", 3, null);
 
-//        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", true, craftingInSmithingTableComment);
-        craftingInSmithingTable = false;
+        final boolean smithingTableAllowed = plugin.getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15);
+        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", smithingTableAllowed,
+                                                     craftingInSmithingTableComment);
+        if (craftingInSmithingTable && !smithingTableAllowed)
+        {
+            Bukkit.getLogger().log(Level.WARNING, "You tried to enable crafting in smithing tables, " +
+                "but this is only supported on 1.16+! Reverting to disabled.");
+            craftingInSmithingTable = false;
+        }
 
         defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
                                                         enchantmentsComment);
@@ -202,7 +209,7 @@ public class ConfigLoader
             e.printStackTrace();
         }
     }
-    
+
     public boolean allowStats()
     {
         return allowStats;

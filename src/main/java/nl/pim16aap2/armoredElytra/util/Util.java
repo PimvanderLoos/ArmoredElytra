@@ -62,6 +62,11 @@ public class Util
         return ret;
     }
 
+    public static boolean isChestPlate(ItemStack itemStack)
+    {
+        return isChestPlate(itemStack.getType());
+    }
+
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {

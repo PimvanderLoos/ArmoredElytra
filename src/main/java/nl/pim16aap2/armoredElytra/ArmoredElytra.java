@@ -5,6 +5,7 @@ import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
 import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
+import nl.pim16aap2.armoredElytra.handlers.SmithingTableHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
@@ -22,7 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -84,12 +84,12 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.INFO,
                      "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
-        if (config.craftingInSmithingTable())
-            throw new NotImplementedException();
-        else
-        {
-            Bukkit.getPluginManager().registerEvents(new AnvilHandler(this, !config.uninstallMode()), this);
-        }
+        final Listener creationListener = config.craftingInSmithingTable() ?
+                                          new SmithingTableHandler(this, !config.uninstallMode()) :
+                                          new AnvilHandler(this, !config.uninstallMode());
+        Bukkit.getPluginManager().registerEvents(creationListener, this);
+
+
         Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
         getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
 
@@ -133,6 +133,11 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
         String[] parts = Bukkit.getVersion().substring("git-Spigot-".length()).split("-");
         return parts.length > 0 && parts[0].equals("758abbe");
+    }
+
+    public MinecraftVersion getMinecraftVersion()
+    {
+        return minecraftVersion;
     }
 
     public Messages getMyMessages()
