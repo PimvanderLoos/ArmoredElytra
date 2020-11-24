@@ -164,27 +164,24 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
                 result = ArmoredElytra.getInstance().getNbtEditor()
                                       .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable());
+
                 event.setResult(result);
+                return;
             }
         }
 
         // If one of the input items is null and the other an armored elytra, remove the result.
         // This prevent some naming issues.
-        // TODO: Allow renaming armored elytras.
         if ((itemA == null ^ itemB == null) &&
             ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
             event.setResult(null);
-        player.updateInventory();
     }
 
     // Let the player take items out of the anvil.
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e)
     {
-        if (e.getRawSlot() != 2)
-            return;
-
-        if (!(e.getWhoClicked() instanceof Player))
+        if (e.getRawSlot() != 2 || !(e.getWhoClicked() instanceof Player))
             return;
 
         // Check if the event was a player who interacted with an anvil.

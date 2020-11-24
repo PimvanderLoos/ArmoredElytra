@@ -44,7 +44,7 @@ abstract class ArmoredElytraHandler
             mult *= (100.0f / plugin.getConfigLoader().NETHERITE_TO_FULL());
 
         int maxDurability = Material.ELYTRA.getMaxDurability();
-        int newDurability = (int) (curDur - (maxDurability * mult));
+        int newDurability = (int) (curDur - repairItem.getAmount() * (maxDurability * mult));
         return (short) (Math.max(newDurability, 0));
     }
 
