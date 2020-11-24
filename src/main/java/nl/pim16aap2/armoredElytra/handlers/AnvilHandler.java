@@ -177,6 +177,9 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e)
     {
+        if (e.getRawSlot() != 2)
+            return;
+
         if (!(e.getWhoClicked() instanceof Player))
             return;
 
@@ -204,7 +207,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
         int slot = e.getRawSlot();
 
-        if (slot == 2 && anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
+        if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
             anvilInventory.getItem(2) != null && anvilInventory.getItem(2).getType() == Material.ELYTRA)
         {
             ArmorTier armortier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(anvilInventory.getItem(2));
@@ -221,15 +224,8 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                                                                  plugin.getConfigLoader().unbreakable());
 
                 // Give the result to the player and clear the anvil's inventory.
-                if (e.isShiftClick())
-                {
-                    // If the player's inventory is full, don't do anything.
-                    if (player.getInventory().firstEmpty() == -1)
-                        return;
-                    player.getInventory().addItem(result);
-                }
-                else
-                    player.setItemOnCursor(result);
+                if (!giveItemToPlayer(player, result, e.isShiftClick()))
+                    return;
 
                 // Clean the anvil's inventory after transferring the items.
                 cleanAnvilInventory(anvilInventory);

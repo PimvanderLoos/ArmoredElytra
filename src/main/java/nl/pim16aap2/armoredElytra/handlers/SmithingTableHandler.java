@@ -8,9 +8,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
+
+import java.util.logging.Level;
 
 public class SmithingTableHandler extends ArmoredElytraHandler implements Listener
 {
@@ -45,5 +49,43 @@ public class SmithingTableHandler extends ArmoredElytraHandler implements Listen
             enchantments.apply(result);
             event.setResult(result);
         }
+    }
+
+    // Let the player take items out of the smithing table.
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent e)
+    {
+        if (e.getRawSlot() != 2 || !(e.getWhoClicked() instanceof Player))
+            return;
+
+        // Check if the event was a player who interacted with a smithing table.
+        Player player = (Player) e.getWhoClicked();
+        if (e.getView().getType() != InventoryType.SMITHING)
+            return;
+
+        SmithingInventory smithingInventory;
+        // Try to cast inventory being used in the event to a smithing inventory.
+        // This will throw a ClassCastException when a CraftInventoryCustom is used.
+        try
+        {
+            smithingInventory = (SmithingInventory) e.getInventory();
+        }
+        catch (ClassCastException exception)
+        {
+            // Print warning to console and exit onInventoryClick event (no support for
+            // custom inventories as they are usually used for GUI's).
+            plugin.debugMsg(Level.WARNING, "Could not cast inventory to SmithingInventory for player " +
+                player.getName() + "! Armored Elytras cannot be crafted!");
+            exception.printStackTrace();
+            return;
+        }
+
+        final ItemStack result = smithingInventory.getItem(2);
+        if (result == null || result.getType() != Material.ELYTRA ||
+            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(result) == ArmorTier.NONE)
+            return;
+
+        giveItemToPlayer(player, result, e.isShiftClick());
+        smithingInventory.clear();
     }
 }
