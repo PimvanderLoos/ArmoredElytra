@@ -23,9 +23,6 @@ public class NBTEditor implements INBTEditor
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
     {
@@ -65,9 +62,6 @@ public class NBTEditor implements INBTEditor
         meta.addAttributeModifier(attribute, attributeModifier);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArmorTier getArmorTier(ItemStack item)
     {

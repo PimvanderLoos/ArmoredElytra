@@ -4,6 +4,7 @@ import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
+import nl.pim16aap2.armoredElytra.handlers.ItemDropListener;
 import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
@@ -102,6 +103,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             final Listener creationListener = config.craftingInSmithingTable() ?
                                               new SmithingTableHandler(this) : new AnvilHandler(this);
             Bukkit.getPluginManager().registerEvents(creationListener, this);
+            Bukkit.getPluginManager().registerEvents(new ItemDropListener(this), this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
