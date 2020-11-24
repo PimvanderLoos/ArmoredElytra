@@ -1,5 +1,6 @@
 package nl.pim16aap2.armoredElytra;
 
+import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -82,7 +84,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.INFO,
                      "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
-        Bukkit.getPluginManager().registerEvents(new EventHandlers(this, config.craftingInSmithingTable()), this);
+        if (config.craftingInSmithingTable())
+            throw new NotImplementedException();
+        else
+        {
+            Bukkit.getPluginManager().registerEvents(new AnvilHandler(this, !config.uninstallMode()), this);
+        }
+        Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
         getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
 
         // Load the plugin normally if not in uninstall mode.
