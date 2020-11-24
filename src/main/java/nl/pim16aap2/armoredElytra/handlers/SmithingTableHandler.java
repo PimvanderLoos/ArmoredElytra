@@ -4,6 +4,7 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.enchantment.EnchantmentManager;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.Util;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,9 +19,11 @@ import java.util.logging.Level;
 
 public class SmithingTableHandler extends ArmoredElytraHandler implements Listener
 {
-    public SmithingTableHandler(final ArmoredElytra plugin, final boolean creationEnabled)
+    public SmithingTableHandler(final ArmoredElytra plugin)
     {
-        super(plugin, creationEnabled);
+        super(plugin, true);
+        // Register the anvil handler with creation disabled so AEs can still be repaired and stuff.
+        Bukkit.getPluginManager().registerEvents(new AnvilHandler(plugin, false), plugin);
     }
 
     @EventHandler(ignoreCancelled = true)

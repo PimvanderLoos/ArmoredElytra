@@ -84,12 +84,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.INFO,
                      "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
 
-        final Listener creationListener = config.craftingInSmithingTable() ?
-                                          new SmithingTableHandler(this, !config.uninstallMode()) :
-                                          new AnvilHandler(this, !config.uninstallMode());
-        Bukkit.getPluginManager().registerEvents(creationListener, this);
-
-
         Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
         getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
 
@@ -104,6 +98,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             }
             else
                 myLogger(Level.INFO, "Durability penalty for flying enabled!");
+
+            final Listener creationListener = config.craftingInSmithingTable() ?
+                                              new SmithingTableHandler(this) : new AnvilHandler(this);
+            Bukkit.getPluginManager().registerEvents(creationListener, this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));

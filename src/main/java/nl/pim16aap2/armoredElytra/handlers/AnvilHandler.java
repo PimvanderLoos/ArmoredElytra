@@ -25,6 +25,11 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         super(plugin, creationEnabled);
     }
 
+    public AnvilHandler(final ArmoredElytra plugin)
+    {
+        this(plugin, true);
+    }
+
     // Valid inputs:
     //  - Elytra (armored or not)    + chestplate             -> Create Armored Elytra
     //  - Elytra (armored)           + enchanted book         -> Enchant
@@ -55,7 +60,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
         // If the elytra is to be combined with chest armor...
         if (Util.isChestPlate(matTwo))
-            return Action.CREATE;
+            return creationEnabled ? Action.CREATE : Action.NONE;
 
         ArmorTier tier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemOne);
 
@@ -71,7 +76,6 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
             // If the armored elytra is to be combined with another armored elytra of the
             // same tier...
-            // TODO: Should this also be disabled by "creationEnabled"?
             if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemTwo) == tier)
                 return creationEnabled ? Action.COMBINE : Action.NONE;
 
