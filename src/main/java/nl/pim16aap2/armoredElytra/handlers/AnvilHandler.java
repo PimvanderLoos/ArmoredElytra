@@ -205,8 +205,6 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             return;
         }
 
-        int slot = e.getRawSlot();
-
         if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
             anvilInventory.getItem(2) != null && anvilInventory.getItem(2).getType() == Material.ELYTRA)
         {
@@ -228,9 +226,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                     return;
 
                 // Clean the anvil's inventory after transferring the items.
-                cleanAnvilInventory(anvilInventory);
-                player.updateInventory();
-                return;
+                anvilInventory.clear();
             }
         }
     }

@@ -4,7 +4,6 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -22,16 +21,6 @@ abstract class ArmoredElytraHandler
     {
         this.plugin = plugin;
         this.creationEnabled = creationEnabled;
-    }
-
-    protected void cleanAnvilInventory(AnvilInventory anvilInventory)
-    {
-        if (anvilInventory.getItem(0) != null)
-            anvilInventory.getItem(0).setAmount(0);
-        if (anvilInventory.getItem(1) != null)
-            anvilInventory.getItem(1).setAmount(anvilInventory.getItem(1).getAmount() - 1);
-        if (anvilInventory.getItem(2) != null)
-            anvilInventory.getItem(2).setAmount(0);
     }
 
     // Repair an Armored Elytra
