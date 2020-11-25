@@ -62,7 +62,6 @@ public class EventHandlers implements Listener
     @EventHandler(ignoreCancelled = true)
     public void onPlayerDamage(EntityDamageEvent e)
     {
-        System.out.println("onPlayerDamage!");
         if (!(e.getEntity() instanceof Player))
             return;
 
@@ -122,7 +121,6 @@ public class EventHandlers implements Listener
     @EventHandler
     public void onEquip(ArmorEquipEvent e)
     {
-        System.out.println("onEquip!");
         if (e.getMethod().equals(ArmorEquipEvent.EquipMethod.DEATH) ||
             e.getMethod().equals(ArmorEquipEvent.EquipMethod.BROKE))
             return;
