@@ -20,13 +20,16 @@ import nl.pim16aap2.armoredElytra.util.messages.Messages;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
@@ -35,6 +38,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         .get(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
 
     private static ArmoredElytra INSTANCE;
+    private final Set<Enchantment> allowedEnchantments = new HashSet<>();
     private Messages messages;
     private ConfigLoader config;
 
@@ -107,8 +111,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
-            for (final String s : config.allowedEnchantments())
-                myLogger(Level.INFO, " - " + s);
+            for (final Enchantment enchantment : config.allowedEnchantments())
+                myLogger(Level.INFO, " - " + enchantment.toString());
         }
         else
         {

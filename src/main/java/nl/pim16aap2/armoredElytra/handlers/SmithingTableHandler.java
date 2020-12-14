@@ -1,8 +1,8 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.enchantment.EnchantmentManager;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -40,7 +40,7 @@ public class SmithingTableHandler extends ArmoredElytraHandler implements Listen
             return;
 
         final ArmorTier newTier = Util.armorToTier(itemStackB.getType());
-        final EnchantmentManager enchantments = new EnchantmentManager(itemStackA);
+        EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
         final Player player = (Player) event.getView().getPlayer();
 
         final ItemStack result;
@@ -49,7 +49,7 @@ public class SmithingTableHandler extends ArmoredElytraHandler implements Listen
             result = ArmoredElytra.getInstance().getNbtEditor()
                                   .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
                                                    plugin.getConfigLoader().unbreakable());
-            enchantments.apply(result);
+            enchantments.applyEnchantments(result);
             event.setResult(result);
         }
     }

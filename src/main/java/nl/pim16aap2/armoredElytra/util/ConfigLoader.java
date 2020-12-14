@@ -2,7 +2,9 @@ package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -29,7 +31,7 @@ public class ConfigLoader
     private int DIAMONDS_TO_FULL;
     private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
-    private LinkedHashSet<String> allowedEnchantments;
+    private LinkedHashSet<Enchantment> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
     private boolean bypassWearPerm;
@@ -70,8 +72,9 @@ public class ConfigLoader
                 "List of enchantments that are allowed to be put on an armored elytra.",
                 "If you do not want to allow any enchantments at all, remove them all and add \"NONE\"",
                 "You can find supported enchantments here:",
-                "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html",
-                "Note that only 1 protection enchantment (PROTECTION_FIRE, PROTECTION_ENVIRONMENTAL etc) can be active on an elytra."
+                "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
+                "If you install additional enchantment plugins, you can add their enchantments as well.",
+                "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
             };
         String[] updateComment =
             {
@@ -119,9 +122,10 @@ public class ConfigLoader
 
         // Set default list of allowed enchantments.
         List<String> defaultAllowedEnchantments = new ArrayList<>(
-            Arrays.asList("DURABILITY", "PROTECTION_FIRE", "PROTECTION_EXPLOSIONS",
-                          "PROTECTION_PROJECTILE", "PROTECTION_ENVIRONMENTAL",
-                          "THORNS", "BINDING_CURSE", "VANISHING_CURSE", "MENDING"));
+            Arrays.asList("minecraft:unbreaking", "minecraft:fire_protection", "minecraft:blast_protection",
+                          "minecraft:projectile_protection", "minecraft:protection",
+                          "minecraft:thorns", "minecraft:binding_curse", "minecraft:vanishing_curse",
+                          "minecraft:mending"));
 
         FileConfiguration config = plugin.getConfig();
 
@@ -145,8 +149,26 @@ public class ConfigLoader
 
         defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
                                                         enchantmentsComment);
-        defaultAllowedEnchantments.replaceAll(String::toUpperCase);
-        allowedEnchantments = new LinkedHashSet<>(defaultAllowedEnchantments);
+
+        allowedEnchantments = new LinkedHashSet<>();
+        defaultAllowedEnchantments.forEach(
+            fullKey ->
+            {
+                String[] keyParts = fullKey.split(":", 2);
+                if (keyParts.length < 2)
+                {
+                    Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
+                    return;
+                }
+                NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
+                Enchantment enchantment = Enchantment.getByKey(key);
+                if (enchantment == null)
+                {
+                    Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
+                    return;
+                }
+                allowedEnchantments.add(enchantment);
+            });
 
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
@@ -280,7 +302,7 @@ public class ConfigLoader
         return noFlightDurability;
     }
 
-    public LinkedHashSet<String> allowedEnchantments()
+    public LinkedHashSet<Enchantment> allowedEnchantments()
     {
         return allowedEnchantments;
     }

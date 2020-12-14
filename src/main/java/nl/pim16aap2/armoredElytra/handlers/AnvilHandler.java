@@ -1,14 +1,15 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.enchantment.EnchantmentManager;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -90,7 +91,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
     }
 
     // Handle all anvil related stuff for this plugin.
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onAnvilInventoryOpen(PrepareAnvilEvent event)
     {
         Player player = (Player) event.getView().getPlayer();
@@ -115,7 +116,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             ArmorTier newTier = ArmorTier.NONE;
             ArmorTier curTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA);
             short durability = 0;
-            EnchantmentManager enchantments = new EnchantmentManager(itemA);
+            EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
 
             switch (action)
             {
@@ -128,12 +129,12 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                     durability = (short) (-itemA.getType().getMaxDurability() - itemA.getDurability()
                         - itemB.getDurability());
                     durability = durability < 0 ? 0 : durability;
-                    enchantments.merge(new EnchantmentManager(itemB));
+                    enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
                     break;
                 case CREATE:
                     newTier = Util.armorToTier(itemB.getType());
                     durability = 0;
-                    enchantments.merge(new EnchantmentManager(itemB));
+                    enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
                     break;
                 case ENCHANT:
                     newTier = curTier;
@@ -141,7 +142,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
                     // If there aren't any illegal enchantments on the book, continue as normal.
                     // Otherwise... Block.
-                    EnchantmentManager enchantmentsB = new EnchantmentManager(itemB);
+                    EnchantmentContainer enchantmentsB = EnchantmentContainer.getEnchantments(itemB, plugin);
                     if (enchantmentsB.getEnchantmentCount() > 0)
                     {
                         enchantments.merge(enchantmentsB);
@@ -159,7 +160,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             if (plugin.playerHasCraftPerm(player, newTier))
             {
                 result = new ItemStack(Material.ELYTRA, 1);
-                enchantments.apply(result);
+                enchantments.applyEnchantments(result);
                 result.setDurability(durability);
 
                 result = ArmoredElytra.getInstance().getNbtEditor()
