@@ -6,17 +6,22 @@ import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class CommandHandler implements CommandExecutor
 {
     private final ArmoredElytra plugin;
+    private static Field BY_KEY_FIELD;
 
     public CommandHandler(ArmoredElytra plugin)
     {
@@ -93,6 +98,12 @@ public class CommandHandler implements CommandExecutor
                 return true;
             }
 
+            if (args.length == 1 && args[0].equalsIgnoreCase("listAvailable"))
+            {
+                listAvailableEnchantments();
+                return true;
+            }
+
             if (args.length == 2)
             {
                 ItemStack newElytra;
@@ -118,5 +129,28 @@ public class CommandHandler implements CommandExecutor
             }
         }
         return false;
+    }
+
+    private void listAvailableEnchantments()
+    {
+        try
+        {
+            if (BY_KEY_FIELD == null)
+            {
+                BY_KEY_FIELD = Enchantment.class.getDeclaredField("byKey");
+                BY_KEY_FIELD.setAccessible(true);
+            }
+
+            final Map<NamespacedKey, Enchantment> byKey = (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(null);
+
+            StringBuilder sb = new StringBuilder("\nAvailable enchantments: \n");
+            for (NamespacedKey key : byKey.keySet())
+                sb.append("  - ").append(key.toString()).append("\n");
+            Bukkit.getLogger().info(sb.toString());
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            throw new RuntimeException("Failed to get registered enchantments!", e);
+        }
     }
 }
