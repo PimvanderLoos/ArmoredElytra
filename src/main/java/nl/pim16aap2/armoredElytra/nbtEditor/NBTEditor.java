@@ -19,12 +19,15 @@ public class NBTEditor implements INBTEditor
     private static final NamespacedKey armorTierKey = new NamespacedKey(ArmoredElytra.getInstance(),
                                                                         "ARMOR_TIER_LEVEL");
 
-    public NBTEditor()
+    @Override
+    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
     {
+        return addArmorNBTTags(item, armorTier, unbreakable,
+                               ArmoredElytra.getInstance().getArmoredElytraName(armorTier));
     }
 
     @Override
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
+    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final String name)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -45,7 +48,7 @@ public class NBTEditor implements INBTEditor
                               "generic.knockback_resistance");
 
         meta.setUnbreakable(unbreakable);
-        meta.setDisplayName(ArmoredElytra.getInstance().getArmoredElytraName(armorTier));
+        meta.setDisplayName(name);
 
         ret.setItemMeta(meta);
         return ret;

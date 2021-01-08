@@ -6,6 +6,7 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.logging.Level;
 
@@ -100,13 +102,12 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         ItemStack result = null;
 
         if (itemA != null && itemB != null)
-            // If itemB is the elytra, while itemA isn't, switch itemA and itemB.
+            // If itemB is the (armored) elytra, while itemA isn't, switch itemA and itemB.
             if (itemB.getType() == Material.ELYTRA && itemA.getType() != Material.ELYTRA)
             {
-                result = itemA;
+                ItemStack tmp = itemA;
                 itemA = itemB;
-                itemB = result;
-                result = null;
+                itemB = tmp;
             }
 
         // Check if there are items in both input slots.
@@ -163,8 +164,10 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 enchantments.applyEnchantments(result);
                 result.setDurability(durability);
 
+                final String name = getElytraResultName(itemA, action, newTier, event.getInventory().getRenameText());
+
                 result = ArmoredElytra.getInstance().getNbtEditor()
-                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable());
+                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable(), name);
 
                 event.setResult(result);
                 return;
@@ -176,6 +179,26 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         if ((itemA == null ^ itemB == null) &&
             ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
             event.setResult(null);
+    }
+
+    private String getElytraResultName(final ItemStack baseItem, final Action action,
+                                       final ArmorTier armorTier, final String renameText)
+    {
+        final String tierName = ArmoredElytra.getInstance().getArmoredElytraName(armorTier);
+        if (renameText == null || !plugin.getConfigLoader().allowRenaming())
+            return tierName;
+
+        final ItemMeta meta = baseItem.getItemMeta();
+        final String currentName = meta == null ? null : meta.getDisplayName();
+
+        // When the rename text is empty, give it the default tier-name when creating a new armored elytra
+        // (so it's named properly) or when the current name is already the tier name (just returning the current
+        // name would strip the tier's color in this case).
+        if ((action == Action.CREATE && renameText.equals("")) ||
+            ChatColor.stripColor(tierName).equals(ChatColor.stripColor(renameText)))
+            return tierName;
+
+        return renameText.equals("") ? currentName : renameText;
     }
 
     // Let the player take items out of the anvil.
@@ -215,14 +238,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             // If there's an armored elytra in the final slot...
             if (armortier != ArmorTier.NONE && plugin.playerHasCraftPerm(player, armortier))
             {
-                // Create a new armored elytra and give that one to the player instead of the
-                // result.
-                // This is done because after putting item0 in AFTER item1, the first letter of
-                // the color code shows up, this gets rid of that problem.
-                ItemStack result = ArmoredElytra.getInstance().getNbtEditor()
-                                                .addArmorNBTTags(anvilInventory.getItem(2), armortier,
-                                                                 plugin.getConfigLoader().unbreakable());
-
+                final ItemStack result = anvilInventory.getItem(2);
                 // Give the result to the player and clear the anvil's inventory.
                 if (!giveItemToPlayer(player, result, e.isShiftClick()))
                     return;

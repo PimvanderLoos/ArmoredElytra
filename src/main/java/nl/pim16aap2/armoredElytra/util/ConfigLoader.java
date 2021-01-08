@@ -36,6 +36,7 @@ public class ConfigLoader
     private boolean craftingInSmithingTable;
     private boolean bypassWearPerm;
     private boolean bypassCraftPerm;
+    private boolean allowRenaming;
 
     private final ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
     private final ArmoredElytra plugin;
@@ -118,6 +119,10 @@ public class ConfigLoader
                 "This option only works on 1.16+! When enabled, armored elytra creation in anvils is disabled. ",
                 "Instead, you will have to craft them in a smithy. Enchanting/repairing them still works via the anvil."
             };
+        String[] allowRenamingComment =
+            {
+                "Whether or not to allow renaming of armored elytras in anvils."
+            };
 
 
         // Set default list of allowed enchantments.
@@ -172,6 +177,8 @@ public class ConfigLoader
 
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
+        allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
+
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
         allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
         enableDebug = addNewConfigOption(config, "enableDebug", false, debugComment);
@@ -285,6 +292,11 @@ public class ConfigLoader
     public boolean allowMultipleProtectionEnchantments()
     {
         return allowMultipleProtectionEnchantments;
+    }
+
+    public boolean allowRenaming()
+    {
+        return allowRenaming;
     }
 
     public boolean uninstallMode()
