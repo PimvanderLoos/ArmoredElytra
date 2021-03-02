@@ -107,7 +107,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             final Listener creationListener = config.craftingInSmithingTable() ?
                                               new SmithingTableHandler(this) : new AnvilHandler(this);
             Bukkit.getPluginManager().registerEvents(creationListener, this);
-            Bukkit.getPluginManager().registerEvents(new ItemDropListener(this), this);
+
+            if (config.dropNetheriteAsChestplate())
+                Bukkit.getPluginManager().registerEvents(new ItemDropListener(this), this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));

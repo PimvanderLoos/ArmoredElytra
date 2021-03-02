@@ -31,6 +31,7 @@ public class ConfigLoader
     private int DIAMONDS_TO_FULL;
     private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
+    private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
@@ -76,6 +77,12 @@ public class ConfigLoader
                 "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
                 "If you install additional enchantment plugins, you can add their enchantments as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
+            };
+        String[] dropNetheriteAsChestplateComment =
+            {
+                "Whether to drop Netherite Armored Elytras as netherite chestplates when they are dropped",
+                "This means that they won't burn in lava etc.",
+                "When you pick them up, they will turn into Netherite Armored Elytras again."
             };
         String[] updateComment =
             {
@@ -178,6 +185,8 @@ public class ConfigLoader
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
         allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
+        dropNetheriteAsChestplate = addNewConfigOption(config, "dropNetheriteAsChestplate", true,
+                                                       dropNetheriteAsChestplateComment);
 
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
         allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
@@ -312,6 +321,11 @@ public class ConfigLoader
     public boolean noFlightDurability()
     {
         return noFlightDurability;
+    }
+
+    public boolean dropNetheriteAsChestplate()
+    {
+        return dropNetheriteAsChestplate;
     }
 
     public LinkedHashSet<Enchantment> allowedEnchantments()
