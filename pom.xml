@@ -54,7 +54,6 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>plugin.yml</include>
-                    <include>config.yml</include>
                     <include>en_US.txt</include>
                 </includes>
             </resource>
