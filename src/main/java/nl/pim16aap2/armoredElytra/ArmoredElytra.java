@@ -6,7 +6,8 @@ import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
 import nl.pim16aap2.armoredElytra.handlers.ItemDropListener;
 import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
-import nl.pim16aap2.armoredElytra.handlers.SmithingTableHandler;
+import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
+import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
@@ -105,8 +106,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                 myLogger(Level.INFO, "Durability penalty for flying enabled!");
 
             final Listener creationListener = config.craftingInSmithingTable() ?
-                                              new SmithingTableHandler(this) : new AnvilHandler(this);
+                                              new SmithingTableCraftHandler(this) : new AnvilHandler(this);
             Bukkit.getPluginManager().registerEvents(creationListener, this);
+            if (config.allowUpgradeToNetherite())
+                Bukkit.getPluginManager().registerEvents(new NetheriteUpgradeListener(this), this);
 
             if (config.dropNetheriteAsChestplate())
                 Bukkit.getPluginManager().registerEvents(new ItemDropListener(this), this);

@@ -35,6 +35,7 @@ public class ConfigLoader
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
+    private boolean allowUpgradeToNetherite;
     private boolean bypassWearPerm;
     private boolean bypassCraftPerm;
     private boolean allowRenaming;
@@ -126,6 +127,12 @@ public class ConfigLoader
                 "This option only works on 1.16+! When enabled, armored elytra creation in anvils is disabled. ",
                 "Instead, you will have to craft them in a smithy. Enchanting/repairing them still works via the anvil."
             };
+        String[] allowUpgradeToNetheriteComment =
+            {
+                "Whether or not to allow upgrading diamond armored elytras to netherite ones is possible.",
+                "When allowed (on 1.16+), you can combine a diamond one with a netherite ingot in a smithing table",
+                "and you'll receive a netherite one."
+            };
         String[] allowRenamingComment =
             {
                 "Whether or not to allow renaming of armored elytras in anvils."
@@ -157,6 +164,14 @@ public class ConfigLoader
             Bukkit.getLogger().log(Level.WARNING, "You tried to enable crafting in smithing tables, " +
                 "but this is only supported on 1.16+! Reverting to disabled.");
             craftingInSmithingTable = false;
+        }
+        allowUpgradeToNetherite = addNewConfigOption(config, "allowUpgradeToNetherite", smithingTableAllowed,
+                                                     allowUpgradeToNetheriteComment);
+        if (allowUpgradeToNetherite && !smithingTableAllowed)
+        {
+            Bukkit.getLogger().log(Level.WARNING, "You tried to enable crafting in smithing tables, " +
+                "but this is only supported on 1.16+! Reverting to disabled.");
+            allowUpgradeToNetherite = false;
         }
 
         defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
@@ -256,6 +271,11 @@ public class ConfigLoader
     public boolean craftingInSmithingTable()
     {
         return craftingInSmithingTable;
+    }
+
+    public boolean allowUpgradeToNetherite()
+    {
+        return allowUpgradeToNetherite;
     }
 
     public boolean unbreakable()
