@@ -6,4 +6,14 @@
     <module name="LineLength">
         <property name="max" value="120"/>
     </module>
+    <module name="TreeWalker">
+        <module name="LeftCurly">
+            <property name="option" value="nl"/>
+            <property name="tokens" value="CLASS_DEF,INTERFACE_DEF"/>
+            <property name="ignoreEnums" value="false"/>
+        </module>
+        <module name="RightCurly">
+            <property name="option" value="alone"/>
+        </module>
+    </module>
 </module>
