@@ -52,7 +52,8 @@ public class NetheriteUpgradeListener extends SmithingTableListener
         SmithingInventory smithingInventory = (SmithingInventory) event.getInventory();
         Player player = (Player) event.getWhoClicked();
 
-        giveItemToPlayer(player, smithingInventory.getItem(2), event.isShiftClick());
+        if (!giveItemToPlayer(player, smithingInventory.getItem(2), event.isShiftClick()))
+            return;
         smithingInventory.clear();
     }
 }

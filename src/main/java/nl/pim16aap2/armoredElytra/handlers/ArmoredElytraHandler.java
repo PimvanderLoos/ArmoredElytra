@@ -6,6 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.CheckReturnValue;
+
 /**
  * Base class for the anvil / smithing table handlers.
  *
@@ -57,6 +59,7 @@ abstract class ArmoredElytraHandler
      *               cursor instead.
      * @return True if the item could be given to the player, otherwise false (e.g. when their inventory is full).
      */
+    @CheckReturnValue
     protected boolean giveItemToPlayer(final Player player, final ItemStack item, final boolean direct)
     {
         if (direct)

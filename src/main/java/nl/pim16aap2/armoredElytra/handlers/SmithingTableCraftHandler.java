@@ -46,7 +46,8 @@ public class SmithingTableCraftHandler extends SmithingTableListener
         final ItemStack result = smithingInventory.getItem(2);
 
         // This cast may look unchecked, but it was checked by isSmithingTableEvent already.
-        giveItemToPlayer((Player) e.getWhoClicked(), result, e.isShiftClick());
+        if (!giveItemToPlayer((Player) e.getWhoClicked(), result, e.isShiftClick()))
+            return;
         smithingInventory.clear();
     }
 }
