@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  */
 public final class UpdateChecker
 {
-    public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
+    public static final IVersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
         String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
         if (firstSplit == null || secondSplit == null)
@@ -65,9 +65,9 @@ public final class UpdateChecker
 
     private final ArmoredElytra plugin;
     private final int pluginID;
-    private final VersionScheme versionScheme;
+    private final IVersionScheme versionScheme;
 
-    private UpdateChecker(final ArmoredElytra plugin, final int pluginID, final VersionScheme versionScheme)
+    private UpdateChecker(final ArmoredElytra plugin, final int pluginID, final IVersionScheme versionScheme)
     {
         this.plugin = plugin;
         this.pluginID = pluginID;
@@ -186,7 +186,7 @@ public final class UpdateChecker
      * @param versionScheme a custom version scheme parser. Cannot be null
      * @return the UpdateChecker instance
      */
-    public static UpdateChecker init(final ArmoredElytra plugin, final int pluginID, final VersionScheme versionScheme)
+    public static UpdateChecker init(final ArmoredElytra plugin, final int pluginID, final IVersionScheme versionScheme)
     {
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
 
@@ -237,7 +237,7 @@ public final class UpdateChecker
      * A functional interface to compare two version Strings with similar version schemes.
      */
     @FunctionalInterface
-    public interface VersionScheme
+    public interface IVersionScheme
     {
 
         /**
@@ -259,9 +259,11 @@ public final class UpdateChecker
     {
 
         /**
-         * A new update is available for download on SpigotMC.
+         * A new update is available for download.
+         * <p>
+         * This is the only reason that requires an update.
          */
-        NEW_UPDATE, // The only reason that requires an update
+        NEW_UPDATE,
 
         /**
          * A successful connection to the SpiGet API could not be established.
@@ -311,7 +313,7 @@ public final class UpdateChecker
         private final String newestVersion;
         private final long age;
 
-        { // An actual use for initializer blocks. This is madness!
+        {
             lastResult = this;
         }
 

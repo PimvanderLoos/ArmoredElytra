@@ -729,7 +729,8 @@ public enum XMaterial
         for (String legacy : this.legacy)
         {
             if (legacy.isEmpty())
-                break; // Left-side suggestion list
+                // Left-side suggestion list
+                break;
             if (name.equals(legacy))
                 return true;
         }

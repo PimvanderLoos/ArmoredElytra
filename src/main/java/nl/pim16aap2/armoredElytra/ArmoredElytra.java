@@ -162,7 +162,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
     private void readMessages()
     {
-        armorTierNames.put(ArmorTier.NONE, new ArmorTierName("NONE", "NONE")); // Shouldn't be used.
+        // Shouldn't be used.
+        armorTierNames.put(ArmorTier.NONE, new ArmorTierName("NONE", "NONE"));
+
         armorTierNames.put(ArmorTier.LEATHER, new ArmorTierName(messages.getString(Message.TIER_LEATHER),
                                                                 messages.getString(Message.TIER_SHORT_LEATHER)));
         armorTierNames.put(ArmorTier.GOLD, new ArmorTierName(messages.getString(Message.TIER_GOLD),

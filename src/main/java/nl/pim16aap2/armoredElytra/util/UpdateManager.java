@@ -70,7 +70,8 @@ public final class UpdateManager
                     {
                         checkForUpdates();
                     }
-                }.runTaskTimer(plugin, 0L, 864000L); // Run immediately, then every 12 hours.
+                    // Run immediately, then every 12 hours.
+                }.runTaskTimer(plugin, 0L, 864000L);
         }
         else
         {

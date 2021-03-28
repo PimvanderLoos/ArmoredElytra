@@ -1,5 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,16 +8,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
-
 public class LoginHandler implements Listener
 {
     private final ArmoredElytra plugin;
-    private final String       message;
+    private final String message;
 
     public LoginHandler(ArmoredElytra plugin, String message)
     {
-        this.plugin  =  plugin;
+        this.plugin = plugin;
         this.message = message;
     }
 

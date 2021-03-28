@@ -41,7 +41,8 @@ public class ArmorListener implements Listener
         if (e.isCancelled())
             return;
         if (e.getAction() == InventoryAction.NOTHING)
-            return;// Why does this get called if nothing happens??
+            // Why does this get called if nothing happens??
+            return;
         if (e.getClick().equals(ClickType.SHIFT_LEFT) || e.getClick().equals(ClickType.SHIFT_RIGHT))
             shift = true;
         if (e.getClick().equals(ClickType.NUMBER_KEY))
@@ -102,7 +103,8 @@ public class ArmorListener implements Listener
             ItemStack oldArmorPiece = e.getCurrentItem();
             if (numberkey)
                 if (e.getClickedInventory().getType().equals(InventoryType.PLAYER))
-                {   // Prevents shit in the 2by2 crafting
+                {
+                    // Prevents shit in the 2by2 crafting
                     // e.getClickedInventory() == The players inventory
                     // e.getHotBarButton() == key people are pressing to equip or unequip the item
                     // to or from.
@@ -111,7 +113,8 @@ public class ArmorListener implements Listener
                     // slot ;-;
                     ItemStack hotbarItem = e.getClickedInventory().getItem(e.getHotbarButton());
                     if (!isAirOrNull(hotbarItem))
-                    {   // Equipping
+                    {
+                        // Equipping
                         newArmorType = ArmorType.matchType(hotbarItem);
                         newArmorPiece = hotbarItem;
                         oldArmorPiece = e.getClickedInventory().getItem(e.getSlot());
@@ -150,7 +153,8 @@ public class ArmorListener implements Listener
         {
             final Player player = e.getPlayer();
             if (e.getClickedBlock() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK)
-            {   // Having both of these checks is useless, might as well do it though.
+            {
+                // Having both of these checks is useless, might as well do it though.
                 // Some blocks have actions when you right click them which stops the client
                 // from equipping the armor in hand.
                 Material mat = e.getClickedBlock().getType();
@@ -191,7 +195,8 @@ public class ArmorListener implements Listener
         // Can't replace armor using this method making getCursor() useless.
         ArmorType type = ArmorType.matchType(event.getOldCursor());
         if (event.getRawSlots().isEmpty())
-            return;// Idk if this will ever happen
+            // Idk if this will ever happen
+            return;
         if (type != null && type.getSlot() == event.getRawSlots().stream().findFirst().orElse(0))
         {
             ArmorEquipEvent armorEquipEvent = new ArmorEquipEvent((Player) event.getWhoClicked(), EquipMethod.DRAG,

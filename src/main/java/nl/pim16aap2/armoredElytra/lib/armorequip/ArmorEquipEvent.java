@@ -42,7 +42,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
      *
      * @return A list of handlers handling this event.
      */
-    public final static HandlerList getHandlerList()
+    public static HandlerList getHandlerList()
     {
         return handlers;
     }
@@ -120,7 +120,7 @@ public final class ArmorEquipEvent extends PlayerEvent implements Cancellable
     }
 
     public enum EquipMethod
-    {// These have got to be the worst documentations ever.
+    {
         /**
          * When you shift click an armor piece to equip or unequip
          */

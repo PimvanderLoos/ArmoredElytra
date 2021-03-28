@@ -1,10 +1,6 @@
-/**
- *
- */
 package nl.pim16aap2.armoredElytra.util;
 
 /**
- *
  * @author Pim
  */
 public class ArmorTierName
