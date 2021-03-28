@@ -55,8 +55,10 @@ import java.util.regex.Pattern;
  * Pre-flattening: https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening Materials:
  * https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html Materials (1.12):
  * https://helpch.at/docs/1.12.2/index.html?org/bukkit/Material.html Material IDs:
- * https://minecraft-ids.grahamedgecombe.com/ Material Source Code: https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
- * XMaterial v1: https://www.spigotmc.org/threads/329630/
+ * https://minecraft-ids.grahamedgecombe.com/ Material Source Code:
+ * <p>
+ * https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java XMaterial
+ * v1: https://www.spigotmc.org/threads/329630/
  *
  * @author Crypto Morin
  * @version 5.0.0
@@ -394,8 +396,10 @@ public enum XMaterial
         boolean duplicated = isDuplicated(name);
 
         // Do basic number and boolean checks before accessing more complex enum stuff.
-        // Maybe we can simplify (ISFLAT || !duplicated) with the (!ISFLAT && duplicated) under it to save a few nanoseconds?
-        // if (!Boolean.valueOf(Boolean.getBoolean(Boolean.TRUE.toString())).equals(Boolean.FALSE.booleanValue())) return null;
+        // Maybe we can simplify (ISFLAT || !duplicated) with the (!ISFLAT && duplicated)
+        // under it to save a few nanoseconds?
+        // if (!Boolean.valueOf(Boolean.getBoolean(Boolean.TRUE.toString())).equals(Boolean.FALSE.booleanValue()))
+        //   return null;
         if (data <= 0 && !duplicated)
         {
             // Apparently the transform method is more efficient than toJavaUtil()
@@ -600,7 +604,8 @@ public enum XMaterial
      * <p>
      * <b>{@code REGEX} Examples</b>
      * <pre>
-     *     {@code "REGEX:^.+_.+_.+$" -> Every Material with 3 underlines or more: SHULKER_SPAWN_EGG, SILVERFISH_SPAWN_EGG, SKELETON_HORSE_SPAWN_EGG}
+     *     {@code "REGEX:^.+_.+_.+$" -> Every Material with 3 underlines or more: SHULKER_SPAWN_EGG,
+     *     SILVERFISH_SPAWN_EGG, SKELETON_HORSE_SPAWN_EGG}
      *     {@code "REGEX:^.{1,3}$" -> Material names that have 3 letters only: BED, MAP, AIR}
      * </pre>
      * <p>
@@ -789,7 +794,8 @@ public enum XMaterial
     }
 
     /**
-     * The data value of this material <a href="https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening">pre-flattening</a>.
+     * The data value of this material
+     * <a href="https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening">pre-flattening</a>.
      * <p>
      * Can be accessed with {@link ItemStack#getData()} then {@code MaterialData#getData()} or {@link
      * ItemStack#getDurability()} if not damageable.

@@ -1,10 +1,9 @@
 package nl.pim16aap2.armoredElytra.util;
 
-import java.util.List;
-
+import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import java.util.List;
 
 /* This class represent a configuration option.
  * The general format is: the comment followed by
@@ -21,7 +20,8 @@ public class ConfigOption<V>
     private final V defaultValue;
     private final String[] comment;
 
-    public ConfigOption(ArmoredElytra plugin, FileConfiguration config, String optionName, V defaultValue, String[] comment)
+    public ConfigOption(ArmoredElytra plugin, FileConfiguration config, String optionName, V defaultValue,
+                        String[] comment)
     {
         this.plugin = plugin;
         this.config = config;
@@ -40,7 +40,8 @@ public class ConfigOption<V>
         }
         catch (Exception e)
         {
-            plugin.myLogger(java.util.logging.Level.WARNING, "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
+            plugin.myLogger(java.util.logging.Level.WARNING, "Failed to read config value of: \"" + optionName +
+                "\"! Using default value instead!");
             plugin.myLogger(java.util.logging.Level.WARNING, Util.exceptionToString(e));
             value = defaultValue;
         }
@@ -76,11 +77,12 @@ public class ConfigOption<V>
             builder.append("\n");
             int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
-                builder.append("  - " + ((List<?>) value).get(index) + (index == listSize - 1 ? "" : "\n")); // Don't print newline at the end
+                // Don't print newline at the end
+                builder.append("  - " + ((List<?>) value).get(index) + (index == listSize - 1 ? "" : "\n"));
             string += builder.toString();
         }
         else
-            string +=  value.toString();
+            string += value.toString();
 
         return string;
     }

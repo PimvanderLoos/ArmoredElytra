@@ -92,7 +92,8 @@ public class ConfigLoader
         String[] bStatsComment =
             {
                 "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
-                "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"
+                "It has a negligible impact on performance and more users on stats keeps me more motivated " +
+                    "to support this plugin!"
             };
         String[] debugComment =
             {
@@ -101,8 +102,10 @@ public class ConfigLoader
         String[] uninstallComment =
             {
                 "Setting this to true will disable this plugin and remove any armored elytras it can find.",
-                "It will check player's inventories and their end chest upon login and any regular chest when it is opened.",
-                "This means it will take a while for all armored elytras to be removed from your server, but it doesn't take up ",
+                "It will check player's inventories and their end chest upon login and any regular" +
+                    " chest when it is opened.",
+                "This means it will take a while for all armored elytras to be removed from your server, " +
+                    "but it doesn't take up ",
                 "a lot of resources, so you can just leave the plugin enabled and ignore it.",
                 "Please do not forget to MAKE A BACKUP before enabling this option!"
             };
@@ -115,12 +118,15 @@ public class ConfigLoader
                 "Allow more than 1 type of protection enchantment on a single armored elytra. ",
                 "If true, you could have both blast protection and environmental protection at the same time.",
                 "If false, the second enchantment (while crafting) will override the first. So combining an armored",
-                "elytra that has the protection enchantment with an enchanted book that has the blast protection enchantment",
-                "would result in removal of the protection enchantment and addition of the blast protection enchantment."
+                "elytra that has the protection enchantment with an enchanted book that " +
+                    "has the blast protection enchantment",
+                "would result in removal of the protection enchantment and addition of the " +
+                    "blast protection enchantment."
             };
         String[] permissionsComment =
             {
-                "Globally bypass permissions for wearing and/or crafting amored elytras. Useful if permissions are unavailable."
+                "Globally bypass permissions for wearing and/or crafting amored elytras.",
+                "Useful if permissions are unavailable."
             };
         String[] craftingInSmithingTableComment =
             {
@@ -257,8 +263,8 @@ public class ConfigLoader
         }
         catch (IOException e)
         {
-            Bukkit.getLogger().log(Level.SEVERE,
-                                   "Could not save config.yml! Please contact pim16aap2 and show him the following code:");
+            Bukkit.getLogger().log(Level.SEVERE, "Could not save config.yml! " +
+                "Please contact pim16aap2 and show him the following code:");
             e.printStackTrace();
         }
     }

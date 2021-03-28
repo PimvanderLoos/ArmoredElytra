@@ -88,7 +88,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         else
             // Y u do dis? :(
             myLogger(Level.INFO,
-                     "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
+                     "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, " +
+                         "seeing higher user numbers helps me stay motivated!");
 
         Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
         getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));

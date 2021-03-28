@@ -17,6 +17,12 @@
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+
+        <!-- checkstyle -->
+        <repository>
+            <id>checkstyle</id>
+            <url>https://mvnrepository.com/artifact/com.puppycrawl.tools/checkstyle</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -87,6 +93,22 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.1.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.41</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
                 </configuration>
             </plugin>
         </plugins>
