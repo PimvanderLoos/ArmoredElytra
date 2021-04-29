@@ -16,13 +16,13 @@ import java.util.logging.Level;
 
 abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
-    public SmithingTableListener(ArmoredElytra plugin, boolean creationEnabled)
+    protected SmithingTableListener(ArmoredElytra plugin, boolean creationEnabled)
     {
         super(plugin, creationEnabled);
 
     }
 
-    public SmithingTableListener(ArmoredElytra plugin)
+    protected SmithingTableListener(ArmoredElytra plugin)
     {
         this(plugin, false);
     }
@@ -39,12 +39,15 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         if (newTier == ArmorTier.NONE)
             return;
 
-        EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
         final Player player = (Player) event.getView().getPlayer();
 
         final ItemStack result;
         if (plugin.playerHasCraftPerm(player, newTier))
         {
+
+            EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
+            enchantments.merge(EnchantmentContainer.getEnchantments(itemStackB, plugin));
+
             result = ArmoredElytra.getInstance().getNbtEditor()
                                   .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
                                                    plugin.getConfigLoader().unbreakable());

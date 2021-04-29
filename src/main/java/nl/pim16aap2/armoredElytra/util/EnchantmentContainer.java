@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class EnchantmentContainer
     public EnchantmentContainer(final Map<Enchantment, Integer> enchantments, final ArmoredElytra plugin)
     {
         this(enchantments);
-        this.filter(plugin.getConfigLoader().allowedEnchantments());
+        filter(plugin.getConfigLoader().allowedEnchantments());
     }
 
     private EnchantmentContainer(final Map<Enchantment, Integer> enchantments)
@@ -41,6 +42,9 @@ public class EnchantmentContainer
      */
     public static EnchantmentContainer getEnchantments(final ItemStack is, final ArmoredElytra plugin)
     {
+        if (is == null)
+            return new EnchantmentContainer(Collections.emptyMap(), plugin);
+
         return is.getType() == Material.ENCHANTED_BOOK ?
                getEnchantmentsFromBook(is, plugin) :
                getEnchantmentsFromItem(is, plugin);
@@ -113,7 +117,7 @@ public class EnchantmentContainer
      */
     public void merge(EnchantmentContainer other)
     {
-        enchantments = merge(this.enchantments, other.enchantments);
+        enchantments = merge(enchantments, other.enchantments);
     }
 
     /**
