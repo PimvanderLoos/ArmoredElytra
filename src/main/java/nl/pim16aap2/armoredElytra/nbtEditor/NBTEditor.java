@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.nbtEditor;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -18,16 +19,12 @@ public class NBTEditor implements INBTEditor
 {
     private static final NamespacedKey armorTierKey = new NamespacedKey(ArmoredElytra.getInstance(),
                                                                         "ARMOR_TIER_LEVEL");
+    private static final NamespacedKey armorColorKey = new NamespacedKey(ArmoredElytra.getInstance(),
+                                                                         "ARMORED_ELYTRA_COLOR");
 
     @Override
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
-    {
-        return addArmorNBTTags(item, armorTier, unbreakable,
-                               ArmoredElytra.getInstance().getArmoredElytraName(armorTier));
-    }
-
-    @Override
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final String name)
+    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final String name,
+                                     final Color color)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -37,6 +34,8 @@ public class NBTEditor implements INBTEditor
         if (meta == null)
             throw new IllegalArgumentException("Tried to add armor to invalid item: " + item);
         meta.getPersistentDataContainer().set(armorTierKey, PersistentDataType.INTEGER, ArmorTier.getTierID(armorTier));
+        if (color != null)
+            meta.getPersistentDataContainer().set(armorColorKey, PersistentDataType.INTEGER, color.asRGB());
 
         overwriteNBTValue(meta, Attribute.GENERIC_ARMOR, ArmorTier.getArmor(armorTier), "generic.armor");
         if (ArmorTier.getToughness(armorTier) > 0)

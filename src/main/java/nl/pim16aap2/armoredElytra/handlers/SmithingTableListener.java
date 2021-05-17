@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.handlers;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -47,10 +48,11 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
 
             EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
             enchantments.merge(EnchantmentContainer.getEnchantments(itemStackB, plugin));
+            final Color color = getItemColor(itemStackA, itemStackB);
 
             result = ArmoredElytra.getInstance().getNbtEditor()
                                   .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
-                                                   plugin.getConfigLoader().unbreakable());
+                                                   plugin.getConfigLoader().unbreakable(), color);
             enchantments.applyEnchantments(result);
             event.setResult(result);
         }

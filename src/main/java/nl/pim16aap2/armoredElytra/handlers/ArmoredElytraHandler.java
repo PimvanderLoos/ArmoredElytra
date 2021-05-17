@@ -2,9 +2,12 @@ package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import javax.annotation.CheckReturnValue;
 
@@ -18,6 +21,8 @@ abstract class ArmoredElytraHandler
     protected final ArmoredElytra plugin;
 
     protected final boolean creationEnabled;
+
+    private static final Color DEFAULT_LEATHER_COLOR = Bukkit.getServer().getItemFactory().getDefaultLeatherColor();
 
     public ArmoredElytraHandler(final ArmoredElytra plugin, final boolean creationEnabled)
     {
@@ -48,6 +53,36 @@ abstract class ArmoredElytraHandler
         int maxDurability = Material.ELYTRA.getMaxDurability();
         int newDurability = (int) (curDur - repairItem.getAmount() * (maxDurability * mult));
         return (short) (Math.max(newDurability, 0));
+    }
+
+    /**
+     * Gets the color of the item if the item has a color.
+     * <p>
+     * See {@link LeatherArmorMeta#getColor()}.
+     *
+     * @param itemA The first {@link ItemStack} to check.
+     * @param itemB The second {@link ItemStack} to check.
+     * @return The color of the item, if it has a color, otherwise null.
+     */
+    protected Color getItemColor(final ItemStack itemA, final ItemStack itemB)
+    {
+        final Color colorA = getItemColor(itemA);
+        if (colorA != null && !colorA.equals(DEFAULT_LEATHER_COLOR))
+            return colorA;
+
+        final Color colorB = getItemColor(itemB);
+        return colorB != null ? colorB : colorA;
+    }
+
+    private Color getItemColor(final ItemStack itemStack)
+    {
+        if (itemStack == null || !itemStack.hasItemMeta())
+            return null;
+
+        if (!(itemStack.getItemMeta() instanceof LeatherArmorMeta))
+            return null;
+
+        return ((LeatherArmorMeta) itemStack.getItemMeta()).getColor();
     }
 
     /**

@@ -7,6 +7,7 @@ import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -165,9 +166,11 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 result.setDurability(durability);
 
                 final String name = getElytraResultName(itemA, action, newTier, event.getInventory().getRenameText());
+                final Color color = getItemColor(itemA, itemB);
 
                 result = ArmoredElytra.getInstance().getNbtEditor()
-                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable(), name);
+                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable(),
+                                                       name, color);
 
                 event.setResult(result);
                 return;
