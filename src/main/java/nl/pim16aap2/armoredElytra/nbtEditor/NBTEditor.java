@@ -4,12 +4,14 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collection;
@@ -34,7 +36,8 @@ public class NBTEditor implements INBTEditor
         if (meta == null)
             throw new IllegalArgumentException("Tried to add armor to invalid item: " + item);
         meta.getPersistentDataContainer().set(armorTierKey, PersistentDataType.INTEGER, ArmorTier.getTierID(armorTier));
-        if (color != null)
+
+        if (color != null && armorTier == ArmorTier.LEATHER)
             meta.getPersistentDataContainer().set(armorColorKey, PersistentDataType.INTEGER, color.asRGB());
 
         overwriteNBTValue(meta, Attribute.GENERIC_ARMOR, ArmorTier.getArmor(armorTier), "generic.armor");
@@ -90,5 +93,23 @@ public class NBTEditor implements INBTEditor
         }
 
         return ArmorTier.NONE;
+    }
+
+    @Override
+    public Color getColorOfArmoredElytra(final ItemStack item)
+    {
+        if (item == null || item.getType() != Material.ELYTRA || !item.hasItemMeta())
+            return null;
+
+        final ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return null;
+
+        final PersistentDataContainer container = meta.getPersistentDataContainer();
+        if (!container.has(armorColorKey, PersistentDataType.INTEGER))
+            return null;
+
+        final Integer rgb = container.get(armorColorKey, PersistentDataType.INTEGER);
+        return rgb == null ? null : Color.fromRGB(rgb);
     }
 }

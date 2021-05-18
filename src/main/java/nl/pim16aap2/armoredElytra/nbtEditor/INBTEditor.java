@@ -75,4 +75,14 @@ public interface INBTEditor
      * @return The {@link ArmorTier} that is on the item. If none is found, {@link ArmorTier#NONE} is returned.
      */
     ArmorTier getArmorTier(ItemStack item);
+
+    /**
+     * Gets the Color of an armored elytra.
+     * <p>
+     * If the provided {@link ItemStack} is not an AE, null is returned.
+     *
+     * @param item The armored elytra to check.
+     * @return The color of the armored elytra, if the input is a color armored elytra, otherwise null.
+     */
+    Color getColorOfArmoredElytra(ItemStack item);
 }

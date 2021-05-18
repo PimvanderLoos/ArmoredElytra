@@ -76,10 +76,13 @@ abstract class ArmoredElytraHandler
 
     private Color getItemColor(final ItemStack itemStack)
     {
-        if (itemStack == null || !itemStack.hasItemMeta())
+        if (itemStack == null)
             return null;
 
-        if (!(itemStack.getItemMeta() instanceof LeatherArmorMeta))
+        if (itemStack.getType() == Material.ELYTRA)
+            return ArmoredElytra.getInstance().getNbtEditor().getColorOfArmoredElytra(itemStack);
+
+        if (!itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof LeatherArmorMeta))
             return null;
 
         return ((LeatherArmorMeta) itemStack.getItemMeta()).getColor();
