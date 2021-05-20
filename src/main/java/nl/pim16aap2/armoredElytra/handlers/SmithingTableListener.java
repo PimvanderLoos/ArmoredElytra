@@ -109,7 +109,7 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
             return false;
 
         final ItemStack result = smithingInventory.getItem(2);
-        if (result.getType() != Material.ELYTRA ||
+        if (result == null || result.getType() != Material.ELYTRA ||
             ArmoredElytra.getInstance().getNbtEditor().getArmorTier(result) == ArmorTier.NONE)
             return false;
 

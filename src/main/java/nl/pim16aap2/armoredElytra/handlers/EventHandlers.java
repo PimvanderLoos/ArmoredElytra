@@ -25,6 +25,7 @@ import java.util.Random;
 public class EventHandlers implements Listener
 {
     private final ArmoredElytra plugin;
+    private final Random random = new Random();
 
     public EventHandlers(ArmoredElytra plugin)
     {
@@ -96,8 +97,7 @@ public class EventHandlers implements Listener
                 {
                     // Get a random int between 0 and 100 to use in deciding if the durability
                     // enchantment will take effect.
-                    Random r = new Random();
-                    int randomInt = r.nextInt(101);
+                    int randomInt = random.nextInt(101);
                     int enchantLevel = p.getInventory().getChestplate().getEnchantmentLevel(Enchantment.DURABILITY);
                     int durabilityDelta = (100 / (enchantLevel + 1)) < randomInt ? 0 : 1;
                     // If the durability equals/exceeds maxDurability, it's broken (0 = full item
