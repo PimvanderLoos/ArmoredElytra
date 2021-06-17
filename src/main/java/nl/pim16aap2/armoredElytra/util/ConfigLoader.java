@@ -39,6 +39,7 @@ public class ConfigLoader
     private boolean bypassWearPerm;
     private boolean bypassCraftPerm;
     private boolean allowRenaming;
+    private boolean enchantmentCost;
 
     private final ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
     private final ArmoredElytra plugin;
@@ -78,6 +79,10 @@ public class ConfigLoader
                 "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
                 "If you install additional enchantment plugins, you can add their enchantments as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
+            };
+        String[] enchantmentCostComment =
+            {
+                "Whether or not applying enchantments costs experience."
             };
         String[] dropNetheriteAsChestplateComment =
             {
@@ -206,6 +211,7 @@ public class ConfigLoader
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
         allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
+        enchantmentCost = addNewConfigOption(config, "enchantmentCost", true, enchantmentCostComment);
         dropNetheriteAsChestplate = addNewConfigOption(config, "dropNetheriteAsChestplate", true,
                                                        dropNetheriteAsChestplateComment);
 
@@ -347,6 +353,11 @@ public class ConfigLoader
     public boolean noFlightDurability()
     {
         return noFlightDurability;
+    }
+
+    public boolean enchantmentCost()
+    {
+        return enchantmentCost;
     }
 
     public boolean dropNetheriteAsChestplate()
