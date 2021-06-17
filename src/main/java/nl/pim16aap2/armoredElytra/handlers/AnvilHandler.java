@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.handlers;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
@@ -119,6 +120,10 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             ArmorTier curTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA);
             short durability = 0;
             EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
+            EnchantmentContainer enchantmentsB = EnchantmentContainer.getEnchantments(itemB, plugin);
+
+            int mergeCost = 0;
+            final boolean costEnabled = plugin.getConfigLoader().enchantmentCost();
 
             switch (action)
             {
@@ -131,12 +136,18 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                     durability = (short) (-itemA.getType().getMaxDurability() - itemA.getDurability()
                         - itemB.getDurability());
                     durability = durability < 0 ? 0 : durability;
-                    enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
+
+                    if (costEnabled)
+                        mergeCost = enchantments.getMergeCost(enchantmentsB, false);
+                    enchantments.merge(enchantmentsB);
                     break;
                 case CREATE:
                     newTier = Util.armorToTier(itemB.getType());
                     durability = 0;
-                    enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
+
+                    if (costEnabled)
+                        mergeCost = enchantments.getMergeCost(enchantmentsB, false);
+                    enchantments.merge(enchantmentsB);
                     break;
                 case ENCHANT:
                     newTier = curTier;
@@ -144,9 +155,10 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
                     // If there aren't any illegal enchantments on the book, continue as normal.
                     // Otherwise... Block.
-                    EnchantmentContainer enchantmentsB = EnchantmentContainer.getEnchantments(itemB, plugin);
                     if (enchantmentsB.getEnchantmentCount() > 0)
                     {
+                        if (costEnabled)
+                            mergeCost = enchantments.getMergeCost(enchantmentsB, true);
                         enchantments.merge(enchantmentsB);
                         break;
                     }
@@ -173,6 +185,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                                                        name, color);
 
                 event.setResult(result);
+                setMergeCost(mergeCost, event.getInventory());
                 return;
             }
         }
@@ -250,5 +263,33 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 anvilInventory.clear();
             }
         }
+    }
+
+    /**
+     * See {@link EnchantmentContainer#getMergeCost(EnchantmentContainer, EnchantmentContainer, boolean)}.
+     * <p>
+     * If {@link ConfigLoader#enchantmentCost()} is not enabled, this will always return 0.
+     */
+    protected int getMergeCost(EnchantmentContainer left, EnchantmentContainer right, boolean fromBook)
+    {
+        if (!plugin.getConfigLoader().enchantmentCost())
+            return 0;
+        return left.getMergeCost(right, fromBook);
+    }
+
+    /**
+     * Uses a hacky method to set the merge cost in an anvil inventory.
+     * <p>
+     * Because the cost is usually reset immediately after the event finishes (ffs), this method will schedule a task to
+     * do it after the completion of the event. Lovely.
+     *
+     * @param cost      The repair cost to apply.
+     * @param inventory The inventory for which to set the cost.
+     */
+    protected void setMergeCost(int cost, AnvilInventory inventory)
+    {
+        if (cost == 0 || !plugin.getConfigLoader().enchantmentCost())
+            return;
+        plugin.getServer().getScheduler().runTask(plugin, () -> inventory.setRepairCost(cost));
     }
 }
