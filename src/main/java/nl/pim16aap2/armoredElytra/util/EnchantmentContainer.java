@@ -262,7 +262,7 @@ public class EnchantmentContainer
      */
     public static int getMergeCost(EnchantmentContainer first, EnchantmentContainer second, boolean fromBook)
     {
-        int cost = 1;
+        int cost = first.size();
         for (Map.Entry<Enchantment, Integer> enchantmentSpec : second.enchantments.entrySet())
         {
             final int right = enchantmentSpec.getValue();
