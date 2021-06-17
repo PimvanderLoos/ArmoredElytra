@@ -6,13 +6,38 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalInt;
 
 public class EnchantmentContainer
 {
+    private static final int[] COST_MULTIPLIERS = {1, 2, 4, 8};
+    private static final @Nullable RarityRetriever RARITY_RETRIEVER;
+
+    static
+    {
+        RarityRetriever rarityRetrieverTmp = null;
+        try
+        {
+            rarityRetrieverTmp = new RarityRetriever();
+        }
+        catch (Exception e)
+        {
+            ArmoredElytra.getInstance().getLogger().warning(
+                "Failed to initialize RarityRetriever! Enchantment costs cannot be enabled! More info:");
+            e.printStackTrace();
+        }
+        RARITY_RETRIEVER = rarityRetrieverTmp;
+    }
+
     private Map<Enchantment, Integer> enchantments;
 
     /**
@@ -121,24 +146,6 @@ public class EnchantmentContainer
     }
 
     /**
-     * Gets the number of enchantments in this container.
-     */
-    public int size()
-    {
-        return enchantments.size();
-    }
-
-    /**
-     * Checks if this container is empty.
-     *
-     * @return True if there are exactly 0 enchantments in this container.
-     */
-    public boolean isEmpty()
-    {
-        return enchantments.isEmpty();
-    }
-
-    /**
      * Merges two enchantment containers.
      *
      * @param first  The first enchantment container.
@@ -220,6 +227,86 @@ public class EnchantmentContainer
         return combined;
     }
 
+    /**
+     * Gets the rarity of an enchantment.
+     *
+     * @param enchantment The enchantment for which to look up the rarity.
+     * @return The rarity of the enchantment if it could be found, otherwise and empty optional int.
+     */
+    public static OptionalInt getRarity(Enchantment enchantment)
+    {
+        return RARITY_RETRIEVER == null ? OptionalInt.empty() : RARITY_RETRIEVER.getOrdinal(enchantment);
+    }
+
+    /**
+     * Retrieves the cost multiplier of an enchantment based on its rarity. See {@link #getRarity(Enchantment)}.
+     * <p>
+     * If the rarity could not be retrieved, this will always return 1.
+     *
+     * @param enchantment The enchantment for which the multiplier is retrieved.
+     * @return The cost multiplier of the enchantment.
+     */
+    public static int getCostMultiplier(Enchantment enchantment)
+    {
+        int rarityOrdinal = getRarity(enchantment).orElse(-1);
+        return rarityOrdinal == -1 ? 1 : COST_MULTIPLIERS[rarityOrdinal];
+    }
+
+    /**
+     * Calculates the cost of merging two {@link EnchantmentContainer}s.
+     *
+     * @param first    The first {@link EnchantmentContainer}
+     * @param second   The second {@link EnchantmentContainer}
+     * @param fromBook Whether or not the enchantment(s) are added from a book.
+     * @return The experience cost of merging the two {@link EnchantmentContainer}s.
+     */
+    public static int getMergeCost(EnchantmentContainer first, EnchantmentContainer second, boolean fromBook)
+    {
+        int cost = 1;
+        for (Map.Entry<Enchantment, Integer> enchantmentSpec : second.enchantments.entrySet())
+        {
+            final int right = enchantmentSpec.getValue();
+            final int left = first.enchantments.getOrDefault(enchantmentSpec.getKey(), 0);
+            int currentCost = right == left ? right + 1 : Math.max(right, left);
+
+            int costMultiplier = getCostMultiplier(enchantmentSpec.getKey());
+            if (fromBook)
+                costMultiplier = Math.max(1, costMultiplier / 2);
+
+            currentCost *= costMultiplier;
+            cost += currentCost;
+        }
+        return cost;
+    }
+
+    /**
+     * Calculates the cost of merging this {@link EnchantmentContainer}.
+     * <p>
+     * See {@link #getMergeCost(EnchantmentContainer, EnchantmentContainer, boolean)}.
+     */
+    public int getMergeCost(EnchantmentContainer other, boolean fromBook)
+    {
+        return getMergeCost(this, other, fromBook);
+    }
+
+    /**
+     * Gets the number of enchantments in this container.
+     */
+    public int size()
+    {
+        return enchantments.size();
+    }
+
+    /**
+     * Checks if this container is empty.
+     *
+     * @return True if there are exactly 0 enchantments in this container.
+     */
+    public boolean isEmpty()
+    {
+        return enchantments.isEmpty();
+    }
+
     @Override
     public String toString()
     {
@@ -228,5 +315,63 @@ public class EnchantmentContainer
         String ret = sb.toString();
         ret = ret.length() > 1 ? ret.substring(0, ret.length() - 2) : ret;
         return ret + "]";
+    }
+
+    /**
+     * Represents a class that can be used to obtain the rarity value of enchantments.
+     */
+    private static final class RarityRetriever
+    {
+        private final @Nonnull Method getRaw;
+        private final @Nonnull Field rarityField;
+        private final @Nonnull Class<Enum<?>> rarityClass;
+
+        private RarityRetriever()
+            throws Exception
+        {
+            Class<?> craftEnchantment =
+                Objects.requireNonNull(ReflectionUtil.getCraftBukkitClass("enchantments.CraftEnchantment"));
+
+            getRaw =
+                Objects.requireNonNull(ReflectionUtil.getMethod(craftEnchantment, "getRaw", true, Enchantment.class));
+
+            Class<?> nmsEchant = Objects.requireNonNull(getRaw.getReturnType());
+
+            Class<Enum<?>> rarityClassTmp = null;
+            for (Class<?> clz : nmsEchant.getDeclaredClasses())
+                if (clz.isEnum() && clz.getSimpleName().equals("Rarity"))
+                {
+                    //noinspection unchecked
+                    rarityClassTmp = (Class<Enum<?>>) clz;
+                    break;
+                }
+            rarityClass = Objects.requireNonNull(rarityClassTmp);
+            rarityField = Objects.requireNonNull(ReflectionUtil.getTypedField(nmsEchant, rarityClass, true));
+        }
+
+        /**
+         * Retrieves the ordinal value of the enchantment rarity.
+         * <p>
+         * 0 = COMMON, 1 = UNCOMMON, 2 = RARE, 3 = VERY_RARE
+         *
+         * @param enchantment The enchantment for which to retrieve the rarity.
+         * @return The ordinal rarity value of the enchantment's rarity.
+         */
+        public OptionalInt getOrdinal(Enchantment enchantment)
+        {
+            if (enchantment == null)
+                return OptionalInt.empty();
+            try
+            {
+                Object nmsEnchantment = getRaw.invoke(null, enchantment);
+                Enum<?> rarity = rarityClass.cast(rarityField.get(nmsEnchantment));
+                return OptionalInt.of(rarity.ordinal());
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            return OptionalInt.empty();
+        }
     }
 }
