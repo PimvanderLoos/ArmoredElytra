@@ -98,7 +98,10 @@ public class CommandHandler implements CommandExecutor
                 return true;
             }
 
-            if (args.length == 1 && args[0].equalsIgnoreCase("listAvailable"))
+            if (args.length == 1 &&
+                (args[0].equalsIgnoreCase("listAvailableEnchantments") ||
+                    args[0].equalsIgnoreCase("listEnchantments") ||
+                    args[0].equalsIgnoreCase("enchantments")))
             {
                 listAvailableEnchantments();
                 return true;
