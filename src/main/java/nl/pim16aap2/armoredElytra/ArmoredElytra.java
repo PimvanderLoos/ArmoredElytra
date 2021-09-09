@@ -55,7 +55,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         if (minecraftVersion.isOlderThan(MinecraftVersion.v1_15))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
-            this.setEnabled(false);
+            setEnabled(false);
             return;
         }
 
@@ -83,7 +83,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         if (config.allowStats())
         {
             myLogger(Level.INFO, "Enabling stats! Thanks, it really helps!");
-            @SuppressWarnings("unused") final Metrics metrics = new Metrics(this);
+            @SuppressWarnings("unused") final Metrics metrics = new Metrics(this, 1656);
         }
         else
             // Y u do dis? :(
