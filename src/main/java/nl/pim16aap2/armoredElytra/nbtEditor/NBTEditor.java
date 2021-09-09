@@ -14,7 +14,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public class NBTEditor implements INBTEditor
@@ -25,8 +27,8 @@ public class NBTEditor implements INBTEditor
                                                                          "ARMORED_ELYTRA_COLOR");
 
     @Override
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final String name,
-                                     final Color color)
+    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, String name,
+                                     @Nullable List<String> lore, @Nullable Color color)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -51,6 +53,8 @@ public class NBTEditor implements INBTEditor
 
         meta.setUnbreakable(unbreakable);
         meta.setDisplayName(name);
+        if (lore != null)
+            meta.setLore(lore);
 
         ret.setItemMeta(meta);
         return ret;

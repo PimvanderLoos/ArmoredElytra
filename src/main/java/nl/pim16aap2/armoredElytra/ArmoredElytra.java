@@ -27,8 +27,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -239,10 +242,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         messagePlayer(player, ChatColor.RED, message);
     }
 
-    public String getElytraLore(ArmorTier armorTier)
+    public @Nullable List<String> getElytraLore(ArmorTier armorTier)
     {
-        final String message = getMessageWithTierNames(Message.MESSAGES_LORE, armorTier);
-        return message.equals("NONE") ? null : message;
+        final String message = ChatColor.stripColor(getMessageWithTierNames(Message.MESSAGES_LORE, armorTier));
+        return message.equals("NONE") ? null : Collections.singletonList(message);
     }
 
     // Print a string to the log.
