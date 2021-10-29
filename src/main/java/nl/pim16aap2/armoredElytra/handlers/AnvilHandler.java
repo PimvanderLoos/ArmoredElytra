@@ -1,8 +1,10 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
@@ -24,9 +26,14 @@ import java.util.logging.Level;
 
 public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
+    private final ConfigLoader configLoader;
+    private final INBTEditor nbtEditor;
+
     public AnvilHandler(final ArmoredElytra plugin, final boolean creationEnabled)
     {
         super(plugin, creationEnabled);
+        configLoader = plugin.getConfigLoader();
+        nbtEditor = plugin.getNbtEditor();
     }
 
     public AnvilHandler(final ArmoredElytra plugin)
@@ -66,13 +73,13 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         if (Util.isChestPlate(matTwo))
             return creationEnabled ? Action.CREATE : Action.NONE;
 
-        ArmorTier tier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemOne);
+        ArmorTier tier = nbtEditor.getArmorTier(itemOne);
 
         if (tier != ArmorTier.NONE)
         {
             // If the armored elytra is to be enchanted using an enchanted book...
             if (matTwo == Material.ENCHANTED_BOOK)
-                return Action.ENCHANT;
+                return configLoader.allowAddingEnchantments() ? Action.ENCHANT : Action.BLOCK;
 
             // If the armored elytra is to be repaired using its repair item...
             if (ArmorTier.getRepairItem(tier) == matTwo)
@@ -80,7 +87,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
             // If the armored elytra is to be combined with another armored elytra of the
             // same tier...
-            if (ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemTwo) == tier)
+            if (nbtEditor.getArmorTier(itemTwo) == tier)
                 return creationEnabled ? Action.COMBINE : Action.NONE;
 
             // If the armored elytra is not of the leather tier, but itemTwo is leather,
@@ -116,7 +123,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         {
             Action action = isValidInput(itemA, itemB);
             ArmorTier newTier = ArmorTier.NONE;
-            ArmorTier curTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA);
+            ArmorTier curTier = nbtEditor.getArmorTier(itemA);
             short durability = 0;
             EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
 
@@ -168,9 +175,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 final String name = getElytraResultName(itemA, action, newTier, event.getInventory().getRenameText());
                 final Color color = getItemColor(itemA, itemB);
 
-                result = ArmoredElytra.getInstance().getNbtEditor()
-                                      .addArmorNBTTags(result, newTier, plugin.getConfigLoader().unbreakable(),
-                                                       name, color);
+                result = nbtEditor.addArmorNBTTags(result, newTier, configLoader.unbreakable(), name, color);
 
                 event.setResult(result);
                 return;
@@ -180,15 +185,15 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         // If one of the input items is null and the other an armored elytra, remove the result.
         // This prevent some naming issues.
         if ((itemA == null ^ itemB == null) &&
-            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
+            nbtEditor.getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
             event.setResult(null);
     }
 
     private String getElytraResultName(final ItemStack baseItem, final Action action,
                                        final ArmorTier armorTier, final String renameText)
     {
-        final String tierName = ArmoredElytra.getInstance().getArmoredElytraName(armorTier);
-        if (renameText == null || !plugin.getConfigLoader().allowRenaming())
+        final String tierName = plugin.getArmoredElytraName(armorTier);
+        if (renameText == null || !configLoader.allowRenaming())
             return tierName;
 
         final ItemMeta meta = baseItem.getItemMeta();
@@ -236,7 +241,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         if (anvilInventory.getItem(0) != null && anvilInventory.getItem(1) != null &&
             anvilInventory.getItem(2) != null && anvilInventory.getItem(2).getType() == Material.ELYTRA)
         {
-            ArmorTier armortier = ArmoredElytra.getInstance().getNbtEditor().getArmorTier(anvilInventory.getItem(2));
+            ArmorTier armortier = nbtEditor.getArmorTier(anvilInventory.getItem(2));
 
             // If there's an armored elytra in the final slot...
             if (armortier != ArmorTier.NONE && plugin.playerHasCraftPerm(player, armortier))

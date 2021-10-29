@@ -39,6 +39,7 @@ public class ConfigLoader
     private boolean bypassWearPerm;
     private boolean bypassCraftPerm;
     private boolean allowRenaming;
+    private boolean allowAddingEnchantments;
 
     private final ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
     private final ArmoredElytra plugin;
@@ -143,6 +144,12 @@ public class ConfigLoader
             {
                 "Whether or not to allow renaming of armored elytras in anvils."
             };
+        String[] allowAddingEnchantmentsComment =
+            {
+                "Allow new enchantments to be added to armored elytras.",
+                "When false, no enchantments can be added to armored elytras, even those on the allowed list.",
+                "When true, only enchantments from the allowed list can be added."
+            };
 
 
         // Set default list of allowed enchantments.
@@ -205,6 +212,8 @@ public class ConfigLoader
 
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
+        allowAddingEnchantments = addNewConfigOption(config, "allowAddingEnchantments", true,
+                                                     allowAddingEnchantmentsComment);
         allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
         dropNetheriteAsChestplate = addNewConfigOption(config, "dropNetheriteAsChestplate", true,
                                                        dropNetheriteAsChestplateComment);
@@ -332,6 +341,11 @@ public class ConfigLoader
     public boolean allowRenaming()
     {
         return allowRenaming;
+    }
+
+    public boolean allowAddingEnchantments()
+    {
+        return allowAddingEnchantments;
     }
 
     public boolean uninstallMode()
