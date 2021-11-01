@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 public class Util
@@ -83,6 +84,41 @@ public class Util
             // No need to handle this, this is just XMaterial complaining the material doesn't exist.
             return false;
         }
+    }
+
+    public static String snakeToCamelCase(String input)
+    {
+        final char[] arr = input.toLowerCase(Locale.US).toCharArray();
+
+        int skipped = 0;
+        boolean capitalize = false;
+
+        for (int idx = 0; idx < arr.length; ++idx)
+        {
+            char current = arr[idx];
+
+            if (current == '_')
+            {
+                ++skipped;
+                capitalize = true;
+                continue;
+            }
+
+            final int targetIdx = idx - skipped;
+
+            if (capitalize)
+            {
+                if (targetIdx > 0)
+                    current = Character.toUpperCase(current);
+                capitalize = false;
+            }
+
+            // targetIdx is always <= idx, so we can reuse the current array
+            // without overwriting any values we will need in the future.
+            arr[targetIdx] = current;
+        }
+
+        return new String(arr, 0, arr.length - skipped);
     }
 
     // Function that returns which/how many protection enchantments there are.

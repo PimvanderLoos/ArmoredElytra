@@ -1,6 +1,8 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -18,40 +20,41 @@ import javax.annotation.CheckReturnValue;
  */
 abstract class ArmoredElytraHandler
 {
-    protected final ArmoredElytra plugin;
-
-    protected final boolean creationEnabled;
-
     private static final Color DEFAULT_LEATHER_COLOR = Bukkit.getServer().getItemFactory().getDefaultLeatherColor();
+
+    protected final ArmoredElytra plugin;
+    protected final boolean creationEnabled;
+    private final ConfigLoader config;
 
     public ArmoredElytraHandler(final ArmoredElytra plugin, final boolean creationEnabled)
     {
         this.plugin = plugin;
         this.creationEnabled = creationEnabled;
+        config = plugin.getConfigLoader();
     }
 
     // Repair an Armored Elytra
     protected short repairItem(short curDur, ItemStack repairItem)
     {
-        // Get the multiplier for the repair items.
-        double mult = 0.01;
+        final ArmorTier repairTier;
         if (repairItem.getType().equals(Material.LEATHER))
-            mult *= (100.0f / plugin.getConfigLoader().LEATHER_TO_FULL());
-
+            repairTier = ArmorTier.LEATHER;
         else if (repairItem.getType().equals(Material.GOLD_INGOT))
-            mult *= (100.0f / plugin.getConfigLoader().GOLD_TO_FULL());
-
+            repairTier = ArmorTier.GOLD;
         else if (repairItem.getType().equals(Material.IRON_INGOT))
-            mult *= (100.0f / plugin.getConfigLoader().IRON_TO_FULL());
-
+            repairTier = ArmorTier.IRON;
         else if (repairItem.getType().equals(Material.DIAMOND))
-            mult *= (100.0f / plugin.getConfigLoader().DIAMONDS_TO_FULL());
-
+            repairTier = ArmorTier.DIAMOND;
         else if (repairItem.getType().equals(XMaterial.NETHERITE_INGOT.parseMaterial()))
-            mult *= (100.0f / plugin.getConfigLoader().NETHERITE_TO_FULL());
+            repairTier = ArmorTier.NETHERITE;
+        else
+            repairTier = ArmorTier.NONE;
+
+        final int repairCount = Math.max(1, config.getFullRepairItemCount(repairTier));
+        final double repairPercentage = 1f / repairCount;
 
         int maxDurability = Material.ELYTRA.getMaxDurability();
-        int newDurability = (int) (curDur - repairItem.getAmount() * (maxDurability * mult));
+        int newDurability = (int) (curDur - repairItem.getAmount() * (maxDurability * repairPercentage));
         return (short) (Math.max(newDurability, 0));
     }
 

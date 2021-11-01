@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,13 +24,16 @@ public class ConfigLoader
     private boolean unbreakable;
     private boolean enableDebug;
     private String languageFile;
-    private int GOLD_TO_FULL;
-    private int IRON_TO_FULL;
+
+    private final int[] repairCounts = new int[ArmorTier.values().length];
+    private int goldToFull;
+    private int ironToFull;
+    private int leatherToFull;
+    private int diamondsToFull;
+    private int netheriteToFull;
+
     private boolean uninstallMode;
     private boolean checkForUpdates;
-    private int LEATHER_TO_FULL;
-    private int DIAMONDS_TO_FULL;
-    private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
@@ -163,11 +167,25 @@ public class ConfigLoader
 
         unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
         noFlightDurability = addNewConfigOption(config, "noFlightDurability", false, flyDurabilityComment);
-        LEATHER_TO_FULL = addNewConfigOption(config, "leatherRepair", 6, repairComment);
-        GOLD_TO_FULL = addNewConfigOption(config, "goldRepair", 5, null);
-        IRON_TO_FULL = addNewConfigOption(config, "ironRepair", 4, null);
-        DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
-        NETHERITE_TO_FULL = addNewConfigOption(config, "netheriteIngotsRepair", 3, null);
+
+        final ArmorTier[] armorTiers = ArmorTier.values();
+        for (int idx = 1; idx < armorTiers.length; ++idx)
+        {
+            final ArmorTier armorTier = armorTiers[idx];
+
+            // Only the first one should have the comment.
+            final @Nullable String[] comment = idx == 1 ? repairComment : null;
+            final String name = Util.snakeToCamelCase(ArmorTier.getRepairItem(armorTier).name());
+            final int defaultRepairCount = ArmorTier.getDefaultRepairCount(armorTier);
+
+            repairCounts[idx] = addNewConfigOption(config, name, defaultRepairCount, comment);
+        }
+
+        final int armorTierCount = ArmorTier.values().length;
+        if (repairCounts.length != armorTierCount)
+            throw new IllegalStateException("Incorrect repair counts array size! Expected size " +
+                                                armorTierCount + " but got size " + repairCounts.length);
+
 
         final boolean smithingTableAllowed = plugin.getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15);
         craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", smithingTableAllowed,
@@ -308,29 +326,9 @@ public class ConfigLoader
         return languageFile;
     }
 
-    public int LEATHER_TO_FULL()
+    public int getFullRepairItemCount(ArmorTier armorTier)
     {
-        return LEATHER_TO_FULL;
-    }
-
-    public int GOLD_TO_FULL()
-    {
-        return GOLD_TO_FULL;
-    }
-
-    public int IRON_TO_FULL()
-    {
-        return IRON_TO_FULL;
-    }
-
-    public int DIAMONDS_TO_FULL()
-    {
-        return DIAMONDS_TO_FULL;
-    }
-
-    public int NETHERITE_TO_FULL()
-    {
-        return NETHERITE_TO_FULL;
+        return repairCounts[ArmorTier.getArmor(armorTier)];
     }
 
     public boolean allowMultipleProtectionEnchantments()
@@ -381,5 +379,11 @@ public class ConfigLoader
     public boolean bypassCraftPerm()
     {
         return bypassCraftPerm;
+    }
+
+    public boolean useTierDurability()
+    {
+        // TODO: Implement this option.
+        return true;
     }
 }

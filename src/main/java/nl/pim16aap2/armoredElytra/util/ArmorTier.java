@@ -7,14 +7,14 @@ import java.util.Map;
 
 public enum ArmorTier
 {
-    // Tier:  TierID, armor-value, armor-toughness, knockbackResistance, repair
-    NONE(0, 0, 0, 0, null, ""),
-    LEATHER(1, 3, 0, 0, Material.LEATHER, "leather"),
-    GOLD(2, 5, 0, 0, Material.GOLD_INGOT, "gold"),
-    CHAIN(3, 5, 0, 0, Material.IRON_INGOT, "chain"),
-    IRON(4, 6, 0, 0, Material.IRON_INGOT, "iron"),
-    DIAMOND(5, 8, 2, 0, Material.DIAMOND, "diamond"),
-    NETHERITE(6, 8, 3, 0.1, XMaterial.NETHERITE_INGOT.parseMaterial(), "netherite"),
+    // Tier:  TierID, armor-value, armor-toughness, knockbackResistance, repair, defaultRepairCount, name, durability
+    NONE(0, 0, 0, 0, null, 0, "", 0),
+    LEATHER(1, 3, 0, 0, Material.LEATHER, 6, "leather", 80),
+    GOLD(2, 5, 0, 0, Material.GOLD_INGOT, 6, "gold", 112),
+    CHAIN(3, 5, 0, 0, Material.IRON_INGOT, 4, "chain", 240),
+    IRON(4, 6, 0, 0, Material.IRON_INGOT, 4, "iron", 240),
+    DIAMOND(5, 8, 2, 0, Material.DIAMOND, 3, "diamond", 528),
+    NETHERITE(6, 8, 3, 0.1, XMaterial.NETHERITE_INGOT.parseMaterial(), 3, "netherite", 592),
     ;
 
     private final int tierID;
@@ -22,34 +22,41 @@ public enum ArmorTier
     private final int toughness;
     private final double knockbackResistance;
     private final Material repair;
+    private final int defaultRepairCount;
     private final String name;
+    private final int durability;
     private static final Map<String, ArmorTier> map = new HashMap<>();
     private static final Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
     private static final Map<Integer, ArmorTier> armorIDMap = new HashMap<>();
 
-    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair, String name)
+    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair, int defaultRepairCount,
+              String name, int durability)
     {
         this.tierID = tierID;
         this.armor = armor;
         this.toughness = toughness;
         this.knockbackResistance = knockbackResistance;
         this.repair = repair;
+        this.defaultRepairCount = defaultRepairCount;
         this.name = name;
+        this.durability = durability;
     }
 
-    // return the armor value of a tier.
     public static int getArmor(ArmorTier tier)
     {
         return tier.armor;
     }
 
-    // return the armor value of a tier.
+    public static int getMaxDurability(ArmorTier tier)
+    {
+        return tier.durability;
+    }
+
     public static int getTierID(ArmorTier tier)
     {
         return tier.tierID;
     }
 
-    // return the armor toughness of a tier.
     public static int getToughness(ArmorTier tier)
     {
         return tier.toughness;
@@ -104,5 +111,10 @@ public enum ArmorTier
         // While no new elytras can be created using the old system, some may still
         // be around from when it was still used.
         armorValueMap.put(ArmorTier.DIAMOND.armor, ArmorTier.DIAMOND);
+    }
+
+    public static int getDefaultRepairCount(ArmorTier armorTier)
+    {
+        return armorTier.defaultRepairCount;
     }
 }
