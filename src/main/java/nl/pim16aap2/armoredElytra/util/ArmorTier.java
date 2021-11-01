@@ -29,8 +29,8 @@ public enum ArmorTier
     private static final Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
     private static final Map<Integer, ArmorTier> armorIDMap = new HashMap<>();
 
-    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair, int defaultRepairCount,
-              String name, int durability)
+    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair,
+              int defaultRepairCount, String name, int durability)
     {
         this.tierID = tierID;
         this.armor = armor;

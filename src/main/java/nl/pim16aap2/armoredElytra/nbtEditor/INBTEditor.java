@@ -4,6 +4,7 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -99,7 +100,7 @@ public interface INBTEditor
      * @param item The item to check.
      * @return The {@link ArmorTier} that is on the item. If none is found, {@link ArmorTier#NONE} is returned.
      */
-    ArmorTier getArmorTier(ItemStack item);
+    ArmorTier getArmorTier(@Nullable ItemStack item);
 
     /**
      * Gets the Color of an armored elytra.
@@ -107,7 +108,34 @@ public interface INBTEditor
      * If the provided {@link ItemStack} is not an AE, null is returned.
      *
      * @param item The armored elytra to check.
-     * @return The color of the armored elytra, if the input is a color armored elytra, otherwise null.
+     * @return The color of the armored elytra, if the input is a colored armored elytra, otherwise null.
      */
-    Color getColorOfArmoredElytra(ItemStack item);
+    Color getColorOfArmoredElytra(@Nullable ItemStack item);
+
+    /**
+     * Updates the durability values of an item.
+     *
+     * @param itemStack         The itemstack to which the durability values will be applied.
+     * @param realDurability    The real durability to store in NBT.
+     * @param displayDurability The durability value to display on the item. This is the durability value the client can
+     *                          actually see.This only works if the item's meta is an instance of {@link Damageable}.
+     */
+    void updateDurability(ItemStack itemStack, int realDurability, int displayDurability);
+
+    /**
+     * Gets the real durability value as stored in the NBT of an armored elytra.
+     *
+     * @param itemStack The item for which to retrieve the real durability.
+     * @param armorTier The armor tier of the armored elytra. If this is null, it will be retrieved from NBT.
+     * @return The real durability of the itemstack if the itemstack has the AE durability attribute, or -1 otherwise.
+     */
+    int getRealDurability(ItemStack itemStack, @Nullable ArmorTier armorTier);
+
+    /**
+     * See {@link #getRealDurability(ItemStack, ArmorTier)}.
+     */
+    default int getRealDurability(ItemStack itemStack)
+    {
+        return getRealDurability(itemStack, null);
+    }
 }

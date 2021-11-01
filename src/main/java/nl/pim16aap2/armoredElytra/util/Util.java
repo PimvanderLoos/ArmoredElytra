@@ -137,4 +137,17 @@ public class Util
             ret += 16;
         return ret;
     }
+
+    /**
+     * Ensures that a given value does not exceed the provided upper and lower bounds.
+     *
+     * @param val The value to check.
+     * @param min The lower bound limit.
+     * @param max The upper bound limit.
+     * @return The value if it is bigger than min and larger than max, otherwise either min or max.
+     */
+    public static int between(int val, int min, int max)
+    {
+        return Math.max(min, Math.min(max, val));
+    }
 }

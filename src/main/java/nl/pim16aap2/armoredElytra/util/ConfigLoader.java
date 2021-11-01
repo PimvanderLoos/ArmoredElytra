@@ -73,7 +73,8 @@ public class ConfigLoader
         String[] repairComment =
             {
                 "Amount of items it takes to fully repair an armored elytra",
-                "Repair cost for every tier of armored elytra in number of items to repair 100%."
+                "Repair cost for every tier of armored elytra in number of items to repair 100%.",
+                "Note that this value cannot be less than 1."
             };
         String[] enchantmentsComment =
             {
@@ -328,7 +329,7 @@ public class ConfigLoader
 
     public int getFullRepairItemCount(ArmorTier armorTier)
     {
-        return repairCounts[ArmorTier.getArmor(armorTier)];
+        return repairCounts[armorTier.ordinal()];
     }
 
     public boolean allowMultipleProtectionEnchantments()

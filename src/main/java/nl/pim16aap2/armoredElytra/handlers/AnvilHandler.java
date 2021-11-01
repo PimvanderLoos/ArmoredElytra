@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
@@ -28,12 +29,14 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
     private final ConfigLoader configLoader;
     private final INBTEditor nbtEditor;
+    private final DurabilityManager durabilityManager;
 
     public AnvilHandler(final ArmoredElytra plugin, final boolean creationEnabled)
     {
         super(plugin, creationEnabled);
         configLoader = plugin.getConfigLoader();
         nbtEditor = plugin.getNbtEditor();
+        durabilityManager = new DurabilityManager(nbtEditor, configLoader);
     }
 
     public AnvilHandler(final ArmoredElytra plugin)
@@ -46,7 +49,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
     //  - Elytra (armored)           + enchanted book         -> Enchant
     //  - Elytra (armored)           + its repair item        -> Repair
     //  - Elytra (armored)           + other elytra (armored) -> Combine (Enchant + Repair)
-    //  ! Elytra (armored, !leather) + leather/membrane       -> Block
+    //  - Elytra (armored, !leather) + leather/membrane       -> Block
     //
     // Ignoring:
     //  - Elytra (not armored)       + !chestplate            -> None
@@ -55,14 +58,6 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
     {
         if (itemOne == null || itemTwo == null)
             return Action.NONE;
-
-        // If itemTwo is the elytra, while itemOne isn't, switch itemOne and itemTwo.
-        if (itemTwo.getType() == Material.ELYTRA && itemOne.getType() != Material.ELYTRA)
-        {
-            ItemStack tmp = itemOne;
-            itemOne = itemTwo;
-            itemTwo = tmp;
-        }
 
         if (itemOne.getType() != Material.ELYTRA)
             return Action.NONE;
@@ -83,10 +78,9 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
 
             // If the armored elytra is to be repaired using its repair item...
             if (ArmorTier.getRepairItem(tier) == matTwo)
-                return itemOne.getDurability() == 0 ? Action.NONE : Action.REPAIR;
+                return itemOne.getDurability() == 0 ? Action.BLOCK : Action.REPAIR;
 
-            // If the armored elytra is to be combined with another armored elytra of the
-            // same tier...
+            // If the armored elytra is to be combined with another armored elytra of the same tier...
             if (nbtEditor.getArmorTier(itemTwo) == tier)
                 return creationEnabled ? Action.COMBINE : Action.NONE;
 
@@ -101,13 +95,13 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
     }
 
     // Handle all anvil related stuff for this plugin.
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     private void onAnvilInventoryOpen(PrepareAnvilEvent event)
     {
         Player player = (Player) event.getView().getPlayer();
         ItemStack itemA = event.getInventory().getItem(0);
         ItemStack itemB = event.getInventory().getItem(1);
-        ItemStack result = null;
+        ItemStack result;
 
         if (itemA != null && itemB != null)
             // If itemB is the (armored) elytra, while itemA isn't, switch itemA and itemB.
@@ -121,37 +115,36 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         // Check if there are items in both input slots.
         if (itemA != null && itemB != null)
         {
-            Action action = isValidInput(itemA, itemB);
+            final Action action = isValidInput(itemA, itemB);
             ArmorTier newTier = ArmorTier.NONE;
-            ArmorTier curTier = nbtEditor.getArmorTier(itemA);
-            short durability = 0;
+            final ArmorTier curTier = nbtEditor.getArmorTier(itemA);
+
+            int newDurability = 0;
             EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
 
             switch (action)
             {
                 case REPAIR:
                     newTier = curTier;
-                    durability = repairItem(itemA.getDurability(), itemB);
+                    newDurability = durabilityManager.getRepairedDurability(itemA, itemB.getAmount(), curTier);
                     break;
                 case COMBINE:
                     newTier = curTier;
-                    durability = (short) (-itemA.getType().getMaxDurability() - itemA.getDurability()
-                        - itemB.getDurability());
-                    durability = durability < 0 ? 0 : durability;
+                    newDurability = durabilityManager.getCombinedDurability(itemA, itemB, curTier, newTier);
                     enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
                     break;
                 case CREATE:
                     newTier = Util.armorToTier(itemB.getType());
-                    durability = 0;
+                    newDurability = durabilityManager.getCombinedDurability(itemA, itemB, curTier, newTier);
                     enchantments.merge(EnchantmentContainer.getEnchantments(itemB, plugin));
                     break;
                 case ENCHANT:
                     newTier = curTier;
-                    durability = itemA.getDurability();
+                    newDurability = durabilityManager.getRealDurability(itemA, newTier);
 
                     // If there aren't any illegal enchantments on the book, continue as normal.
                     // Otherwise... Block.
-                    EnchantmentContainer enchantmentsB = EnchantmentContainer.getEnchantments(itemB, plugin);
+                    final EnchantmentContainer enchantmentsB = EnchantmentContainer.getEnchantments(itemB, plugin);
                     if (enchantmentsB.getEnchantmentCount() > 0)
                     {
                         enchantments.merge(enchantmentsB);
@@ -170,7 +163,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             {
                 result = new ItemStack(Material.ELYTRA, 1);
                 enchantments.applyEnchantments(result);
-                result.setDurability(durability);
+                durabilityManager.setDurability(result, newDurability, newTier);
 
                 final String name = getElytraResultName(itemA, action, newTier, event.getInventory().getRenameText());
                 final Color color = getItemColor(itemA, itemB);
@@ -183,7 +176,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         }
 
         // If one of the input items is null and the other an armored elytra, remove the result.
-        // This prevent some naming issues.
+        // This prevents some naming issues.
         if ((itemA == null ^ itemB == null) &&
             nbtEditor.getArmorTier(itemA == null ? itemB : itemA) != ArmorTier.NONE)
             event.setResult(null);
