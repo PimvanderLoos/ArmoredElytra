@@ -35,6 +35,7 @@ public class ConfigLoader
     private boolean uninstallMode;
     private boolean checkForUpdates;
     private boolean noFlightDurability;
+    private boolean useTierDurability;
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
@@ -69,6 +70,12 @@ public class ConfigLoader
             {
                 "Setting this to true will cause armored elytras to not lose any durability while flying.",
                 "This is not a permanent option and will affect ALL elytras."
+            };
+        String[] useTierDurabilityComment =
+            {
+                "Use the maximum durability of the armor tier of armored elytras.",
+                "For example, when this is true, a diamond armored elytra would have a durability of 528.",
+                "When this is false, all armored elytras have the maximum durability of a regular elytra."
             };
         String[] repairComment =
             {
@@ -156,7 +163,6 @@ public class ConfigLoader
                 "When true, only enchantments from the allowed list can be added."
             };
 
-
         // Set default list of allowed enchantments.
         List<String> defaultAllowedEnchantments = new ArrayList<>(
             Arrays.asList("minecraft:unbreaking", "minecraft:fire_protection", "minecraft:blast_protection",
@@ -166,8 +172,10 @@ public class ConfigLoader
 
         FileConfiguration config = plugin.getConfig();
 
+
         unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
         noFlightDurability = addNewConfigOption(config, "noFlightDurability", false, flyDurabilityComment);
+        useTierDurability = addNewConfigOption(config, "useTierDurability", true, useTierDurabilityComment);
 
         final ArmorTier[] armorTiers = ArmorTier.values();
         for (int idx = 1; idx < armorTiers.length; ++idx)
@@ -384,7 +392,6 @@ public class ConfigLoader
 
     public boolean useTierDurability()
     {
-        // TODO: Implement this option.
-        return true;
+        return useTierDurability;
     }
 }

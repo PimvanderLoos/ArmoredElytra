@@ -130,12 +130,4 @@ public interface INBTEditor
      * @return The real durability of the itemstack if the itemstack has the AE durability attribute, or -1 otherwise.
      */
     int getRealDurability(ItemStack itemStack, @Nullable ArmorTier armorTier);
-
-    /**
-     * See {@link #getRealDurability(ItemStack, ArmorTier)}.
-     */
-    default int getRealDurability(ItemStack itemStack)
-    {
-        return getRealDurability(itemStack, null);
-    }
 }

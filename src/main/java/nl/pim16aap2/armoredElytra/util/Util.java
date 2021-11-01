@@ -2,8 +2,11 @@ package nl.pim16aap2.armoredElytra.util;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
@@ -136,6 +139,18 @@ public class Util
         if (enchantments.containsKey(Enchantment.PROTECTION_PROJECTILE))
             ret += 16;
         return ret;
+    }
+
+    public static void moveChestplateToInventory(Player player)
+    {
+        final PlayerInventory inventory = player.getInventory();
+        inventory.addItem(inventory.getChestplate());
+
+        final @Nullable ItemStack chestplate = inventory.getChestplate();
+        if (chestplate != null)
+            chestplate.setAmount(0);
+
+        player.updateInventory();
     }
 
     /**

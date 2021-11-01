@@ -27,21 +27,16 @@ import java.util.logging.Level;
 
 public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
-    private final ConfigLoader configLoader;
-    private final INBTEditor nbtEditor;
-    private final DurabilityManager durabilityManager;
-
-    public AnvilHandler(final ArmoredElytra plugin, final boolean creationEnabled)
+    protected AnvilHandler(ArmoredElytra plugin, boolean creationEnabled,
+                           INBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
     {
-        super(plugin, creationEnabled);
-        configLoader = plugin.getConfigLoader();
-        nbtEditor = plugin.getNbtEditor();
-        durabilityManager = new DurabilityManager(nbtEditor, configLoader);
+        super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }
 
-    public AnvilHandler(final ArmoredElytra plugin)
+    public AnvilHandler(ArmoredElytra plugin, INBTEditor nbtEditor,
+                        DurabilityManager durabilityManager, ConfigLoader config)
     {
-        this(plugin, true);
+        super(plugin, true, nbtEditor, durabilityManager, config);
     }
 
     // Valid inputs:
@@ -74,11 +69,11 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         {
             // If the armored elytra is to be enchanted using an enchanted book...
             if (matTwo == Material.ENCHANTED_BOOK)
-                return configLoader.allowAddingEnchantments() ? Action.ENCHANT : Action.BLOCK;
+                return config.allowAddingEnchantments() ? Action.ENCHANT : Action.BLOCK;
 
             // If the armored elytra is to be repaired using its repair item...
             if (ArmorTier.getRepairItem(tier) == matTwo)
-                return itemOne.getDurability() == 0 ? Action.BLOCK : Action.REPAIR;
+                return durabilityManager.getRealDurability(itemOne, tier) == 0 ? Action.BLOCK : Action.REPAIR;
 
             // If the armored elytra is to be combined with another armored elytra of the same tier...
             if (nbtEditor.getArmorTier(itemTwo) == tier)
@@ -120,7 +115,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             final ArmorTier curTier = nbtEditor.getArmorTier(itemA);
 
             int newDurability = 0;
-            EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
+            final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemA, plugin);
 
             switch (action)
             {
@@ -168,7 +163,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 final String name = getElytraResultName(itemA, action, newTier, event.getInventory().getRenameText());
                 final Color color = getItemColor(itemA, itemB);
 
-                result = nbtEditor.addArmorNBTTags(result, newTier, configLoader.unbreakable(), name, color);
+                result = nbtEditor.addArmorNBTTags(result, newTier, config.unbreakable(), name, color);
 
                 event.setResult(result);
                 return;
@@ -186,13 +181,13 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                                        final ArmorTier armorTier, final String renameText)
     {
         final String tierName = plugin.getArmoredElytraName(armorTier);
-        if (renameText == null || !configLoader.allowRenaming())
+        if (renameText == null || !config.allowRenaming())
             return tierName;
 
         final ItemMeta meta = baseItem.getItemMeta();
         final String currentName = meta == null ? null : meta.getDisplayName();
 
-        // When the rename text is empty, give it the default tier-name when creating a new armored elytra
+        // When the renameText is empty, give it the default tier-name when creating a new armored elytra
         // (so it's named properly) or when the current name is already the tier name (just returning the current
         // name would strip the tier's color in this case).
         if ((action == Action.CREATE && renameText.equals("")) ||

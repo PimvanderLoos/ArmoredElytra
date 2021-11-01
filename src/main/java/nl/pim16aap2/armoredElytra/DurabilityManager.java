@@ -13,7 +13,7 @@ public class DurabilityManager
 {
     private static final int ELYTRA_MAX_DURABILITY = Material.ELYTRA.getMaxDurability();
 
-    private final int[] repairSteps = new int[ArmorTier.values().length];
+    private final int[] repairAmounts = new int[ArmorTier.values().length];
     private final int[] maxDurabilities = new int[ArmorTier.values().length];
 
     private final INBTEditor nbtEditor;
@@ -24,6 +24,28 @@ public class DurabilityManager
         this.nbtEditor = nbtEditor;
         this.config = config;
         init();
+    }
+
+    /**
+     * Combination of {@link #getCombinedDurability(ItemStack, ItemStack, ArmorTier, ArmorTier)} and {@link
+     * #setDurability(ItemStack, int, ArmorTier)}.
+     * <p>
+     * First gets the combined of the input armored elytra and the other item and then applies it to the target armored
+     * elytra.
+     *
+     * @param armoredElytraOut The output armored elytra item. This is the elytra that will be updated.
+     * @param armoredElytraIn  The input armored elytra item.
+     * @param other            The other item that will be combined with the armored elytra. This can be another armored
+     *                         elytra, a chestplate, or any other item.
+     * @param currentTier      The current armor tier of the armored elytra.
+     * @param targetTier       The target tier of the armored elytra.
+     */
+    public int setCombinedDurability(ItemStack armoredElytraOut, ItemStack armoredElytraIn, ItemStack other,
+                                     ArmorTier currentTier, ArmorTier targetTier)
+    {
+        final int combinedDurability = getCombinedDurability(armoredElytraIn, other, currentTier, targetTier);
+        setDurability(armoredElytraOut, combinedDurability, targetTier);
+        return combinedDurability;
     }
 
     /**
@@ -43,17 +65,36 @@ public class DurabilityManager
 
         final int currentMaxDurability = getMaxDurability(currentTier);
         final int targetMaxDurability = getMaxDurability(targetTier);
-        final int otherMaxDurability = otherTier == ArmorTier.NONE ?
-                                       other.getType().getMaxDurability() : getMaxDurability(otherTier);
-
+        final int otherMaxDurability = otherTier != ArmorTier.NONE ?
+                                       getMaxDurability(otherTier) : other.getType().getMaxDurability();
+        //noinspection deprecation
         final int otherDurability = other.getType().equals(Material.ELYTRA) ?
-                                    getRealDurability(other, null) : other.getType().getMaxDurability();
-
+                                    getRealDurability(other, null) : other.getDurability();
         final int currentDurability = getRealDurability(armoredElytra, currentTier);
 
-        return targetMaxDurability -
+        final int combinedDurability = targetMaxDurability -
             (otherMaxDurability - otherDurability) -
             (currentMaxDurability - currentDurability);
+
+        return Util.between(combinedDurability, 0, targetMaxDurability);
+    }
+
+    /**
+     * Removes durability from an armored elytra.
+     *
+     * @param armoredElytra  The armored elytra item to damage.
+     * @param durabilityLoss The amount of durability to remove from the armored elytra.
+     * @param providedTier   The tier of the armored elytra (if this is available). If this is null, it will be
+     *                       retrieved from the item itself.
+     * @return The new durability after removing the provided amount.
+     */
+    public int removeDurability(ItemStack armoredElytra, int durabilityLoss, @Nullable ArmorTier providedTier)
+    {
+        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
+        final int currentDurability = getRealDurability(armoredElytra, currentTier);
+        final int newDurability = Util.between(currentDurability + durabilityLoss, 0, getMaxDurability(currentTier));
+        setDurability(armoredElytra, newDurability, providedTier);
+        return newDurability;
     }
 
     /**
@@ -71,7 +112,7 @@ public class DurabilityManager
     {
         final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
         final int repairableDurability = getMaxDurability(currentTier) - getRealDurability(armoredElytra, currentTier);
-        return (int) Math.ceil((float) repairableDurability / getRepairSteps(currentTier));
+        return (int) Math.ceil((float) repairableDurability / getRepairAmount(currentTier));
     }
 
     /**
@@ -87,7 +128,7 @@ public class DurabilityManager
     public int getRepairedDurability(ItemStack armoredElytra, int repairCount, @Nullable ArmorTier providedTier)
     {
         final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
-        final int restoredDurability = repairCount * getRepairSteps(currentTier);
+        final int restoredDurability = repairCount * getRepairAmount(currentTier);
         final int currentDurability = getRealDurability(armoredElytra, currentTier);
         return Math.max(0, currentDurability - restoredDurability);
     }
@@ -125,8 +166,8 @@ public class DurabilityManager
     public void setDurability(ItemStack item, int durability, @Nullable ArmorTier providedTier)
     {
         final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(item) : providedTier;
-        final int rawDurability = getRemappedDurability(durability, getMaxDurability(currentTier),
-                                                        ELYTRA_MAX_DURABILITY);
+        final int oldMaxDurability = getMaxDurability(currentTier);
+        final int rawDurability = getRemappedDurability(durability, oldMaxDurability, ELYTRA_MAX_DURABILITY);
         nbtEditor.updateDurability(item, durability, rawDurability);
     }
 
@@ -174,7 +215,7 @@ public class DurabilityManager
      * @param armorTier The armor tier for which to get the maximum durability.
      * @return The maximum durability of the given armor tier.
      */
-    private int getMaxDurability(ArmorTier armorTier)
+    public int getMaxDurability(ArmorTier armorTier)
     {
         return maxDurabilities[armorTier.ordinal()];
     }
@@ -185,9 +226,9 @@ public class DurabilityManager
      * @param armorTier The armor tier.
      * @return The amount of durability restored per repair step for the given armor tier.
      */
-    private int getRepairSteps(ArmorTier armorTier)
+    public int getRepairAmount(ArmorTier armorTier)
     {
-        return repairSteps[armorTier.ordinal()];
+        return repairAmounts[armorTier.ordinal()];
     }
 
     /**
@@ -207,11 +248,11 @@ public class DurabilityManager
     }
 
     /**
-     * Initializes the {@link #maxDurabilities} and {@link #repairSteps} arrays.
+     * Initializes the {@link #maxDurabilities} and {@link #repairAmounts} arrays.
      */
     private void init()
     {
-        repairSteps[0] = 0;
+        repairAmounts[0] = 0;
         maxDurabilities[0] = ELYTRA_MAX_DURABILITY;
 
         final ArmorTier[] armorTiers = ArmorTier.values();
@@ -223,7 +264,7 @@ public class DurabilityManager
             maxDurabilities[idx] = maxDurability;
 
             final int steps = Math.max(1, config.getFullRepairItemCount(armorTier));
-            repairSteps[idx] = (int) Math.ceil((float) maxDurability / steps);
+            repairAmounts[idx] = (int) Math.ceil((float) maxDurability / steps);
         }
     }
 }

@@ -50,6 +50,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private UpdateManager updateManager;
 
     private INBTEditor nbtEditor;
+    private DurabilityManager durabilityManager;
 
     @Override
     public void onEnable()
@@ -75,6 +76,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         nbtEditor = new NBTEditor();
 
         config = new ConfigLoader(this);
+
+        durabilityManager = new DurabilityManager(nbtEditor, config);
+
         messages = new Messages(this);
         readMessages();
 
@@ -94,29 +98,26 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                      "Stats disabled, not loading stats :(... Please consider enabling it! I am a simple man, " +
                          "seeing higher user numbers helps me stay motivated!");
 
-        Bukkit.getPluginManager().registerEvents(new EventHandlers(this), this);
-        getCommand("ArmoredElytra").setExecutor(new CommandHandler(this));
+        Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, durabilityManager), this);
+        getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor, durabilityManager));
 
         // Load the plugin normally if not in uninstall mode.
         if (!config.uninstallMode())
         {
-            // Check if the user wants to disable durability penalty for flying with an armored elytra.
-            if (config.noFlightDurability())
-            {
-                Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(), this);
-                myLogger(Level.INFO, "Durability penalty for flying disabled!");
-            }
-            else
-                myLogger(Level.INFO, "Durability penalty for flying enabled!");
+            Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(config.noFlightDurability(),
+                                                                              nbtEditor, durabilityManager), this);
+            final Listener creationListener =
+                config.craftingInSmithingTable() ?
+                new SmithingTableCraftHandler(this, nbtEditor, durabilityManager, config) :
+                new AnvilHandler(this, nbtEditor, durabilityManager, config);
 
-            final Listener creationListener = config.craftingInSmithingTable() ?
-                                              new SmithingTableCraftHandler(this) : new AnvilHandler(this);
             Bukkit.getPluginManager().registerEvents(creationListener, this);
             if (config.allowUpgradeToNetherite())
-                Bukkit.getPluginManager().registerEvents(new NetheriteUpgradeListener(this), this);
+                Bukkit.getPluginManager()
+                      .registerEvents(new NetheriteUpgradeListener(this, nbtEditor, durabilityManager, config), this);
 
             if (config.dropNetheriteAsChestplate())
-                Bukkit.getPluginManager().registerEvents(new ItemDropListener(this), this);
+                Bukkit.getPluginManager().registerEvents(new ItemDropListener(nbtEditor), this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
@@ -126,7 +127,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         else
         {
             myLogger(Level.WARNING, "Plugin in uninstall mode!");
-            Bukkit.getPluginManager().registerEvents(new Uninstaller(this), this);
+            Bukkit.getPluginManager().registerEvents(new Uninstaller(this, nbtEditor), this);
         }
     }
 

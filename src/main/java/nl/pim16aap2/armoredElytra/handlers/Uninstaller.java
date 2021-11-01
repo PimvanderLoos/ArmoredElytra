@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,10 +18,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Uninstaller implements Listener
 {
     private final ArmoredElytra plugin;
+    private final INBTEditor nbtEditor;
 
-    public Uninstaller(ArmoredElytra plugin)
+    public Uninstaller(ArmoredElytra plugin, INBTEditor nbtEditor)
     {
         this.plugin = plugin;
+        this.nbtEditor = nbtEditor;
     }
 
     public int removeArmoredElytras(Inventory inv)
@@ -28,7 +31,7 @@ public class Uninstaller implements Listener
         int count = 0;
         for (ItemStack is : inv)
             if (is != null && is.getType() == Material.ELYTRA &&
-                ArmoredElytra.getInstance().getNbtEditor().getArmorTier(is) != ArmorTier.NONE)
+                nbtEditor.getArmorTier(is) != ArmorTier.NONE)
             {
                 inv.remove(is);
                 ++count;
