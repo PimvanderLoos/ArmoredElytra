@@ -6,69 +6,57 @@
     <artifactId>ArmoredElytra</artifactId>
     <version>3.0</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <version.maven.checkstyle>3.1.2</version.maven.checkstyle>
+        <version.maven.compiler>3.8.1</version.maven.compiler>
+        <version.maven.shade>3.2.1</version.maven.shade>
+
+        <version.spigot>1.16.5-R0.1-SNAPSHOT</version.spigot>
+        <version.bstats>2.2.1</version.bstats>
+        <version.checkstyle>9.1</version.checkstyle>
+    </properties>
+
     <repositories>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-
-        <!-- bStats -->
-        <repository>
-            <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public/</url>
-        </repository>
-
-        <!-- checkstyle -->
-        <repository>
-            <id>checkstyle</id>
-            <url>https://mvnrepository.com/artifact/com.puppycrawl.tools/checkstyle</url>
-        </repository>
     </repositories>
 
     <dependencies>
-        <!-- Spigot API (docs) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <version>${version.spigot}</version>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Spigot API + (Craft)Bukkit API + NMS -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--bStats -->
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>2.2.1</version>
+            <version>${version.bstats}</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${version.checkstyle}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.name}</finalName>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>plugin.yml</include>
-                    <include>en_US.txt</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${version.maven.shade}</version>
                 <configuration>
                     <relocations>
                         <relocation>
@@ -86,25 +74,22 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
+                <version>${version.maven.compiler}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>${version.maven.checkstyle}</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>8.41</version>
+                        <version>${version.checkstyle}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
