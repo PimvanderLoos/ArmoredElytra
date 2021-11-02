@@ -1,7 +1,10 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.DurabilityManager;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -17,15 +20,10 @@ import java.util.logging.Level;
 
 abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
-    protected SmithingTableListener(ArmoredElytra plugin, boolean creationEnabled)
+    protected SmithingTableListener(ArmoredElytra plugin, boolean creationEnabled,
+                                    INBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
     {
-        super(plugin, creationEnabled);
-
-    }
-
-    protected SmithingTableListener(ArmoredElytra plugin)
-    {
-        this(plugin, false);
+        super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }
 
     public void onSmithingTableUsage(final PrepareSmithingEvent event)
@@ -42,17 +40,17 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
 
         final Player player = (Player) event.getView().getPlayer();
 
-        final ItemStack result;
         if (plugin.playerHasCraftPerm(player, newTier))
         {
-
-            EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
+            final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
             enchantments.merge(EnchantmentContainer.getEnchantments(itemStackB, plugin));
             final Color color = getItemColor(itemStackA, itemStackB);
 
-            result = ArmoredElytra.getInstance().getNbtEditor()
-                                  .addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
-                                                   plugin.getConfigLoader().unbreakable(), color);
+            final ItemStack result = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
+                                                               plugin.getConfigLoader().unbreakable(), color);
+            durabilityManager.setCombinedDurability(result, itemStackA, itemStackB,
+                                                    nbtEditor.getArmorTier(itemStackA), newTier);
+
             enchantments.applyEnchantments(result);
             event.setResult(result);
         }
@@ -82,7 +80,7 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
             return false;
 
         // Check if the event was a player who interacted with a smithing table.
-        Player player = (Player) event.getWhoClicked();
+        final Player player = (Player) event.getWhoClicked();
         if (event.getView().getType() != InventoryType.SMITHING)
             return false;
 
@@ -110,9 +108,8 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
 
         final ItemStack result = smithingInventory.getItem(2);
         if (result == null || result.getType() != Material.ELYTRA ||
-            ArmoredElytra.getInstance().getNbtEditor().getArmorTier(result) == ArmorTier.NONE)
+            nbtEditor.getArmorTier(result) == ArmorTier.NONE)
             return false;
-
         return true;
     }
 }

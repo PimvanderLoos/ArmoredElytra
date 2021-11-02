@@ -1,6 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -13,11 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemDropListener implements Listener
 {
-    protected final ArmoredElytra plugin;
+    private final INBTEditor nbtEditor;
 
-    public ItemDropListener(final ArmoredElytra plugin)
+    public ItemDropListener(INBTEditor nbtEditor)
     {
-        this.plugin = plugin;
+        this.nbtEditor = nbtEditor;
     }
 
     /**
@@ -32,10 +32,10 @@ public class ItemDropListener implements Listener
     private ItemStack getNewDrop(final ItemStack itemStack)
     {
         if (itemStack == null || itemStack.getType() != Material.ELYTRA ||
-            plugin.getNbtEditor().getArmorTier(itemStack) != ArmorTier.NETHERITE)
+            nbtEditor.getArmorTier(itemStack) != ArmorTier.NETHERITE)
             return null;
 
-        ItemStack newDrop = new ItemStack(Material.NETHERITE_CHESTPLATE, 1);
+        final ItemStack newDrop = new ItemStack(Material.NETHERITE_CHESTPLATE, 1);
         newDrop.setItemMeta(itemStack.getItemMeta());
 
         return newDrop;
@@ -53,10 +53,10 @@ public class ItemDropListener implements Listener
     private ItemStack getNewPickup(final ItemStack itemStack)
     {
         if (itemStack == null || itemStack.getType() != Material.NETHERITE_CHESTPLATE ||
-            plugin.getNbtEditor().getArmorTier(itemStack) != ArmorTier.NETHERITE)
+            nbtEditor.getArmorTier(itemStack) != ArmorTier.NETHERITE)
             return null;
 
-        ItemStack newDrop = new ItemStack(Material.ELYTRA, 1);
+        final ItemStack newDrop = new ItemStack(Material.ELYTRA, 1);
         newDrop.setItemMeta(itemStack.getItemMeta());
 
         return newDrop;

@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,14 +24,18 @@ public class ConfigLoader
     private boolean unbreakable;
     private boolean enableDebug;
     private String languageFile;
-    private int GOLD_TO_FULL;
-    private int IRON_TO_FULL;
+
+    private final int[] repairCounts = new int[ArmorTier.values().length];
+    private int goldToFull;
+    private int ironToFull;
+    private int leatherToFull;
+    private int diamondsToFull;
+    private int netheriteToFull;
+
     private boolean uninstallMode;
     private boolean checkForUpdates;
-    private int LEATHER_TO_FULL;
-    private int DIAMONDS_TO_FULL;
-    private int NETHERITE_TO_FULL;
     private boolean noFlightDurability;
+    private boolean useTierDurability;
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private boolean allowMultipleProtectionEnchantments;
@@ -66,10 +71,17 @@ public class ConfigLoader
                 "Setting this to true will cause armored elytras to not lose any durability while flying.",
                 "This is not a permanent option and will affect ALL elytras."
             };
+        String[] useTierDurabilityComment =
+            {
+                "Use the maximum durability of the armor tier of armored elytras.",
+                "For example, when this is true, a diamond armored elytra would have a durability of 528.",
+                "When this is false, all armored elytras have the maximum durability of a regular elytra."
+            };
         String[] repairComment =
             {
                 "Amount of items it takes to fully repair an armored elytra",
-                "Repair cost for every tier of armored elytra in number of items to repair 100%."
+                "Repair cost for every tier of armored elytra in number of items to repair 100%.",
+                "Note that this value cannot be less than 1."
             };
         String[] enchantmentsComment =
             {
@@ -151,7 +163,6 @@ public class ConfigLoader
                 "When true, only enchantments from the allowed list can be added."
             };
 
-
         // Set default list of allowed enchantments.
         List<String> defaultAllowedEnchantments = new ArrayList<>(
             Arrays.asList("minecraft:unbreaking", "minecraft:fire_protection", "minecraft:blast_protection",
@@ -161,13 +172,29 @@ public class ConfigLoader
 
         FileConfiguration config = plugin.getConfig();
 
+
         unbreakable = addNewConfigOption(config, "unbreakable", false, unbreakableComment);
         noFlightDurability = addNewConfigOption(config, "noFlightDurability", false, flyDurabilityComment);
-        LEATHER_TO_FULL = addNewConfigOption(config, "leatherRepair", 6, repairComment);
-        GOLD_TO_FULL = addNewConfigOption(config, "goldRepair", 5, null);
-        IRON_TO_FULL = addNewConfigOption(config, "ironRepair", 4, null);
-        DIAMONDS_TO_FULL = addNewConfigOption(config, "diamondsRepair", 3, null);
-        NETHERITE_TO_FULL = addNewConfigOption(config, "netheriteIngotsRepair", 3, null);
+        useTierDurability = addNewConfigOption(config, "useTierDurability", true, useTierDurabilityComment);
+
+        final ArmorTier[] armorTiers = ArmorTier.values();
+        for (int idx = 1; idx < armorTiers.length; ++idx)
+        {
+            final ArmorTier armorTier = armorTiers[idx];
+
+            // Only the first one should have the comment.
+            final @Nullable String[] comment = idx == 1 ? repairComment : null;
+            final String name = Util.snakeToCamelCase(ArmorTier.getRepairItem(armorTier).name());
+            final int defaultRepairCount = ArmorTier.getDefaultRepairCount(armorTier);
+
+            repairCounts[idx] = addNewConfigOption(config, name, defaultRepairCount, comment);
+        }
+
+        final int armorTierCount = ArmorTier.values().length;
+        if (repairCounts.length != armorTierCount)
+            throw new IllegalStateException("Incorrect repair counts array size! Expected size " +
+                                                armorTierCount + " but got size " + repairCounts.length);
+
 
         final boolean smithingTableAllowed = plugin.getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15);
         craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", smithingTableAllowed,
@@ -308,29 +335,9 @@ public class ConfigLoader
         return languageFile;
     }
 
-    public int LEATHER_TO_FULL()
+    public int getFullRepairItemCount(ArmorTier armorTier)
     {
-        return LEATHER_TO_FULL;
-    }
-
-    public int GOLD_TO_FULL()
-    {
-        return GOLD_TO_FULL;
-    }
-
-    public int IRON_TO_FULL()
-    {
-        return IRON_TO_FULL;
-    }
-
-    public int DIAMONDS_TO_FULL()
-    {
-        return DIAMONDS_TO_FULL;
-    }
-
-    public int NETHERITE_TO_FULL()
-    {
-        return NETHERITE_TO_FULL;
+        return repairCounts[armorTier.ordinal()];
     }
 
     public boolean allowMultipleProtectionEnchantments()
@@ -381,5 +388,10 @@ public class ConfigLoader
     public boolean bypassCraftPerm()
     {
         return bypassCraftPerm;
+    }
+
+    public boolean useTierDurability()
+    {
+        return useTierDurability;
     }
 }

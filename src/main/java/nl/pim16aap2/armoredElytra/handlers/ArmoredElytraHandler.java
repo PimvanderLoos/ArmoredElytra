@@ -1,7 +1,9 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.util.XMaterial;
+import nl.pim16aap2.armoredElytra.DurabilityManager;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -18,41 +20,22 @@ import javax.annotation.CheckReturnValue;
  */
 abstract class ArmoredElytraHandler
 {
-    protected final ArmoredElytra plugin;
-
-    protected final boolean creationEnabled;
-
     private static final Color DEFAULT_LEATHER_COLOR = Bukkit.getServer().getItemFactory().getDefaultLeatherColor();
 
-    public ArmoredElytraHandler(final ArmoredElytra plugin, final boolean creationEnabled)
+    protected final ArmoredElytra plugin;
+    protected final boolean creationEnabled;
+    protected final ConfigLoader config;
+    protected final INBTEditor nbtEditor;
+    protected final DurabilityManager durabilityManager;
+
+    protected ArmoredElytraHandler(ArmoredElytra plugin, boolean creationEnabled, INBTEditor nbtEditor,
+                                   DurabilityManager durabilityManager, ConfigLoader config)
     {
         this.plugin = plugin;
         this.creationEnabled = creationEnabled;
-    }
-
-    // Repair an Armored Elytra
-    protected short repairItem(short curDur, ItemStack repairItem)
-    {
-        // Get the multiplier for the repair items.
-        double mult = 0.01;
-        if (repairItem.getType().equals(Material.LEATHER))
-            mult *= (100.0f / plugin.getConfigLoader().LEATHER_TO_FULL());
-
-        else if (repairItem.getType().equals(Material.GOLD_INGOT))
-            mult *= (100.0f / plugin.getConfigLoader().GOLD_TO_FULL());
-
-        else if (repairItem.getType().equals(Material.IRON_INGOT))
-            mult *= (100.0f / plugin.getConfigLoader().IRON_TO_FULL());
-
-        else if (repairItem.getType().equals(Material.DIAMOND))
-            mult *= (100.0f / plugin.getConfigLoader().DIAMONDS_TO_FULL());
-
-        else if (repairItem.getType().equals(XMaterial.NETHERITE_INGOT.parseMaterial()))
-            mult *= (100.0f / plugin.getConfigLoader().NETHERITE_TO_FULL());
-
-        int maxDurability = Material.ELYTRA.getMaxDurability();
-        int newDurability = (int) (curDur - repairItem.getAmount() * (maxDurability * mult));
-        return (short) (Math.max(newDurability, 0));
+        this.nbtEditor = nbtEditor;
+        this.durabilityManager = durabilityManager;
+        this.config = config;
     }
 
     /**
@@ -80,7 +63,7 @@ abstract class ArmoredElytraHandler
             return null;
 
         if (itemStack.getType() == Material.ELYTRA)
-            return ArmoredElytra.getInstance().getNbtEditor().getColorOfArmoredElytra(itemStack);
+            return nbtEditor.getColorOfArmoredElytra(itemStack);
 
         if (!itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof LeatherArmorMeta))
             return null;

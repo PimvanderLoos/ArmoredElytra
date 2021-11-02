@@ -1,7 +1,10 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.DurabilityManager;
+import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,12 +15,13 @@ import org.bukkit.inventory.SmithingInventory;
 
 public class NetheriteUpgradeListener extends SmithingTableListener
 {
-    public NetheriteUpgradeListener(final ArmoredElytra plugin)
+    public NetheriteUpgradeListener(final ArmoredElytra plugin, INBTEditor nbtEditor,
+                                    DurabilityManager durabilityManager, ConfigLoader config)
     {
-        super(plugin);
+        super(plugin, false, nbtEditor, durabilityManager, config);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @Override @EventHandler(ignoreCancelled = true)
     public void onSmithingTableUsage(final PrepareSmithingEvent event)
     {
         super.onSmithingTableUsage(event);

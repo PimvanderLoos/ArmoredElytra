@@ -14,10 +14,13 @@
         <version.maven.checkstyle>3.1.2</version.maven.checkstyle>
         <version.maven.compiler>3.8.1</version.maven.compiler>
         <version.maven.shade>3.2.1</version.maven.shade>
+        <version.maven.surefire>3.0.0-M5</version.maven.surefire>
 
         <version.spigot>1.16.5-R0.1-SNAPSHOT</version.spigot>
         <version.bstats>2.2.1</version.bstats>
         <version.checkstyle>9.1</version.checkstyle>
+        <version.mockito>4.0.0</version.mockito>
+        <version.junit>5.8.1</version.junit>
     </properties>
 
     <repositories>
@@ -47,6 +50,32 @@
             <artifactId>checkstyle</artifactId>
             <version>${version.checkstyle}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${version.mockito}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -94,6 +123,16 @@
                 </dependencies>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.maven.surefire}</version>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                    <useFile>false</useFile>
                 </configuration>
             </plugin>
         </plugins>
