@@ -1,9 +1,9 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;

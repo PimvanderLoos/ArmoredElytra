@@ -1,9 +1,6 @@
-package nl.pim16aap2.armoredElytra;
+package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
-import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

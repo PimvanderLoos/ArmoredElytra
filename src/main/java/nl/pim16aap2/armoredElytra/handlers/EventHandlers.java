@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.DurabilityManager;
 import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorEquipEvent;
 import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorListener;
 import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorType;
@@ -9,6 +8,7 @@ import nl.pim16aap2.armoredElytra.lib.armorequip.DispenserArmorListener;
 import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;

@@ -14,6 +14,7 @@ import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.MinecraftVersion;
 import nl.pim16aap2.armoredElytra.util.UpdateManager;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
