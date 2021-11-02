@@ -8,15 +8,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
 
         <version.maven.checkstyle>3.1.2</version.maven.checkstyle>
         <version.maven.compiler>3.8.1</version.maven.compiler>
         <version.maven.shade>3.2.1</version.maven.shade>
         <version.maven.surefire>3.0.0-M5</version.maven.surefire>
 
-        <version.spigot>1.16.5-R0.1-SNAPSHOT</version.spigot>
+        <version.spigot>1.17.1-R0.1-SNAPSHOT</version.spigot>
         <version.bstats>2.2.1</version.bstats>
         <version.checkstyle>9.1</version.checkstyle>
         <version.mockito>4.0.0</version.mockito>
