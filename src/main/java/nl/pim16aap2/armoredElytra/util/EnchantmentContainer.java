@@ -28,6 +28,19 @@ public class EnchantmentContainer
         filter(plugin.getConfigLoader().allowedEnchantments());
     }
 
+    /**
+     * Copy constructor.
+     */
+    public EnchantmentContainer(EnchantmentContainer other)
+    {
+        this(other.enchantments);
+    }
+
+    public EnchantmentContainer()
+    {
+        enchantments = new HashMap<>();
+    }
+
     private EnchantmentContainer(final Map<Enchantment, Integer> enchantments)
     {
         this.enchantments = new HashMap<>(enchantments);
@@ -117,6 +130,8 @@ public class EnchantmentContainer
      */
     public void merge(EnchantmentContainer other)
     {
+        if (this == other)
+            throw new IllegalArgumentException("EnchantmentContainers cannot be combined with themselves!");
         enchantments = merge(enchantments, other.enchantments);
     }
 

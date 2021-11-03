@@ -118,7 +118,7 @@ public class NBTEditor
         return ret;
     }
 
-    private void overwriteNBTValue(ItemMeta meta, Attribute attribute, double value, String modifierName)
+    void overwriteNBTValue(ItemMeta meta, Attribute attribute, double value, String modifierName)
     {
         if (meta.hasAttributeModifiers())
             meta.removeAttributeModifier(attribute);
@@ -129,7 +129,7 @@ public class NBTEditor
         meta.addAttributeModifier(attribute, attributeModifier);
     }
 
-    private ArmorTier getArmorTier(@Nullable ItemMeta meta)
+    ArmorTier getArmorTier(@Nullable ItemMeta meta)
     {
         if (meta == null || !meta.hasAttributeModifiers())
             return ArmorTier.NONE;
@@ -191,7 +191,7 @@ public class NBTEditor
         return rgb == null ? null : Color.fromRGB(rgb);
     }
 
-    private static ItemMeta getOrCreateItemMeta(ItemStack item)
+    static ItemMeta getOrCreateItemMeta(ItemStack item)
     {
         final ItemMeta meta = item.hasItemMeta() ?
                               item.getItemMeta() :
@@ -199,72 +199,5 @@ public class NBTEditor
         if (meta == null)
             throw new IllegalArgumentException("Tried to add armor to invalid item: " + item);
         return meta;
-    }
-
-    /**
-     * Adds a given {@link ArmorTier} to an item. The item will be cloned. Note that setting the armor tier to {@link
-     * ArmorTier#NONE} has no effect (besides making a copy of the item). The default name for the given tier is
-     * applied. See {@link ArmoredElytra#getArmoredElytraName(ArmorTier)}.
-     *
-     * @param item        The item.
-     * @param armorTier   The {@link ArmorTier} that will be added to it.
-     * @param unbreakable Whether the resulting item should be unbreakable.
-     * @return The NEW item.
-     */
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable)
-    {
-        return addArmorNBTTags(item, armorTier, unbreakable, (Color) null);
-    }
-
-    /**
-     * Adds a given {@link ArmorTier} to an item. The item will be cloned. Note that setting the armor tier to {@link
-     * ArmorTier#NONE} has no effect (besides making a copy of the item).
-     *
-     * @param item        The item.
-     * @param armorTier   The {@link ArmorTier} that will be added to it.
-     * @param unbreakable Whether the resulting item should be unbreakable.
-     * @param name        The name fo the item.
-     * @return The NEW item.
-     */
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final String name)
-    {
-        return addArmorNBTTags(item, armorTier, unbreakable, name, null, null);
-    }
-
-    /**
-     * Adds a given {@link ArmorTier} to an item. The item will be cloned. Note that setting the armor tier to {@link
-     * ArmorTier#NONE} has no effect (besides making a copy of the item). The default name for the given tier is
-     * applied. See {@link ArmoredElytra#getArmoredElytraName(ArmorTier)}.
-     *
-     * @param item        The item.
-     * @param armorTier   The {@link ArmorTier} that will be added to it.
-     * @param unbreakable Whether the resulting item should be unbreakable.
-     * @param color       The color of the armor to store. May be null.
-     * @return The NEW item.
-     */
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, final Color color)
-    {
-        return addArmorNBTTags(item, armorTier, unbreakable,
-                               ArmoredElytra.getInstance().getArmoredElytraName(armorTier),
-                               ArmoredElytra.getInstance().getElytraLore(armorTier), color);
-    }
-
-    /**
-     * Adds a given {@link ArmorTier} to an item. The item will be cloned. Note that setting the armor tier to {@link
-     * ArmorTier#NONE} has no effect (besides making a copy of the item). The default name for the given tier is
-     * applied. See {@link ArmoredElytra#getArmoredElytraName(ArmorTier)}.
-     *
-     * @param item        The item.
-     * @param armorTier   The {@link ArmorTier} that will be added to it.
-     * @param unbreakable Whether the resulting item should be unbreakable.
-     * @param name        The name of the item.
-     * @param color       The color of the armor to store. May be null.
-     * @return The NEW item.
-     */
-    public ItemStack addArmorNBTTags(ItemStack item, ArmorTier armorTier, boolean unbreakable, String name,
-                                     Color color)
-    {
-        return addArmorNBTTags(item, armorTier, unbreakable, name,
-                               ArmoredElytra.getInstance().getElytraLore(armorTier), color);
     }
 }

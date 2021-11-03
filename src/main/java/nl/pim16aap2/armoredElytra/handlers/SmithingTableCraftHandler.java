@@ -1,14 +1,13 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
@@ -26,15 +25,26 @@ public class SmithingTableCraftHandler extends SmithingTableListener
               .registerEvents(new AnvilHandler(plugin, false, nbtEditor, durabilityManager, config), plugin);
     }
 
-    @Override
     @EventHandler(ignoreCancelled = true)
     public void onSmithingTableUsage(final PrepareSmithingEvent event)
     {
-        super.onSmithingTableUsage(event);
+        final SmithingInventory inventory = event.getInventory();
+        final ItemStack[] contents = inventory.getContents();
+
+        final ItemStack itemStackA = contents[0];
+        final ItemStack itemStackB = contents[1];
+
+        final ArmorTier newArmorTier = getNewArmorTier(itemStackA, itemStackB);
+        if (newArmorTier == ArmorTier.NONE)
+            return;
+
+        if (!plugin.playerHasCraftPerm(event.getView().getPlayer(), newArmorTier))
+            return;
+
+        event.setResult(armoredElytraBuilder.combine(itemStackA, itemStackB, newArmorTier, null));
     }
 
-    @Override
-    protected ArmorTier getArmorTier(ItemStack itemStackA, ItemStack itemStackB)
+    protected ArmorTier getNewArmorTier(ItemStack itemStackA, ItemStack itemStackB)
     {
         if (itemStackA == null || itemStackB == null ||
             itemStackA.getType() != Material.ELYTRA || !Util.isChestPlate(itemStackB))
@@ -43,17 +53,10 @@ public class SmithingTableCraftHandler extends SmithingTableListener
         return Util.armorToTier(itemStackB.getType());
     }
 
+    @Override
     @EventHandler(ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent e)
+    public void onInventoryClick(InventoryClickEvent event)
     {
-        if (!isAESmithingTableEvent(e))
-            return;
-        final SmithingInventory smithingInventory = (SmithingInventory) e.getInventory();
-        final ItemStack result = smithingInventory.getItem(2);
-
-        // This cast may look unchecked, but it was checked by isSmithingTableEvent already.
-        if (!giveItemToPlayer((Player) e.getWhoClicked(), result, e.isShiftClick()))
-            return;
-        smithingInventory.clear();
+        super.onInventoryClick(event);
     }
 }

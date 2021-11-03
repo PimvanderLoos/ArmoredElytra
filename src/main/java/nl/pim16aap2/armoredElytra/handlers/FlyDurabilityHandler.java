@@ -1,8 +1,8 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
+import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
-import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

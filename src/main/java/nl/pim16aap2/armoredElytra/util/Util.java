@@ -35,6 +35,12 @@ public class Util
     }
 
     // Get the armor tier from a chest plate.
+    public static ArmorTier armorToTier(ItemStack itemStack)
+    {
+        return armorToTier(itemStack.getType());
+    }
+
+    // Get the armor tier from a chest plate.
     public static ArmorTier armorToTier(Material mat)
     {
         ArmorTier ret = ArmorTier.NONE;

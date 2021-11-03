@@ -9,11 +9,11 @@ import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
+import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.MinecraftVersion;
 import nl.pim16aap2.armoredElytra.util.UpdateManager;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
@@ -22,7 +22,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -183,13 +183,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                                   messages.getString(Message.TIER_SHORT_NETHERITE)));
     }
 
-    public boolean playerHasCraftPerm(Player player, ArmorTier armorTier)
+    public boolean playerHasCraftPerm(HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassCraftPerm() ||
             player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
     }
 
-    public boolean playerHasWearPerm(Player player, ArmorTier armorTier)
+    public boolean playerHasWearPerm(HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassWearPerm() ||
             player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));
@@ -202,13 +202,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     }
 
     // Send a message to a player in a specific color.
-    public void messagePlayer(Player player, ChatColor color, String str)
+    public void messagePlayer(HumanEntity player, ChatColor color, String str)
     {
         player.sendMessage(color + str);
     }
 
     // Send a message to a player.
-    public void messagePlayer(Player player, String str)
+    public void messagePlayer(HumanEntity player, String str)
     {
         messagePlayer(player, ChatColor.WHITE, str);
     }
@@ -222,7 +222,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     }
 
     // Send the usageDeniedMessage message to the player.
-    public void usageDeniedMessage(Player player, ArmorTier armorTier)
+    public void usageDeniedMessage(HumanEntity player, ArmorTier armorTier)
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_USAGEDENIED, armorTier);
         if (!message.equals("NONE"))
@@ -230,14 +230,14 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     }
 
     // Send the elytraReceivedMessage message to the player.
-    public void elytraReceivedMessage(Player player, ArmorTier armorTier)
+    public void elytraReceivedMessage(HumanEntity player, ArmorTier armorTier)
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_ELYTRARECEIVED, armorTier);
         if (!message.equals("NONE"))
             messagePlayer(player, ChatColor.GREEN, message);
     }
 
-    public void sendNoGivePermissionMessage(Player player, ArmorTier armorTier)
+    public void sendNoGivePermissionMessage(HumanEntity player, ArmorTier armorTier)
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_NOGIVEPERMISSION, armorTier);
         messagePlayer(player, ChatColor.RED, message);
@@ -263,7 +263,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     }
 
     // Give the provided player the provided item.
-    public void giveArmoredElytraToPlayer(Player player, ItemStack item)
+    public void giveArmoredElytraToPlayer(HumanEntity player, ItemStack item)
     {
         if (item != null)
             player.getInventory().addItem(item);

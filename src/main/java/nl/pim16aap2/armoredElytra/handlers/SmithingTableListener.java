@@ -1,18 +1,15 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.DurabilityManager;
-import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
 
@@ -26,46 +23,18 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }
 
-    public void onSmithingTableUsage(final PrepareSmithingEvent event)
+    protected void onInventoryClick(InventoryClickEvent event)
     {
-        final SmithingInventory inventory = event.getInventory();
-        final ItemStack[] contents = inventory.getContents();
-
-        final ItemStack itemStackA = contents[0];
-        final ItemStack itemStackB = contents[1];
-
-        final ArmorTier newTier = getArmorTier(itemStackA, itemStackB);
-        if (newTier == ArmorTier.NONE)
+        if (!isAESmithingTableEvent(event))
             return;
+        final SmithingInventory smithingInventory = (SmithingInventory) event.getInventory();
+        final ItemStack result = smithingInventory.getItem(2);
 
-        final Player player = (Player) event.getView().getPlayer();
-
-        if (plugin.playerHasCraftPerm(player, newTier))
-        {
-            final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(itemStackA, plugin);
-            enchantments.merge(EnchantmentContainer.getEnchantments(itemStackB, plugin));
-            final Color color = getItemColor(itemStackA, itemStackB);
-
-            final ItemStack result = nbtEditor.addArmorNBTTags(new ItemStack(Material.ELYTRA, 1), newTier,
-                                                               plugin.getConfigLoader().unbreakable(), color);
-            durabilityManager.setCombinedDurability(result, itemStackA, itemStackB,
-                                                    nbtEditor.getArmorTier(itemStackA), newTier);
-
-            enchantments.applyEnchantments(result);
-            event.setResult(result);
-        }
+        // This cast may look unchecked, but it was checked by isSmithingTableEvent already.
+        if (!giveItemToPlayer((Player) event.getWhoClicked(), result, event.isShiftClick()))
+            return;
+        smithingInventory.clear();
     }
-
-    /**
-     * Checks if the provided input {@link ItemStack}s form a valid input pattern for a smithing table, and, if so,
-     * which tier it combines into.
-     *
-     * @param itemStackA The first {@link ItemStack}.
-     * @param itemStackB The second {@link ItemStack}.
-     * @return The {@link ArmorTier} as figured out from the input pattern. If the pattern is invalid, {@link
-     * ArmorTier#NONE} is returned.
-     */
-    protected abstract ArmorTier getArmorTier(ItemStack itemStackA, ItemStack itemStackB);
 
     /**
      * Checks if an {@link InventoryClickEvent} is useful for this plugin. I.e., it is about a smithing inventory and
