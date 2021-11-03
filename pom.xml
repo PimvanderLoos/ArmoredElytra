@@ -86,6 +86,15 @@
 
     <build>
         <finalName>${project.name}</finalName>
+
+        <!-- Ensure the version variable -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
