@@ -1,6 +1,6 @@
 package nl.pim16aap2.armoredElytra.util;
 
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,10 +13,10 @@ public class DurabilityManager
     private final int[] repairAmounts = new int[ArmorTier.values().length];
     private final int[] maxDurabilities = new int[ArmorTier.values().length];
 
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
     private final ConfigLoader config;
 
-    public DurabilityManager(INBTEditor nbtEditor, ConfigLoader config)
+    public DurabilityManager(NBTEditor nbtEditor, ConfigLoader config)
     {
         this.nbtEditor = nbtEditor;
         this.config = config;

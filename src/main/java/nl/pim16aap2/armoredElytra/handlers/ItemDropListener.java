@@ -1,6 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -13,9 +13,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemDropListener implements Listener
 {
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
 
-    public ItemDropListener(INBTEditor nbtEditor)
+    public ItemDropListener(NBTEditor nbtEditor)
     {
         this.nbtEditor = nbtEditor;
     }

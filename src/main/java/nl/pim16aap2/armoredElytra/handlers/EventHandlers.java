@@ -5,7 +5,7 @@ import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorEquipEvent;
 import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorListener;
 import nl.pim16aap2.armoredElytra.lib.armorequip.ArmorType;
 import nl.pim16aap2.armoredElytra.lib.armorequip.DispenserArmorListener;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
@@ -29,10 +29,10 @@ public class EventHandlers implements Listener
 {
     private final Random random = new Random();
     private final ArmoredElytra plugin;
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
     private final DurabilityManager durabilityManager;
 
-    public EventHandlers(ArmoredElytra plugin, INBTEditor nbtEditor, DurabilityManager durabilityManager)
+    public EventHandlers(ArmoredElytra plugin, NBTEditor nbtEditor, DurabilityManager durabilityManager)
     {
         this.plugin = plugin;
         this.nbtEditor = nbtEditor;

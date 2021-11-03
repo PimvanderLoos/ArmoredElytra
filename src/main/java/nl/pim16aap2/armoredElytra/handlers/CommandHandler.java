@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
@@ -23,11 +23,11 @@ import java.util.logging.Level;
 public class CommandHandler implements CommandExecutor
 {
     private final ArmoredElytra plugin;
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
     private final DurabilityManager durabilityManager;
     private static Field BY_KEY_FIELD;
 
-    public CommandHandler(ArmoredElytra plugin, INBTEditor nbtEditor, DurabilityManager durabilityManager)
+    public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor, DurabilityManager durabilityManager)
     {
         this.plugin = plugin;
         this.nbtEditor = nbtEditor;

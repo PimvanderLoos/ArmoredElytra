@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import org.bukkit.Bukkit;
@@ -25,10 +25,10 @@ abstract class ArmoredElytraHandler
     protected final ArmoredElytra plugin;
     protected final boolean creationEnabled;
     protected final ConfigLoader config;
-    protected final INBTEditor nbtEditor;
+    protected final NBTEditor nbtEditor;
     protected final DurabilityManager durabilityManager;
 
-    protected ArmoredElytraHandler(ArmoredElytra plugin, boolean creationEnabled, INBTEditor nbtEditor,
+    protected ArmoredElytraHandler(ArmoredElytra plugin, boolean creationEnabled, NBTEditor nbtEditor,
                                    DurabilityManager durabilityManager, ConfigLoader config)
     {
         this.plugin = plugin;

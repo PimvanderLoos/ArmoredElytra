@@ -9,7 +9,6 @@ import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
@@ -50,7 +49,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private final Map<ArmorTier, ArmorTierName> armorTierNames = new EnumMap<>(ArmorTier.class);
     private UpdateManager updateManager;
 
-    private INBTEditor nbtEditor;
+    private NBTEditor nbtEditor;
     private DurabilityManager durabilityManager;
 
     @Override
@@ -160,7 +159,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return messages;
     }
 
-    public INBTEditor getNbtEditor()
+    public NBTEditor getNbtEditor()
     {
         return nbtEditor;
     }

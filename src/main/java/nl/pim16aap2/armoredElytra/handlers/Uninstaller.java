@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,9 +18,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Uninstaller implements Listener
 {
     private final ArmoredElytra plugin;
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
 
-    public Uninstaller(ArmoredElytra plugin, INBTEditor nbtEditor)
+    public Uninstaller(ArmoredElytra plugin, NBTEditor nbtEditor)
     {
         this.plugin = plugin;
         this.nbtEditor = nbtEditor;

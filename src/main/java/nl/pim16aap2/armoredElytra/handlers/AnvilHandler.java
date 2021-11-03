@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
@@ -28,12 +28,12 @@ import java.util.logging.Level;
 public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
     protected AnvilHandler(ArmoredElytra plugin, boolean creationEnabled,
-                           INBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
+                           NBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
     {
         super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }
 
-    public AnvilHandler(ArmoredElytra plugin, INBTEditor nbtEditor,
+    public AnvilHandler(ArmoredElytra plugin, NBTEditor nbtEditor,
                         DurabilityManager durabilityManager, ConfigLoader config)
     {
         super(plugin, true, nbtEditor, durabilityManager, config);

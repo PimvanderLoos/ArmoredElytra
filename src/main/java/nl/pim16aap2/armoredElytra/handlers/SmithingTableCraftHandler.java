@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
@@ -17,7 +17,7 @@ import org.bukkit.inventory.SmithingInventory;
 
 public class SmithingTableCraftHandler extends SmithingTableListener
 {
-    public SmithingTableCraftHandler(final ArmoredElytra plugin, INBTEditor nbtEditor,
+    public SmithingTableCraftHandler(final ArmoredElytra plugin, NBTEditor nbtEditor,
                                      DurabilityManager durabilityManager, ConfigLoader config)
     {
         super(plugin, true, nbtEditor, durabilityManager, config);

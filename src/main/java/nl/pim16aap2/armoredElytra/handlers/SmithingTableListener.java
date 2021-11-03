@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
@@ -21,7 +21,7 @@ import java.util.logging.Level;
 abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
     protected SmithingTableListener(ArmoredElytra plugin, boolean creationEnabled,
-                                    INBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
+                                    NBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
     {
         super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }

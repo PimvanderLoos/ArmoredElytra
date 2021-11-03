@@ -1,6 +1,6 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
-import nl.pim16aap2.armoredElytra.nbtEditor.INBTEditor;
+import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.DurabilityManager;
 import nl.pim16aap2.armoredElytra.util.Util;
@@ -13,10 +13,10 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 public class FlyDurabilityHandler implements Listener
 {
     private final boolean disableDurability;
-    private final INBTEditor nbtEditor;
+    private final NBTEditor nbtEditor;
     private final DurabilityManager durabilityManager;
 
-    public FlyDurabilityHandler(boolean disableDurability, INBTEditor nbtEditor, DurabilityManager durabilityManager)
+    public FlyDurabilityHandler(boolean disableDurability, NBTEditor nbtEditor, DurabilityManager durabilityManager)
     {
         this.disableDurability = disableDurability;
         this.nbtEditor = nbtEditor;
