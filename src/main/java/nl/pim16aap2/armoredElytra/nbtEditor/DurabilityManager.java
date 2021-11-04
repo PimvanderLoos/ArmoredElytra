@@ -231,6 +231,23 @@ public class DurabilityManager
     }
 
     /**
+     * Remaps the real durability of an armored elytra to a new maximum durability value  while maintaining the same
+     * durability percentage.
+     *
+     * @param armoredElytra The armored elytra.
+     * @param armorTier     The armor tier of the armored elytra.
+     * @param newMax        The new maximum durability.
+     * @return The new durability value after remapping it to the new maximum. The value cannot be less than 0 or more
+     * than newMax.
+     */
+    public int getRemappedDurability(ItemStack armoredElytra, ArmorTier armorTier, int newMax)
+    {
+        final int currentDurability = getRealDurability(armoredElytra, armorTier);
+        final int currentMaxDurability = getMaxDurability(armorTier);
+        return getRemappedDurability(currentDurability, currentMaxDurability, newMax);
+    }
+
+    /**
      * Remaps a durability value from an old maximum value to a new maximum while maintaining the same durability
      * percentage.
      *

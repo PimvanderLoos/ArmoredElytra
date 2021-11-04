@@ -239,6 +239,41 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         return combined;
     }
 
+    /**
+     * Removes all enchantments from this container that also exist in the provided one.
+     * <p>
+     * If an enchantment exists in both containers, but with a higher level in the except set, the enchantment is kept,
+     * but at 1 level below the level found in the 'except' set. This reflects the fact that in vanilla, adding an
+     * enchantment of the same level twice results in the same enchantment with level + 1.
+     *
+     * @param base   The base enchantment container.
+     * @param except The set of enchantments to remove from the current set.
+     * @return The result of the except action.
+     */
+    public static EnchantmentContainer except(EnchantmentContainer base, EnchantmentContainer except)
+    {
+        return new EnchantmentContainer(except(base.enchantments, except.enchantments));
+    }
+
+    private static Map<Enchantment, Integer> except(Map<Enchantment, Integer> base, Map<Enchantment, Integer> except)
+    {
+        if (except.isEmpty())
+            return Collections.unmodifiableMap(base);
+        if (base.isEmpty() || base == except)
+            return Collections.emptyMap();
+
+        final Map<Enchantment, Integer> result = new LinkedHashMap<>(base.size());
+        for (var entry : base.entrySet())
+        {
+            @Nullable Integer exceptLevel = except.get(entry.getKey());
+            if (exceptLevel == null)
+                result.put(entry.getKey(), entry.getValue());
+            else if (exceptLevel > entry.getValue())
+                result.put(entry.getKey(), exceptLevel - 1);
+        }
+        return result;
+    }
+
     @Override
     public String toString()
     {
@@ -266,6 +301,4 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     {
         return obj instanceof EnchantmentContainer other && enchantments.equals(other.enchantments);
     }
-
-
 }

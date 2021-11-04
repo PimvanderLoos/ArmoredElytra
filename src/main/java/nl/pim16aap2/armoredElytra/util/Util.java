@@ -43,33 +43,30 @@ public class Util
     // Get the armor tier from a chest plate.
     public static ArmorTier armorToTier(Material mat)
     {
-        ArmorTier ret = ArmorTier.NONE;
-        XMaterial xmat = XMaterial.matchXMaterial(mat);
+        return switch (mat)
+            {
+                case LEATHER_CHESTPLATE -> ArmorTier.LEATHER;
+                case GOLDEN_CHESTPLATE -> ArmorTier.GOLD;
+                case CHAINMAIL_CHESTPLATE -> ArmorTier.CHAIN;
+                case IRON_CHESTPLATE -> ArmorTier.IRON;
+                case DIAMOND_CHESTPLATE -> ArmorTier.DIAMOND;
+                case NETHERITE_CHESTPLATE -> ArmorTier.NETHERITE;
+                default -> ArmorTier.NONE;
+            };
+    }
 
-        switch (xmat)
-        {
-            case LEATHER_CHESTPLATE:
-                ret = ArmorTier.LEATHER;
-                break;
-            case GOLDEN_CHESTPLATE:
-                ret = ArmorTier.GOLD;
-                break;
-            case CHAINMAIL_CHESTPLATE:
-                ret = ArmorTier.CHAIN;
-                break;
-            case IRON_CHESTPLATE:
-                ret = ArmorTier.IRON;
-                break;
-            case DIAMOND_CHESTPLATE:
-                ret = ArmorTier.DIAMOND;
-                break;
-            case NETHERITE_CHESTPLATE:
-                ret = ArmorTier.NETHERITE;
-                break;
-            default:
-                break;
-        }
-        return ret;
+    public static Material tierToChestplate(ArmorTier armorTier)
+    {
+        return switch (armorTier)
+            {
+                case LEATHER -> Material.LEATHER_CHESTPLATE;
+                case GOLD -> Material.GOLDEN_CHESTPLATE;
+                case CHAIN -> Material.CHAINMAIL_CHESTPLATE;
+                case IRON -> Material.IRON_CHESTPLATE;
+                case DIAMOND -> Material.DIAMOND_CHESTPLATE;
+                case NETHERITE -> Material.NETHERITE_CHESTPLATE;
+                default -> throw new IllegalStateException("Could not create chestplate for tier: " + armorTier);
+            };
     }
 
     public static boolean isChestPlate(ItemStack itemStack)
@@ -80,19 +77,7 @@ public class Util
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {
-        try
-        {
-            XMaterial xmat = XMaterial.matchXMaterial(mat);
-
-            return xmat == XMaterial.LEATHER_CHESTPLATE || xmat == XMaterial.GOLDEN_CHESTPLATE ||
-                xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
-                xmat == XMaterial.DIAMOND_CHESTPLATE || xmat == XMaterial.NETHERITE_CHESTPLATE;
-        }
-        catch (IllegalArgumentException e)
-        {
-            // No need to handle this, this is just XMaterial complaining the material doesn't exist.
-            return false;
-        }
+        return armorToTier(mat) != ArmorTier.NONE;
     }
 
     public static String snakeToCamelCase(String input)
