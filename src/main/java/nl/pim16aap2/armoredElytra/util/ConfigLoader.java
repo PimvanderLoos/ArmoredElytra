@@ -19,19 +19,18 @@ import java.util.logging.Level;
 
 public class ConfigLoader
 {
-    private final String header;
+    private static final String HEADER =
+        "Config file for ArmoredElytra. Don't forget to make a backup before making changes!";
+
+    private final ArmoredElytra plugin;
+
+    private final int[] repairCounts = new int[ArmorTier.values().length];
+    private final ArrayList<ConfigOption<?>> configOptionsList = new ArrayList<>();
+
     private boolean allowStats;
     private boolean unbreakable;
     private boolean enableDebug;
     private String languageFile;
-
-    private final int[] repairCounts = new int[ArmorTier.values().length];
-    private int goldToFull;
-    private int ironToFull;
-    private int leatherToFull;
-    private int diamondsToFull;
-    private int netheriteToFull;
-
     private boolean uninstallMode;
     private boolean checkForUpdates;
     private boolean noFlightDurability;
@@ -46,14 +45,9 @@ public class ConfigLoader
     private boolean allowRenaming;
     private boolean allowAddingEnchantments;
 
-    private final ArrayList<nl.pim16aap2.armoredElytra.util.ConfigOption<?>> configOptionsList;
-    private final ArmoredElytra plugin;
-
     public ConfigLoader(ArmoredElytra plugin)
     {
         this.plugin = plugin;
-        configOptionsList = new ArrayList<>();
-        header = "Config file for ArmoredElytra. Don't forget to make a backup before making changes!";
         makeConfig();
     }
 
@@ -285,8 +279,8 @@ public class ConfigLoader
             FileWriter fw = new FileWriter(saveTo, true);
             PrintWriter pw = new PrintWriter(fw);
 
-            if (header != null)
-                pw.println("# " + header + "\n");
+            if (HEADER != null)
+                pw.println("# " + HEADER + "\n");
 
             for (int idx = 0; idx < configOptionsList.size(); ++idx)
                 pw.println(configOptionsList.get(idx).toString() +
