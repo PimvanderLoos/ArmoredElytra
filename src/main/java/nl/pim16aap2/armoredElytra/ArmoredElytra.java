@@ -5,7 +5,6 @@ import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
 import nl.pim16aap2.armoredElytra.handlers.ItemDropListener;
-import nl.pim16aap2.armoredElytra.handlers.LoginHandler;
 import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
@@ -30,10 +29,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
@@ -42,7 +40,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         .get(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
 
     private static ArmoredElytra INSTANCE;
-    private final Set<Enchantment> allowedEnchantments = new HashSet<>();
     private Messages messages;
     private ConfigLoader config;
 
@@ -50,34 +47,23 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private UpdateManager updateManager;
 
     private NBTEditor nbtEditor;
-    private DurabilityManager durabilityManager;
 
     @Override
     public void onEnable()
     {
         INSTANCE = this;
-        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_15))
+        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_17))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             setEnabled(false);
             return;
         }
 
-        if (isBlacklistedVersion())
-        {
-            myLogger(Level.SEVERE,
-                     "You are trying to run this plugin on a blacklisted version of Spigot! Please update Spigot!");
-            Bukkit.getPluginManager().registerEvents(
-                new LoginHandler(this, ChatColor.RED +
-                    "[ArmoredElytra] The plugin failed to start because you are running on a " +
-                    "blacklisted version of Spiogt! Please update Spigot!"), this);
-            return;
-        }
         nbtEditor = new NBTEditor();
 
         config = new ConfigLoader(this);
 
-        durabilityManager = new DurabilityManager(nbtEditor, config);
+        DurabilityManager durabilityManager = new DurabilityManager(nbtEditor, config);
 
         messages = new Messages(this);
         readMessages();
@@ -99,7 +85,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                          "seeing higher user numbers helps me stay motivated!");
 
         Bukkit.getPluginManager().registerEvents(new EventHandlers(this, nbtEditor, durabilityManager), this);
-        getCommand("ArmoredElytra").setExecutor(new CommandHandler(this, nbtEditor, durabilityManager));
+        Objects.requireNonNull(getCommand("ArmoredElytra"), "ArmoredElytra base command not found!")
+               .setExecutor(new CommandHandler(this, nbtEditor, durabilityManager));
 
         // Load the plugin normally if not in uninstall mode.
         if (!config.uninstallMode())
@@ -129,24 +116,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.WARNING, "Plugin in uninstall mode!");
             Bukkit.getPluginManager().registerEvents(new Uninstaller(this, nbtEditor), this);
         }
-    }
-
-    /**
-     * Checks if the current version is blacklisted.
-     * <p>
-     * This is needed for 1.16, as on the initial release there was a bug with NBT stuff that would crash clients when
-     * they saw an Armored Elytra. When they obtained one using a command they wouldn't be able to rejoin the game again
-     * until an NBTEditor was used to remove the item from their inventory.
-     *
-     * @return True if the current version is blacklisted.
-     */
-    public boolean isBlacklistedVersion()
-    {
-        if (minecraftVersion != MinecraftVersion.v1_16)
-            return false;
-
-        String[] parts = Bukkit.getVersion().substring("git-Spigot-".length()).split("-");
-        return parts.length > 0 && parts[0].equals("758abbe");
     }
 
     public MinecraftVersion getMinecraftVersion()

@@ -137,13 +137,13 @@ public class ConfigLoader
             };
         String[] craftingInSmithingTableComment =
             {
-                "This option only works on 1.16+! When enabled, armored elytra creation in anvils is disabled. ",
+                "When enabled, armored elytra creation in anvils is disabled. ",
                 "Instead, you will have to craft them in a smithy. Enchanting/repairing them still works via the anvil."
             };
         String[] allowUpgradeToNetheriteComment =
             {
                 "Whether or not to allow upgrading diamond armored elytras to netherite ones is possible.",
-                "When allowed (on 1.16+), you can combine a diamond one with a netherite ingot in a smithing table",
+                "When allowed, you can combine a diamond one with a netherite ingot in a smithing table",
                 "and you'll receive a netherite one."
             };
         String[] allowRenamingComment =
@@ -189,28 +189,13 @@ public class ConfigLoader
             throw new IllegalStateException("Incorrect repair counts array size! Expected size " +
                                                 armorTierCount + " but got size " + repairCounts.length);
 
-
-        final boolean smithingTableAllowed = plugin.getMinecraftVersion().isNewerThan(MinecraftVersion.v1_15);
-        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", smithingTableAllowed,
+        craftingInSmithingTable = addNewConfigOption(config, "craftingInSmithingTable", true,
                                                      craftingInSmithingTableComment);
-        if (craftingInSmithingTable && !smithingTableAllowed)
-        {
-            Bukkit.getLogger().log(Level.WARNING, "You tried to enable crafting in smithing tables, " +
-                "but this is only supported on 1.16+! Reverting to disabled.");
-            craftingInSmithingTable = false;
-        }
-        allowUpgradeToNetherite = addNewConfigOption(config, "allowUpgradeToNetherite", smithingTableAllowed,
+        allowUpgradeToNetherite = addNewConfigOption(config, "allowUpgradeToNetherite", true,
                                                      allowUpgradeToNetheriteComment);
-        if (allowUpgradeToNetherite && !smithingTableAllowed)
-        {
-            Bukkit.getLogger().log(Level.WARNING, "You tried to enable crafting in smithing tables, " +
-                "but this is only supported on 1.16+! Reverting to disabled.");
-            allowUpgradeToNetherite = false;
-        }
 
         defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
                                                         enchantmentsComment);
-
         allowedEnchantments = new LinkedHashSet<>();
         defaultAllowedEnchantments.forEach(
             fullKey ->
@@ -253,8 +238,7 @@ public class ConfigLoader
 
     private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, String[] comment)
     {
-        nl.pim16aap2.armoredElytra.util.ConfigOption<T> option = new nl.pim16aap2.armoredElytra.util.ConfigOption<>(
-            plugin, config, optionName, defaultValue, comment);
+        ConfigOption<T> option = new ConfigOption<>(plugin, config, optionName, defaultValue, comment);
         configOptionsList.add(option);
         return option.getValue();
     }
