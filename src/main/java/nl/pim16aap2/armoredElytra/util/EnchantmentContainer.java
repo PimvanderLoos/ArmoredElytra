@@ -9,9 +9,10 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-public class EnchantmentContainer
+public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
 {
     private Map<Enchantment, Integer> enchantments;
 
@@ -243,5 +244,11 @@ public class EnchantmentContainer
         String ret = sb.toString();
         ret = ret.length() > 1 ? ret.substring(0, ret.length() - 2) : ret;
         return ret + "]";
+    }
+
+    @Override
+    public Iterator<Map.Entry<Enchantment, Integer>> iterator()
+    {
+        return enchantments.entrySet().iterator();
     }
 }
