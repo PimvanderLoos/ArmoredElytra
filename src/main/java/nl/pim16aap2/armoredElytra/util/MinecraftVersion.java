@@ -2,29 +2,34 @@ package nl.pim16aap2.armoredElytra.util;
 
 public enum MinecraftVersion
 {
-    v1_6("1_6", 0),
-    v1_7("1_7", 1),
-    v1_8("1_8", 2),
-    v1_9("1_9", 3),
-    v1_10("1_10", 4),
-    v1_11("1_11", 5),
-    v1_12("1_12", 6),
-    v1_13("1_13", 7),
-    v1_14("1_14", 8),
-    v1_15("1_15", 9),
-    v1_16("1_16", 10),
-    v1_17("1_17", 11),
-    v1_18("1_18", 12),
-    UNKNOWN("UNKNOWN", 99999),
+    v1_6,
+    v1_7,
+    v1_8,
+    v1_9,
+    v1_10,
+    v1_11,
+    v1_12,
+    v1_13,
+    v1_14,
+    v1_15,
+    v1_16,
+    v1_17,
+    v1_18,
+    v1_19,
+    v1_20,
+    v1_21,
+    v1_22,
+    v1_23,
+    v1_24,
+    v1_25,
+    UNKNOWN,
     ;
 
-    private int index;
-    private String name;
+    private final String versionName;
 
-    MinecraftVersion(String name, int index)
+    MinecraftVersion()
     {
-        this.name = name;
-        this.index = index;
+        versionName = name().substring(1);
     }
 
     /**
@@ -35,7 +40,7 @@ public enum MinecraftVersion
      */
     public boolean isNewerThan(final MinecraftVersion other)
     {
-        return this.index > other.index;
+        return ordinal() > other.ordinal();
     }
 
     /**
@@ -46,7 +51,7 @@ public enum MinecraftVersion
      */
     public boolean isOlderThan(final MinecraftVersion other)
     {
-        return this.index < other.index;
+        return ordinal() < other.ordinal();
     }
 
     public static MinecraftVersion get(final String versionName)
@@ -54,7 +59,7 @@ public enum MinecraftVersion
         if (versionName == null)
             return null;
         for (final MinecraftVersion mcVersion : MinecraftVersion.values())
-            if (versionName.contains(mcVersion.name))
+            if (versionName.contains(mcVersion.versionName))
                 return mcVersion;
         return MinecraftVersion.UNKNOWN;
     }
