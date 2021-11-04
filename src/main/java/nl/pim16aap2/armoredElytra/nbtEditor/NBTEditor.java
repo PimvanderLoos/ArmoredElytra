@@ -1,6 +1,10 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.enchantmentcontainer.EnchantmentContainer;
+import nl.pim16aap2.armoredElytra.enchantmentcontainer.EnchantmentContainerAdapter;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -23,12 +27,111 @@ import java.util.UUID;
 
 public class NBTEditor
 {
-    private static final NamespacedKey ARMOR_TIER_KEY = new NamespacedKey(ArmoredElytra.getInstance(),
-                                                                          "ARMOR_TIER_LEVEL");
-    private static final NamespacedKey ARMOR_COLOR_KEY = new NamespacedKey(ArmoredElytra.getInstance(),
-                                                                           "ARMORED_ELYTRA_COLOR");
-    private static final NamespacedKey DURABILITY_KEY = new NamespacedKey(ArmoredElytra.getInstance(),
-                                                                          "ARMORED_ELYTRA_DURABILITY");
+    private static final Gson gson = new GsonBuilder()
+        .registerTypeAdapter(EnchantmentContainer.class, new EnchantmentContainerAdapter())
+        .create();
+
+    private static final NamespacedKey ARMOR_TIER_KEY =
+        new NamespacedKey(ArmoredElytra.getInstance(), "ARMOR_TIER_LEVEL");
+    private static final NamespacedKey ARMOR_COLOR_KEY =
+        new NamespacedKey(ArmoredElytra.getInstance(), "ARMORED_ELYTRA_COLOR");
+    private static final NamespacedKey DURABILITY_KEY =
+        new NamespacedKey(ArmoredElytra.getInstance(), "ARMORED_ELYTRA_DURABILITY");
+    private static final NamespacedKey ENCHANTMENTS_ELYTRA =
+        new NamespacedKey(ArmoredElytra.getInstance(), "ARMORED_ELYTRA_ENCHANTMENTS_ELYTRA");
+    private static final NamespacedKey ENCHANTMENTS_CHESTPLATE =
+        new NamespacedKey(ArmoredElytra.getInstance(), "ARMORED_ELYTRA_ENCHANTMENTS_CHESTPLATE");
+
+    /**
+     * Sets the original enchantments of an armored elytra.
+     *
+     * @param itemStack              The itemstack to store the original enchantments in.
+     * @param enchantmentsElytra     The original enchantments of the elytra.
+     * @param enchantmentsChestplate The original enchantments of the chestplate.
+     */
+    public void setOriginalEnchantments(ItemStack itemStack, EnchantmentContainer enchantmentsElytra,
+                                        EnchantmentContainer enchantmentsChestplate)
+    {
+        final ItemMeta meta = getOrCreateItemMeta(itemStack);
+        setOriginalEnchantments(meta, ENCHANTMENTS_ELYTRA, enchantmentsElytra);
+        setOriginalEnchantments(meta, ENCHANTMENTS_CHESTPLATE, enchantmentsChestplate);
+        itemStack.setItemMeta(meta);
+    }
+
+    private void setOriginalEnchantments(ItemStack itemStack, NamespacedKey namespacedKey,
+                                         EnchantmentContainer enchantments)
+    {
+        final ItemMeta meta = getOrCreateItemMeta(itemStack);
+        setOriginalEnchantments(meta, namespacedKey, enchantments);
+        itemStack.setItemMeta(meta);
+    }
+
+    /**
+     * Sets the original enchantments of an armored elytra.
+     *
+     * @param itemStack          The itemstack to store the original enchantments in.
+     * @param enchantmentsElytra The original enchantments of the elytra.
+     */
+    public void setOriginalEnchantmentsForElytra(ItemStack itemStack, EnchantmentContainer enchantmentsElytra)
+    {
+        setOriginalEnchantments(itemStack, ENCHANTMENTS_ELYTRA, enchantmentsElytra);
+    }
+
+    /**
+     * Sets the original enchantments of an armored elytra.
+     *
+     * @param itemStack              The itemstack to store the original enchantments in.
+     * @param enchantmentsChestplate The original enchantments of the chestplate.
+     */
+    public void setOriginalEnchantmentsForChestplate(ItemStack itemStack, EnchantmentContainer enchantmentsChestplate)
+    {
+        setOriginalEnchantments(itemStack, ENCHANTMENTS_CHESTPLATE, enchantmentsChestplate);
+    }
+
+    private void setOriginalEnchantments(ItemMeta meta, NamespacedKey namespacedKey, EnchantmentContainer enchantments)
+    {
+        if (enchantments.isEmpty())
+            meta.getPersistentDataContainer().remove(namespacedKey);
+        else
+            meta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, gson.toJson(enchantments));
+    }
+
+    /**
+     * Checks if an armored elytra has the original enchantments used to create it.
+     *
+     * @param armoredElytra An itemstack representing an armored elytra.
+     * @return True if the armored elytra has the original enchantments.
+     */
+    public boolean hasOriginalEnchantments(ItemStack armoredElytra)
+    {
+        final @Nullable ItemMeta meta = armoredElytra.getItemMeta();
+        if (meta == null || getArmorTier(meta) == ArmorTier.NONE)
+            return false;
+        return meta.getPersistentDataContainer().has(ENCHANTMENTS_ELYTRA, PersistentDataType.STRING);
+    }
+
+    /**
+     * Retrieves the original enchantments that were stored on the elytra and the chestplate that were combined to
+     * create and armored elytra.
+     *
+     * @param itemStack The itemstack from which to retrieve the original enchantments.
+     * @return A pair containing the enchantments that were present on the original elytra and the original chestplate
+     * respectively.
+     */
+    public OriginalEnchantments<EnchantmentContainer, EnchantmentContainer> getOriginalEnchantments(ItemStack itemStack)
+    {
+        final @Nullable ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null)
+            return new OriginalEnchantments<>(new EnchantmentContainer(), new EnchantmentContainer());
+        return new OriginalEnchantments<>(getOriginalEnchantments(meta, ENCHANTMENTS_ELYTRA),
+                                          getOriginalEnchantments(meta, ENCHANTMENTS_CHESTPLATE));
+    }
+
+    private EnchantmentContainer getOriginalEnchantments(ItemMeta meta, NamespacedKey namespacedKey)
+    {
+        final @Nullable String json = meta.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+        return json == null ? new EnchantmentContainer() : gson.fromJson(json, EnchantmentContainer.class);
+    }
 
     /**
      * Gets the real durability value as stored in the NBT of an armored elytra.
@@ -199,5 +302,9 @@ public class NBTEditor
         if (meta == null)
             throw new IllegalArgumentException("Tried to add armor to invalid item: " + item);
         return meta;
+    }
+
+    public static record OriginalEnchantments<T, U>(T enchantmentsElytra, U enchantmentsChestplate)
+    {
     }
 }

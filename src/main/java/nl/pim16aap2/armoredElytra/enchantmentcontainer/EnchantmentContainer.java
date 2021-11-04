@@ -1,15 +1,18 @@
-package nl.pim16aap2.armoredElytra.util;
+package nl.pim16aap2.armoredElytra.enchantmentcontainer;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
@@ -39,12 +42,12 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
 
     public EnchantmentContainer()
     {
-        enchantments = new HashMap<>();
+        enchantments = new LinkedHashMap<>();
     }
 
-    private EnchantmentContainer(final Map<Enchantment, Integer> enchantments)
+    EnchantmentContainer(final Map<Enchantment, Integer> enchantments)
     {
-        this.enchantments = new HashMap<>(enchantments);
+        this.enchantments = new LinkedHashMap<>(enchantments);
     }
 
     /**
@@ -86,11 +89,11 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     private static EnchantmentContainer getEnchantmentsFromBook(final ItemStack is, final ArmoredElytra plugin)
     {
         if (!is.hasItemMeta())
-            return new EnchantmentContainer(new HashMap<>(0), plugin);
+            return new EnchantmentContainer(new LinkedHashMap<>(0), plugin);
 
         final EnchantmentStorageMeta meta = (EnchantmentStorageMeta) is.getItemMeta();
         if (meta == null || !meta.hasStoredEnchants())
-            return new EnchantmentContainer(new HashMap<>(0), plugin);
+            return new EnchantmentContainer(new LinkedHashMap<>(0), plugin);
 
         return new EnchantmentContainer(meta.getStoredEnchants(), plugin);
     }
@@ -182,7 +185,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
-        final Map<Enchantment, Integer> combined = new HashMap<>(first);
+        final Map<Enchantment, Integer> combined = new LinkedHashMap<>(first);
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
             Integer enchantLevel = first.get(entry.getKey());
@@ -251,4 +254,18 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     {
         return enchantments.entrySet().iterator();
     }
+
+    @Override
+    public int hashCode()
+    {
+        return enchantments.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj)
+    {
+        return obj instanceof EnchantmentContainer other && enchantments.equals(other.enchantments);
+    }
+
+
 }

@@ -1,9 +1,9 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.enchantmentcontainer.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -268,6 +268,14 @@ public class ArmoredElytraBuilder
 
 
         /**
+         * The original enchantments read from the original, non-armored, elytra.
+         */
+        private @Nullable EnchantmentContainer originalElytraEnchantments;
+        /**
+         * The original enchantments read from the original chestplate.
+         */
+        private @Nullable EnchantmentContainer originalChestplateEnchantments;
+        /**
          * The armor tier of the output armored elytra. This defaults to {@link #currentArmorTier} if this isn't set.
          */
         private @Nullable ArmorTier newArmorTier;
@@ -313,8 +321,19 @@ public class ArmoredElytraBuilder
                                                                isUnbreakable, name, lore, color);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
+            setOriginalEnchantments(output);
 
             return output;
+        }
+
+        private void setOriginalEnchantments(ItemStack output)
+        {
+            if (originalElytraEnchantments != null && originalChestplateEnchantments != null)
+                nbtEditor.setOriginalEnchantments(output, originalElytraEnchantments, originalChestplateEnchantments);
+            else if (originalElytraEnchantments != null)
+                nbtEditor.setOriginalEnchantmentsForElytra(output, originalElytraEnchantments);
+            else if (originalChestplateEnchantments != null)
+                nbtEditor.setOriginalEnchantmentsForChestplate(output, originalChestplateEnchantments);
         }
 
         @Override
@@ -367,21 +386,39 @@ public class ArmoredElytraBuilder
             return addEnchantments(EnchantmentContainer.getEnchantments(sourceItem, plugin));
         }
 
+        private void combineWithChestplate(ItemStack chestplate)
+        {
+            originalChestplateEnchantments = EnchantmentContainer.getEnchantments(chestplate, plugin);
+            addEnchantments(originalChestplateEnchantments);
+        }
+
+        private void combineWithAnotherElytra(ItemStack elytra, ArmorTier newArmorTier)
+        {
+            if (newArmorTier == ArmorTier.NONE)
+                throw new IllegalArgumentException("An (armored) elytra cannot be combined with an unarmored elytra!");
+
+            if (currentArmorTier != newArmorTier)
+                throw new IllegalArgumentException(
+                    "Tried to combine an armored elytra of tier " + currentArmorTier.name() +
+                        " with another one with tier: " + newArmorTier.name() + ". This is not allowed!");
+
+            addEnchantments(elytra);
+        }
+
         @Override
         public IStep2 combineWith(ItemStack item, ArmorTier armorTier)
         {
-            if (armorTier == ArmorTier.NONE && !Util.isChestPlate(item))
-                throw new IllegalArgumentException("Non-armored elytras can only be combined with chest plates!");
-
             newArmorTier = armorTier;
-            if (currentArmorTier == ArmorTier.NONE &&
-                item.getType().equals(Material.ELYTRA) && newArmorTier != ArmorTier.NONE)
-                throw new IllegalArgumentException("A regular elytra cannot be combined with an armored one!");
+
+            if (Util.isChestPlate(item))
+                combineWithChestplate(item);
+            else if (item.getType().equals(Material.ELYTRA))
+                combineWithAnotherElytra(item, armorTier);
+            else
+                throw new IllegalArgumentException("An elytra cannot be combined with item: " + item);
 
             withColor(getItemColor(newArmoredElytra, item));
             unbreakable(config.unbreakable());
-
-            addEnchantments(item);
 
             durability = durabilityManager.getCombinedDurability(newArmoredElytra, item,
                                                                  currentArmorTier, newArmorTier);
@@ -415,6 +452,9 @@ public class ArmoredElytraBuilder
                 currentArmorTier = nbtEditor.getArmorTier(elytra);
 
             combinedEnchantments = EnchantmentContainer.getEnchantments(newArmoredElytra, plugin);
+
+            if (currentArmorTier == ArmorTier.NONE)
+                originalElytraEnchantments = combinedEnchantments;
 
             durability = durabilityManager.getRealDurability(newArmoredElytra, currentArmorTier);
             return this;
