@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.util;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /* This class represent a configuration option.
@@ -52,9 +53,14 @@ public class ConfigOption<V>
         return value;
     }
 
-    public String[] getComment()
+    public @Nullable String[] getComment()
     {
         return comment;
+    }
+
+    public boolean hasComment()
+    {
+        return comment != null;
     }
 
     @Override

@@ -7,10 +7,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -98,7 +98,7 @@ public class ConfigLoader
             };
         String[] bStatsComment =
             {
-                "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
+                "Allow this plugin to send (anonymous) stats using bStats. Please consider keeping it enabled.",
                 "It has a negligible impact on performance and more users on stats keeps me more motivated " +
                     "to support this plugin!"
             };
@@ -132,7 +132,7 @@ public class ConfigLoader
             };
         String[] permissionsComment =
             {
-                "Globally bypass permissions for wearing and/or crafting amored elytras.",
+                "Globally bypass permissions for wearing and/or crafting armored elytras.",
                 "Useful if permissions are unavailable."
             };
         String[] craftingInSmithingTableComment =
@@ -221,8 +221,9 @@ public class ConfigLoader
                     Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
                     return;
                 }
-                NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
-                Enchantment enchantment = Enchantment.getByKey(key);
+                //noinspection deprecation
+                final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
+                final Enchantment enchantment = Enchantment.getByKey(key);
                 if (enchantment == null)
                 {
                     Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
@@ -264,32 +265,23 @@ public class ConfigLoader
         // Write all the config options to the config.yml.
         try
         {
-            File dataFolder = plugin.getDataFolder();
-            if (!dataFolder.exists())
-                dataFolder.mkdir();
+            final Path dataDir = plugin.getDataFolder().toPath();
+            if (!Files.exists(dataDir))
+                Files.createDirectory(dataDir);
 
-            File saveTo = new File(plugin.getDataFolder(), "config.yml");
-            if (!saveTo.exists())
-                saveTo.createNewFile();
-            else
+            final Path configFile = dataDir.resolve("config.yml");
+
+            final StringBuilder sb = new StringBuilder(6000);
+            sb.append("# ").append(HEADER).append('\n');
+            for (final ConfigOption<?> configOption : configOptionsList)
             {
-                saveTo.delete();
-                saveTo.createNewFile();
+                if (configOption.hasComment())
+                    sb.append('\n');
+                sb.append(configOption).append('\n');
             }
-            FileWriter fw = new FileWriter(saveTo, true);
-            PrintWriter pw = new PrintWriter(fw);
 
-            if (HEADER != null)
-                pw.println("# " + HEADER + "\n");
-
-            for (int idx = 0; idx < configOptionsList.size(); ++idx)
-                pw.println(configOptionsList.get(idx).toString() +
-                               // Only print an additional newLine if the next config option has a comment.
-                               (idx < configOptionsList.size() - 1 &&
-                                    configOptionsList.get(idx + 1).getComment() == null ? "" : "\n"));
-
-            pw.flush();
-            pw.close();
+            Files.write(configFile, sb.toString().getBytes(),
+                        StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         }
         catch (IOException e)
         {
