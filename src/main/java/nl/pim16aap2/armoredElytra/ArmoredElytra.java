@@ -6,6 +6,7 @@ import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
 import nl.pim16aap2.armoredElytra.handlers.ItemDropListener;
 import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
+import nl.pim16aap2.armoredElytra.handlers.PrepareGrindstoneCreator;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
@@ -47,6 +48,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private UpdateManager updateManager;
 
     private NBTEditor nbtEditor;
+    private PrepareGrindstoneCreator prepareGrindstoneCreator;
 
     @Override
     public void onEnable()
@@ -58,6 +60,10 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             setEnabled(false);
             return;
         }
+
+        if (prepareGrindstoneCreator == null)
+            prepareGrindstoneCreator = new PrepareGrindstoneCreator();
+        Bukkit.getPluginManager().registerEvents(prepareGrindstoneCreator, this);
 
         nbtEditor = new NBTEditor();
 
