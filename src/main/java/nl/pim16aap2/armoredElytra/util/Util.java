@@ -8,8 +8,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
-public class Util
+public final class Util
 {
+    private Util()
+    {
+    }
+
     public static String errorToString(Error e)
     {
         StringWriter sw = new StringWriter();

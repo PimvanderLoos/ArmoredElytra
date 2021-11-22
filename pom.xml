@@ -50,13 +50,13 @@
             <scope>compile</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>n3kas.ae</groupId>-->
-<!--            <artifactId>AdvancedEnchantments</artifactId>-->
-<!--            <scope>system</scope>-->
-<!--            <version>6.5.9</version>-->
-<!--            <systemPath>${basedir}/lib/AdvancedEnchantments-6.5.9.jar</systemPath>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>n3kas.ae</groupId>-->
+        <!--            <artifactId>AdvancedEnchantments</artifactId>-->
+        <!--            <scope>system</scope>-->
+        <!--            <version>6.5.9</version>-->
+        <!--            <systemPath>${basedir}/lib/AdvancedEnchantments-6.5.9.jar</systemPath>-->
+        <!--        </dependency>-->
 
         <!--
         <dependency>
@@ -71,14 +71,12 @@
 
     <build>
         <finalName>${project.name}</finalName>
-        <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>plugin.yml</include>
-                    <include>config.yml</include>
                     <include>en_US.txt</include>
                 </includes>
             </resource>

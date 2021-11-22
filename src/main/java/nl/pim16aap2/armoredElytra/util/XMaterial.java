@@ -555,6 +555,8 @@ public enum XMaterial
             version = version.substring(0, index);
         }
 
+        version = version.replaceAll(" Pre-release [0-9]", "");
+
         // 1.13.2, 1.14.4, etc...
         int lastDot = version.lastIndexOf('.');
         if (version.indexOf('.') != lastDot)
