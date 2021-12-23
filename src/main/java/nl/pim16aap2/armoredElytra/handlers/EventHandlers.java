@@ -20,6 +20,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -97,6 +98,20 @@ public class EventHandlers implements Listener
         final int newDurability = durabilityManager.removeDurability(elytra, durabilityLoss, armorTier);
         if (newDurability >= durabilityManager.getMaxDurability(armorTier))
             Util.moveChestplateToInventory(p);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onMending(PlayerItemMendEvent e)
+    {
+        final ArmorTier armorTier = nbtEditor.getArmorTier(e.getItem());
+        if (armorTier == ArmorTier.NONE)
+            return;
+        final int newDurability = durabilityManager.removeDurability(e.getItem(), -e.getRepairAmount(), armorTier);
+
+        // Apply it again a tick later, so we can override the durability of the armored elytra without
+        // interfering with the player XP change event that depends on the success of this one.
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+            durabilityManager.setDurability(e.getItem(), newDurability, armorTier), 1);
     }
 
     @EventHandler
