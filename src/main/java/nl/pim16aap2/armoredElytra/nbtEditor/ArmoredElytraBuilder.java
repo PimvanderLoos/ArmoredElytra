@@ -350,7 +350,7 @@ public class ArmoredElytraBuilder
         {
             if (currentArmorTier == ArmorTier.NONE)
                 throw new IllegalArgumentException("Non-armored elytras cannot be repaired!");
-            durabilityManager.getRepairedDurability(newArmoredElytra, count, currentArmorTier);
+            durability = durabilityManager.getRepairedDurability(newArmoredElytra, count, currentArmorTier);
             return this;
         }
 
