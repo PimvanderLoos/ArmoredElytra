@@ -197,25 +197,7 @@ public class ConfigLoader
         defaultAllowedEnchantments = addNewConfigOption(config, "allowedEnchantments", defaultAllowedEnchantments,
                                                         enchantmentsComment);
         allowedEnchantments = new LinkedHashSet<>();
-        defaultAllowedEnchantments.forEach(
-            fullKey ->
-            {
-                String[] keyParts = fullKey.split(":", 2);
-                if (keyParts.length < 2)
-                {
-                    Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
-                    return;
-                }
-                //noinspection deprecation
-                final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
-                final Enchantment enchantment = Enchantment.getByKey(key);
-                if (enchantment == null)
-                {
-                    Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
-                    return;
-                }
-                allowedEnchantments.add(enchantment);
-            });
+        defaultAllowedEnchantments.forEach(this::addNameSpacedKey);
 
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
@@ -234,6 +216,32 @@ public class ConfigLoader
         bypassCraftPerm = addNewConfigOption(config, "bypassCraftPermissions", true, null);
 
         writeConfig();
+    }
+
+    private void addNameSpacedKey(String fullKey)
+    {
+        try
+        {
+            final String[] keyParts = fullKey.strip().split(":", 2);
+            if (keyParts.length < 2)
+            {
+                Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
+                return;
+            }
+            //noinspection deprecation
+            final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
+            final Enchantment enchantment = Enchantment.getByKey(key);
+            if (enchantment == null)
+            {
+                Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
+                return;
+            }
+            allowedEnchantments.add(enchantment);
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
+        }
     }
 
     private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, String[] comment)
