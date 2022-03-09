@@ -85,7 +85,14 @@ public class ConfigLoader
             };
         String[] mutuallyExclusiveEnchantmentsComment =
             {
-                "The lists of enchantments where only one is allowed."
+                "The lists of enchantments that are mutually exclusive.",
+                "Each group [] on this list is treated as mutually exclusive, so only one of them can be on an ArmoredElytra.",
+                "The default follows modern vanilla rules by making the different types of protection mutually exclusive.",
+                "If you do not want any enchantments to be mutually exclusive, replace all the entries in this list with \"[]\"",
+                "You can find supported enchantments here:",
+                "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
+                "If you install additional enchant plugins, you can make their enchantments mutually exclusive as well.",
+                "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
             };
         String[] dropNetheriteAsChestplateComment =
             {
