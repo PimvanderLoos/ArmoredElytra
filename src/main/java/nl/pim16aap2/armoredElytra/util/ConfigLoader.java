@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 public class ConfigLoader
@@ -37,6 +34,7 @@ public class ConfigLoader
     private boolean useTierDurability;
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
+    private LinkedHashSet<List<Enchantment>> mutuallyExclusiveEnchantments;
     private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
     private boolean allowUpgradeToNetherite;
@@ -85,6 +83,10 @@ public class ConfigLoader
                 "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
                 "If you install additional enchantment plugins, you can add their enchantments as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
+            };
+        String[] mutuallyExclusiveEnchantmentsComment =
+            {
+                "The lists of enchantments where only one is allowed."
             };
         String[] dropNetheriteAsChestplateComment =
             {
@@ -164,6 +166,15 @@ public class ConfigLoader
                           "minecraft:thorns", "minecraft:binding_curse", "minecraft:vanishing_curse",
                           "minecraft:mending"));
 
+        // Set a default list of lists of mutually exclusive enchantments
+        // Default only has a list for the protection enchantments
+        List<List<String>> defaultMutuallyExclusiveEnchantments = new ArrayList<>();
+        defaultMutuallyExclusiveEnchantments.add(List.of(
+                                                         "minecraft:protection",
+                                                         "minecraft:projectile_protection",
+                                                         "minecraft:blast_protection",
+                                                         "minecraft:fire_protection"));
+
         FileConfiguration config = plugin.getConfig();
 
 
@@ -198,6 +209,11 @@ public class ConfigLoader
                                                         enchantmentsComment);
         allowedEnchantments = new LinkedHashSet<>();
         defaultAllowedEnchantments.forEach(this::addNameSpacedKey);
+
+        defaultMutuallyExclusiveEnchantments = addNewConfigOption(config, "mutuallyExclusiveEnchantments",
+                                                                  defaultMutuallyExclusiveEnchantments, mutuallyExclusiveEnchantmentsComment);
+        mutuallyExclusiveEnchantments = new LinkedHashSet<>();
+        defaultMutuallyExclusiveEnchantments.forEach(this::addMutuallyExclusiveEnchantments);
 
         allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
                                                                  allowMultipleProtectionEnchantmentsComment);
@@ -242,6 +258,35 @@ public class ConfigLoader
         {
             plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
         }
+    }
+
+    private void addMutuallyExclusiveEnchantments(List<String> fullKeys)
+    {
+        List<Enchantment> enchantments = new LinkedList<>();
+        for (String fullKey : fullKeys) {
+            try {
+                final String[] keyParts = fullKey.strip().split(":", 2);
+                if (keyParts.length < 2)
+                {
+                    Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
+                    return;
+                }
+                //noinspection deprecation
+                final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
+                final Enchantment enchantment = Enchantment.getByKey(key);
+                if (enchantment == null)
+                {
+                    Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
+                    return;
+                }
+                enchantments.add(enchantment);
+            }
+            catch (Exception e)
+            {
+                plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
+            }
+        }
+        mutuallyExclusiveEnchantments.add(enchantments);
     }
 
     private <T> T addNewConfigOption(FileConfiguration config, String optionName, T defaultValue, String[] comment)
@@ -356,6 +401,11 @@ public class ConfigLoader
     public LinkedHashSet<Enchantment> allowedEnchantments()
     {
         return allowedEnchantments;
+    }
+
+    public LinkedHashSet<List<Enchantment>> getMutuallyExclusiveEnchantments()
+    {
+        return mutuallyExclusiveEnchantments;
     }
 
     public boolean bypassWearPerm()
