@@ -228,7 +228,6 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
                 combined.put(entry.getKey(), entry.getValue());
         }
 
-        ArmoredElytra.getInstance().getLogger().log(Level.INFO, combined.toString());
         return combined;
     }
 
