@@ -6,11 +6,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Level;
 
 public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
 {
@@ -155,6 +152,25 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     }
 
     /**
+     * Determines if two enchantments are mutually exclusive
+     *
+     * @return True if the two enchantments are defined as mutually exclusive in the config
+     */
+    public static boolean areMutuallyExclusive(Enchantment one, Enchantment two)
+    {
+        for (List<Enchantment> mutuallyExclusiveEnchantments : ArmoredElytra.getInstance().getConfigLoader().getMutuallyExclusiveEnchantments())
+        {
+            int count = 0;
+            for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments) {
+                if (mutuallyExclusiveEnchantment.equals(one)) count++;
+                if (mutuallyExclusiveEnchantment.equals(two)) count++;
+            }
+            if (count > 1) return true;
+        }
+        return false;
+    }
+
+    /**
      * Merges two enchantment containers.
      *
      * @param first  The first enchantment container.
@@ -182,10 +198,14 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
-        final Map<Enchantment, Integer> combined = new HashMap<>(first);
+        Map<Enchantment, Integer> combined = new HashMap<>(first);
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
-            Integer enchantLevel = first.get(entry.getKey());
+            // Check for mutually exclusive enchantment (giving second entry priority)
+            combined.keySet().removeIf(firstEnchantment -> areMutuallyExclusive(firstEnchantment, entry.getKey()));
+
+            // Check for enchants with higher level
+            Integer enchantLevel = combined.get(entry.getKey());
             if (enchantLevel != null)
             {
                 if (entry.getValue().equals(enchantLevel) && entry.getValue() < entry.getKey().getMaxLevel())
@@ -194,7 +214,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
                     enchantLevel = entry.getValue();
 
                 // If the enchantment level has changed,
-                if (!enchantLevel.equals(first.get(entry.getKey())))
+                if (!enchantLevel.equals(combined.get(entry.getKey())))
                 {
                     combined.remove(entry.getKey());
                     combined.put(entry.getKey(), enchantLevel);
@@ -202,35 +222,6 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             }
             else
                 combined.put(entry.getKey(), entry.getValue());
-        }
-
-        if (!ArmoredElytra.getInstance().getConfigLoader().allowMultipleProtectionEnchantments())
-        {
-            // Get the protection enchantment rating for both enchantment sets.
-            int protVal0 = Util.getProtectionEnchantmentsVal(first);
-            int protVal1 = Util.getProtectionEnchantmentsVal(second);
-
-            // If they have different protection enchantments, keep enchantment1's enchantments
-            // And remove the protection enchantment from enchantments0.
-            if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
-                switch (protVal0)
-                {
-                    case 1:
-                        combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
-                        break;
-                    case 2:
-                        combined.remove(Enchantment.PROTECTION_EXPLOSIONS);
-                        break;
-                    case 4:
-                        combined.remove(Enchantment.PROTECTION_FALL);
-                        break;
-                    case 8:
-                        combined.remove(Enchantment.PROTECTION_FIRE);
-                        break;
-                    case 16:
-                        combined.remove(Enchantment.PROTECTION_PROJECTILE);
-                        break;
-                }
         }
 
         return combined;
