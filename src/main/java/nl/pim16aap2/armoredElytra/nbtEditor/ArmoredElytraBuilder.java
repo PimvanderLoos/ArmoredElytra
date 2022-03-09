@@ -8,11 +8,12 @@ import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "ClassCanBeRecord"})
 public class ArmoredElytraBuilder
@@ -71,7 +72,15 @@ public class ArmoredElytraBuilder
         final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(sourceItem, plugin);
         if (enchantments.isEmpty())
             return null;
-        return newBuilder().ofElytra(armoredElytra).addEnchantments(enchantments).withName(name).build();
+        // Check for mutually exclusive enchantments
+        final Map<Enchantment, Integer> updatedEnchantments = new LinkedHashMap<>();
+        enchantments.forEach(enchantment -> updatedEnchantments.put(enchantment.getKey(), enchantment.getValue()));
+        for (Map.Entry<Enchantment, Integer> elytraEnchantment : EnchantmentContainer.getEnchantments(armoredElytra, plugin))
+            updatedEnchantments.keySet().removeIf(sourceEnchantment -> EnchantmentContainer.areMutuallyExclusive(sourceEnchantment, elytraEnchantment.getKey()));
+        if (updatedEnchantments.isEmpty())
+            return null;
+
+        return newBuilder().ofElytra(armoredElytra).addEnchantments(new EnchantmentContainer(updatedEnchantments, plugin)).withName(name).build();
     }
 
     /**
