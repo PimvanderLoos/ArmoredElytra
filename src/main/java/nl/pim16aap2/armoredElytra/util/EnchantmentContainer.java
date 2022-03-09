@@ -120,6 +120,10 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
      */
     public void applyEnchantments(final ItemStack is)
     {
+        // Clear enchantments before applying new ones
+        for (Enchantment enchantment : is.getEnchantments().keySet())
+            is.removeEnchantment(enchantment);
+
         is.addUnsafeEnchantments(enchantments);
     }
 
@@ -224,6 +228,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
                 combined.put(entry.getKey(), entry.getValue());
         }
 
+        ArmoredElytra.getInstance().getLogger().log(Level.INFO, combined.toString());
         return combined;
     }
 
