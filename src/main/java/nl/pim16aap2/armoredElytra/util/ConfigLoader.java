@@ -35,7 +35,6 @@ public class ConfigLoader
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private LinkedHashSet<List<Enchantment>> mutuallyExclusiveEnchantments;
-    private boolean allowMultipleProtectionEnchantments;
     private boolean craftingInSmithingTable;
     private boolean allowUpgradeToNetherite;
     private boolean bypassWearPerm;
@@ -122,16 +121,6 @@ public class ConfigLoader
             {
                 "Specify a language file to be used."
             };
-        String[] allowMultipleProtectionEnchantmentsComment =
-            {
-                "Allow more than 1 type of protection enchantment on a single armored elytra. ",
-                "If true, you could have both blast protection and environmental protection at the same time.",
-                "If false, the second enchantment (while crafting) will override the first. So combining an armored",
-                "elytra that has the protection enchantment with an enchanted book that " +
-                    "has the blast protection enchantment",
-                "would result in removal of the protection enchantment and addition of the " +
-                    "blast protection enchantment."
-            };
         String[] permissionsComment =
             {
                 "Globally bypass permissions for wearing and/or crafting armored elytras.",
@@ -215,8 +204,6 @@ public class ConfigLoader
         mutuallyExclusiveEnchantments = new LinkedHashSet<>();
         defaultMutuallyExclusiveEnchantments.forEach(this::addMutuallyExclusiveEnchantments);
 
-        allowMultipleProtectionEnchantments = addNewConfigOption(config, "allowMultipleProtectionEnchantments", false,
-                                                                 allowMultipleProtectionEnchantmentsComment);
         allowAddingEnchantments = addNewConfigOption(config, "allowAddingEnchantments", true,
                                                      allowAddingEnchantmentsComment);
         allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
@@ -361,11 +348,6 @@ public class ConfigLoader
     public int getFullRepairItemCount(ArmorTier armorTier)
     {
         return repairCounts[armorTier.ordinal()];
-    }
-
-    public boolean allowMultipleProtectionEnchantments()
-    {
-        return allowMultipleProtectionEnchantments;
     }
 
     public boolean allowRenaming()
