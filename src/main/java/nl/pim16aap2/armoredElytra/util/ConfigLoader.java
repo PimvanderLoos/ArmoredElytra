@@ -165,8 +165,7 @@ public class ConfigLoader
         // Set a default list of lists of mutually exclusive enchantments
         // Default only has a list for the protection enchantments
         List<List<String>> defaultMutuallyExclusiveEnchantments = new ArrayList<>();
-        defaultMutuallyExclusiveEnchantments.add(List.of(
-                                                         "minecraft:protection",
+        defaultMutuallyExclusiveEnchantments.add(List.of("minecraft:protection",
                                                          "minecraft:projectile_protection",
                                                          "minecraft:blast_protection",
                                                          "minecraft:fire_protection"));
