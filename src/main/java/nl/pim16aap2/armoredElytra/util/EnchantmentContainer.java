@@ -202,7 +202,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
-        Map<Enchantment, Integer> combined = new HashMap<>(first);
+        final Map<Enchantment, Integer> combined = new HashMap<>(first);
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
             // Check for mutually exclusive enchantment (giving second entry priority)
