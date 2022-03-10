@@ -227,12 +227,39 @@ public class DurabilityManager
     }
 
     /**
+     * Checks if an armored elytra should be considered 'broken'.
+     *
+     * @param durability The current 'real' durability. See {@link #getRealDurability(ItemStack, ArmorTier)}.
+     * @param armorTier  The armor tier for which to check.
+     * @return True if the provided durability should be considered 'broken' for the provided armor tier.
+     */
+    public boolean isBroken(int durability, ArmorTier armorTier)
+    {
+        return durability >= getMaxDurability(armorTier);
+    }
+
+    /**
+     * Checks if an armored elytra should be considered 'broken'.
+     *
+     * @param armoredElytra The armored elytra to check.
+     * @param armorTier     The armor tier for which to check.
+     * @return True if the provided armored elytra should be considered 'broken'.
+     */
+    public boolean isBroken(ItemStack armoredElytra, @Nullable ArmorTier armorTier)
+    {
+        final int realDurability = getRealDurability(armoredElytra, armorTier);
+        if (realDurability == 0)
+            return false;
+        return isBroken(realDurability, armorTier == null ? nbtEditor.getArmorTier(armoredElytra) : armorTier);
+    }
+
+    /**
      * Gets the maximum durability for a given armor tier.
      *
      * @param armorTier The armor tier for which to get the maximum durability.
      * @return The maximum durability of the given armor tier.
      */
-    public int getMaxDurability(ArmorTier armorTier)
+    private int getMaxDurability(ArmorTier armorTier)
     {
         return maxDurabilities[armorTier.ordinal()];
     }
@@ -243,7 +270,7 @@ public class DurabilityManager
      * @param armorTier The armor tier.
      * @return The amount of durability restored per repair step for the given armor tier.
      */
-    public int getRepairAmount(ArmorTier armorTier)
+    private int getRepairAmount(ArmorTier armorTier)
     {
         return repairAmounts[armorTier.ordinal()];
     }

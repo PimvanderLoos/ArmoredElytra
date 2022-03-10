@@ -44,7 +44,7 @@ public class FlyDurabilityHandler implements Listener
             return;
 
         final int newDurability = durabilityManager.removeDurability(e.getItem(), e.getDamage(), armorTier);
-        if (newDurability >= durabilityManager.getMaxDurability(armorTier))
+        if (durabilityManager.isBroken(newDurability, armorTier))
             Util.moveChestplateToInventory(e.getPlayer());
     }
 }
