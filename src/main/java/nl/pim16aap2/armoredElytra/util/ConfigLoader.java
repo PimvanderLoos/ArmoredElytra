@@ -34,7 +34,7 @@ public class ConfigLoader
     private boolean useTierDurability;
     private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
-    private LinkedHashSet<List<Enchantment>> mutuallyExclusiveEnchantments;
+    private List<List<Enchantment>> mutuallyExclusiveEnchantments;
     private boolean craftingInSmithingTable;
     private boolean allowUpgradeToNetherite;
     private boolean bypassWearPerm;
@@ -207,7 +207,7 @@ public class ConfigLoader
 
         defaultMutuallyExclusiveEnchantments = addNewConfigOption(config, "mutuallyExclusiveEnchantments",
                                                                   defaultMutuallyExclusiveEnchantments, mutuallyExclusiveEnchantmentsComment);
-        mutuallyExclusiveEnchantments = new LinkedHashSet<>();
+        mutuallyExclusiveEnchantments = new LinkedList<>();
         defaultMutuallyExclusiveEnchantments.forEach(this::addMutuallyExclusiveEnchantments);
 
         allowAddingEnchantments = addNewConfigOption(config, "allowAddingEnchantments", true,
@@ -391,7 +391,7 @@ public class ConfigLoader
         return allowedEnchantments;
     }
 
-    public LinkedHashSet<List<Enchantment>> getMutuallyExclusiveEnchantments()
+    public List<List<Enchantment>> getMutuallyExclusiveEnchantments()
     {
         return mutuallyExclusiveEnchantments;
     }
