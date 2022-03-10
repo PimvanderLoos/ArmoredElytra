@@ -78,8 +78,8 @@ public class ConfigLoader
             {
                 "List of enchantments that are allowed to be put on an armored elytra.",
                 "If you do not want to allow any enchantments at all, remove them all and add \"NONE\"",
-                "You can find supported enchantments here:",
-                "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
+                "You can find supported enchantments by running the command:",
+                "\"armoredelytra listAvailableEnchantments\" in console",
                 "If you install additional enchantment plugins, you can add their enchantments as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
             };
@@ -89,8 +89,8 @@ public class ConfigLoader
                 "Each group [] on this list is treated as mutually exclusive, so only one of them can be on an ArmoredElytra.",
                 "The default follows modern vanilla rules by making the different types of protection mutually exclusive.",
                 "If you do not want any enchantments to be mutually exclusive, replace all the entries in this list with \"[]\"",
-                "You can find supported enchantments here:",
-                "https://github.com/PimvanderLoos/ArmoredElytra/blob/master/vanillaEnchantments",
+                "You can find supported enchantments by running the command:",
+                "\"armoredelytra listAvailableEnchantments\" in console",
                 "If you install additional enchant plugins, you can make their enchantments mutually exclusive as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
             };
