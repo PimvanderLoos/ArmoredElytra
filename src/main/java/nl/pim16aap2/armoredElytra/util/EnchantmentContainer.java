@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.*;
-import java.util.logging.Level;
 
 public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
 {
@@ -156,22 +155,24 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     }
 
     /**
-     * Determines if two enchantments are mutually exclusive
+     * Returns a list of all enchantments that are mutually exclusive with the provided enchantment.
+     * <br>This does <b>not</b> include the provided enchantment
      *
-     * @return True if the two enchantments are defined as mutually exclusive in the config
+     * @param enchantment The enchantment to get the mutually exclusives of
+     * @return            A linked list containing all the mutually exclusive enchantments
      */
-    public static boolean areMutuallyExclusive(Enchantment one, Enchantment two)
+    public static List<Enchantment> getMutuallyExclusiveEnchantments(Enchantment enchantment)
     {
+        List<Enchantment> enchantments = new LinkedList<>();
         for (List<Enchantment> mutuallyExclusiveEnchantments : ArmoredElytra.getInstance().getConfigLoader().getMutuallyExclusiveEnchantments())
-        {
-            int count = 0;
-            for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments) {
-                if (mutuallyExclusiveEnchantment.equals(one)) count++;
-                if (mutuallyExclusiveEnchantment.equals(two)) count++;
-                if (count > 1) return true;
-            }
-        }
-        return false;
+            for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments)
+                if (mutuallyExclusiveEnchantment.equals(enchantment))
+                {
+                    enchantments.addAll(mutuallyExclusiveEnchantments.stream()
+                            .filter(i -> !i.equals(enchantment)).toList());
+                    break;
+                }
+        return enchantments;
     }
 
     /**
@@ -202,11 +203,29 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
-        final Map<Enchantment, Integer> combined = new HashMap<>(first);
+        final Map<Enchantment, Integer> combined = new HashMap<>();
+        final List<Enchantment> disallowedEnchantments = new LinkedList<>();
+        final List<Enchantment> allowedEnchantments = new LinkedList<>();
+        // Filter first item for mutually exclusive enchantments before adding to combined
+        for (Map.Entry<Enchantment, Integer> entry : first.entrySet())
+        {
+            if (disallowedEnchantments.contains(entry.getKey())) continue;
+            disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()).stream()
+                    .filter(i -> !i.equals(entry.getKey())).toList());
+            allowedEnchantments.add(entry.getKey());
+            combined.put(entry.getKey(), entry.getValue());
+        }
+
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
-            // Check for mutually exclusive enchantment (giving second entry priority)
-            combined.keySet().removeIf(firstEnchantment -> areMutuallyExclusive(firstEnchantment, entry.getKey()));
+            // Check for mutually exclusive enchantments
+            // No need to update allow list as Minecraft doesn't allow multiple of the same enchant on one item
+            if (!allowedEnchantments.contains(entry.getKey()))
+            {
+                if (disallowedEnchantments.contains(entry.getKey())) continue;
+                disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()).stream()
+                        .filter(i -> !i.equals(entry.getKey())).toList());
+            }
 
             // Check for enchants with higher level
             Integer enchantLevel = combined.get(entry.getKey());
