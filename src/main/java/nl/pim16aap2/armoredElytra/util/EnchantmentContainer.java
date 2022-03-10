@@ -210,8 +210,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         for (Map.Entry<Enchantment, Integer> entry : first.entrySet())
         {
             if (disallowedEnchantments.contains(entry.getKey())) continue;
-            disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()).stream()
-                    .filter(i -> !i.equals(entry.getKey())).toList());
+            disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()));
             allowedEnchantments.add(entry.getKey());
             combined.put(entry.getKey(), entry.getValue());
         }
@@ -223,8 +222,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             if (!allowedEnchantments.contains(entry.getKey()))
             {
                 if (disallowedEnchantments.contains(entry.getKey())) continue;
-                disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()).stream()
-                        .filter(i -> !i.equals(entry.getKey())).toList());
+                disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()));
             }
 
             // Check for enchants with higher level
