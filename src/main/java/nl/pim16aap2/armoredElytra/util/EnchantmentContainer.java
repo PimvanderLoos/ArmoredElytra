@@ -168,8 +168,8 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments) {
                 if (mutuallyExclusiveEnchantment.equals(one)) count++;
                 if (mutuallyExclusiveEnchantment.equals(two)) count++;
+                if (count > 1) return true;
             }
-            if (count > 1) return true;
         }
         return false;
     }
