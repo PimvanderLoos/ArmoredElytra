@@ -167,6 +167,18 @@ public class NBTEditor
     }
 
     /**
+     * Checks if an item is unbreakable.
+     *
+     * @param item The item to check. This may or may not be an armored elytra.
+     * @return True if the item exists and is unbreakable. Otherwise, false.
+     */
+    public boolean isUnbreakable(@Nullable ItemStack item)
+    {
+        final @Nullable ItemMeta meta = item == null ? null : item.getItemMeta();
+        return meta != null && meta.isUnbreakable();
+    }
+
+    /**
      * Gets the Color of an armored elytra.
      * <p>
      * If the provided {@link ItemStack} is not an AE, null is returned.
