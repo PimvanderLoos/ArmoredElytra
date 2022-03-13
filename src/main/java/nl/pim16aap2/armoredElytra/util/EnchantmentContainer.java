@@ -6,11 +6,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
 {
@@ -27,6 +23,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     {
         this(enchantments);
         filter(plugin.getConfigLoader().allowedEnchantments());
+        filterMutuallyExclusive();
     }
 
     /**
@@ -96,6 +93,27 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     }
 
     /**
+     * Returns a list of all enchantments that are mutually exclusive with the provided enchantment.
+     * <br>This does <b>not</b> include the provided enchantment
+     *
+     * @param enchantment The enchantment to get the mutually exclusives of
+     * @return            A linked list containing all the mutually exclusive enchantments
+     */
+    private static List<Enchantment> getMutuallyExclusiveEnchantments(Enchantment enchantment)
+    {
+        List<Enchantment> enchantments = new LinkedList<>();
+        for (List<Enchantment> mutuallyExclusiveEnchantments : ArmoredElytra.getInstance().getConfigLoader().getMutuallyExclusiveEnchantments())
+            for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments)
+                if (mutuallyExclusiveEnchantment.equals(enchantment))
+                {
+                    enchantments.addAll(mutuallyExclusiveEnchantments.stream()
+                            .filter(i -> !i.equals(enchantment)).toList());
+                    break;
+                }
+        return enchantments;
+    }
+
+    /**
      * Gets the total number of enchantments in this container.
      *
      * @return The total number of enchantments in this container.
@@ -117,12 +135,31 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     }
 
     /**
+     * Remove any entries from the list of enchantments that are mutually exclusive to each other.
+     * <br>First instance of a mutually exclusive enchantment gets priority
+     */
+    public void filterMutuallyExclusive()
+    {
+        final List<Enchantment> disallowedEnchantments = new LinkedList<>();
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
+        {
+            if (disallowedEnchantments.contains(entry.getKey())) continue;
+            disallowedEnchantments.addAll(getMutuallyExclusiveEnchantments(entry.getKey()));
+        }
+        disallowedEnchantments.forEach(enchantments.keySet()::remove);
+    }
+
+    /**
      * Applies the enchantments to an itemstack.
      *
      * @param is The itemstack to apply the enchantments to.
      */
     public void applyEnchantments(final ItemStack is)
     {
+        // Clear enchantments before applying new ones
+        for (Enchantment enchantment : is.getEnchantments().keySet())
+            is.removeEnchantment(enchantment);
+
         is.addUnsafeEnchantments(enchantments);
     }
 
@@ -182,10 +219,17 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
+        final List<Enchantment> blackList =
+                second.keySet().stream()
+                        .flatMap(ench -> getMutuallyExclusiveEnchantments(ench).stream())
+                        .toList();
+        blackList.forEach(first.keySet()::remove);
+
         final Map<Enchantment, Integer> combined = new HashMap<>(first);
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
-            Integer enchantLevel = first.get(entry.getKey());
+            // Check for enchants with higher level
+            Integer enchantLevel = combined.get(entry.getKey());
             if (enchantLevel != null)
             {
                 if (entry.getValue().equals(enchantLevel) && entry.getValue() < entry.getKey().getMaxLevel())
@@ -194,7 +238,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
                     enchantLevel = entry.getValue();
 
                 // If the enchantment level has changed,
-                if (!enchantLevel.equals(first.get(entry.getKey())))
+                if (!enchantLevel.equals(combined.get(entry.getKey())))
                 {
                     combined.remove(entry.getKey());
                     combined.put(entry.getKey(), enchantLevel);
@@ -202,35 +246,6 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             }
             else
                 combined.put(entry.getKey(), entry.getValue());
-        }
-
-        if (!ArmoredElytra.getInstance().getConfigLoader().allowMultipleProtectionEnchantments())
-        {
-            // Get the protection enchantment rating for both enchantment sets.
-            int protVal0 = Util.getProtectionEnchantmentsVal(first);
-            int protVal1 = Util.getProtectionEnchantmentsVal(second);
-
-            // If they have different protection enchantments, keep enchantment1's enchantments
-            // And remove the protection enchantment from enchantments0.
-            if (protVal0 != 0 && protVal1 != 0 && protVal0 != protVal1)
-                switch (protVal0)
-                {
-                    case 1:
-                        combined.remove(Enchantment.PROTECTION_ENVIRONMENTAL);
-                        break;
-                    case 2:
-                        combined.remove(Enchantment.PROTECTION_EXPLOSIONS);
-                        break;
-                    case 4:
-                        combined.remove(Enchantment.PROTECTION_FALL);
-                        break;
-                    case 8:
-                        combined.remove(Enchantment.PROTECTION_FIRE);
-                        break;
-                    case 16:
-                        combined.remove(Enchantment.PROTECTION_PROJECTILE);
-                        break;
-                }
         }
 
         return combined;
