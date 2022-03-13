@@ -6,7 +6,13 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Integer>>
 {
@@ -232,17 +238,14 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             Integer enchantLevel = combined.get(entry.getKey());
             if (enchantLevel != null)
             {
+                final int oldLevel = enchantLevel;
                 if (entry.getValue().equals(enchantLevel) && entry.getValue() < entry.getKey().getMaxLevel())
                     enchantLevel = entry.getValue() + 1;
                 else if (entry.getValue() > enchantLevel)
                     enchantLevel = entry.getValue();
 
-                // If the enchantment level has changed,
-                if (!enchantLevel.equals(combined.get(entry.getKey())))
-                {
-                    combined.remove(entry.getKey());
+                if (enchantLevel != oldLevel)
                     combined.put(entry.getKey(), enchantLevel);
-                }
             }
             else
                 combined.put(entry.getKey(), entry.getValue());
