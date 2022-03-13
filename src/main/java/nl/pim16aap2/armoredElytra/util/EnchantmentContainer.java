@@ -135,7 +135,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
     }
 
     /**
-     * Remove any entries form the list of enchantments that are mutually exclusive to each other.
+     * Remove any entries from the list of enchantments that are mutually exclusive to each other.
      * <br>First instance of a mutually exclusive enchantment gets priority
      */
     public void filterMutuallyExclusive()
