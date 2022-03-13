@@ -68,7 +68,7 @@ public class ArmoredElytraBuilder
      */
     public @Nullable ItemStack enchant(ItemStack armoredElytra, ItemStack sourceItem, @Nullable String name)
     {
-        final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantments(sourceItem, plugin);
+        final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantmentsOf(sourceItem, plugin);
         if (enchantments.isEmpty())
             return null;
         return newBuilder().ofElytra(armoredElytra).addEnchantments(enchantments).withName(name).build();
@@ -364,7 +364,7 @@ public class ArmoredElytraBuilder
         @Override
         public IStep2 addEnchantments(ItemStack sourceItem)
         {
-            return addEnchantments(EnchantmentContainer.getEnchantments(sourceItem, plugin));
+            return addEnchantments(EnchantmentContainer.getEnchantmentsOf(sourceItem, plugin));
         }
 
         @Override
@@ -414,7 +414,7 @@ public class ArmoredElytraBuilder
             if (currentArmorTier == null)
                 currentArmorTier = nbtEditor.getArmorTier(elytra);
 
-            combinedEnchantments = EnchantmentContainer.getEnchantments(newArmoredElytra, plugin);
+            combinedEnchantments = EnchantmentContainer.getEnchantmentsOf(newArmoredElytra, plugin);
 
             durability = durabilityManager.getRealDurability(newArmoredElytra, currentArmorTier);
             return this;

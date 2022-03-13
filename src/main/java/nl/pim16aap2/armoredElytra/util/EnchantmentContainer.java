@@ -57,7 +57,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
      * @param plugin The {@link ArmoredElytra} instance to use.
      * @return A new {@link EnchantmentContainer} with the enchantments from the item.
      */
-    public static EnchantmentContainer getEnchantments(final ItemStack is, final ArmoredElytra plugin)
+    public static EnchantmentContainer getEnchantmentsOf(final ItemStack is, final ArmoredElytra plugin)
     {
         if (is == null)
             return new EnchantmentContainer(Collections.emptyMap(), plugin);
@@ -144,7 +144,7 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
      * Remove any entries from the list of enchantments that are mutually exclusive to each other.
      * <br>First instance of a mutually exclusive enchantment gets priority
      */
-    public void filterMutuallyExclusive()
+    private void filterMutuallyExclusive()
     {
         final List<Enchantment> disallowedEnchantments = new LinkedList<>();
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet())
