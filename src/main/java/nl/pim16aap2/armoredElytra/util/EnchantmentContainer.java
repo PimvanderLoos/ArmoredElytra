@@ -219,7 +219,13 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
         if (first == null || first.isEmpty())
             return second;
 
-        final Map<Enchantment, Integer> combined = new HashMap<>();
+        final List<Enchantment> blackList =
+                second.keySet().stream()
+                        .flatMap(ench -> getMutuallyExclusiveEnchantments(ench).stream())
+                        .toList();
+        blackList.forEach(first.keySet()::remove);
+
+        final Map<Enchantment, Integer> combined = new HashMap<>(first);
         for (Map.Entry<Enchantment, Integer> entry : second.entrySet())
         {
             // Check for enchants with higher level
