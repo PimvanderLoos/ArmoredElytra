@@ -290,7 +290,7 @@ public class ArmoredElytraBuilder
          * Whether the output armored elytra should be unbreakable. This defaults to {@link ConfigLoader#unbreakable()}
          * when not overridden.
          */
-        private boolean isUnbreakable;
+        private @Nullable Boolean isUnbreakable = null;
 
         private Builder(NBTEditor nbtEditor, DurabilityManager durabilityManager,
                         ConfigLoader config, ArmoredElytra plugin)
@@ -308,6 +308,8 @@ public class ArmoredElytraBuilder
             newArmorTier = newArmorTier == null ? currentArmorTier : newArmorTier;
             name = name == null ? plugin.getArmoredElytraName(newArmorTier) : name;
             lore = lore == null ? plugin.getElytraLore(newArmorTier) : lore;
+
+            isUnbreakable = isUnbreakable == null ? config.unbreakable() : isUnbreakable;
 
             final ItemStack output = nbtEditor.addArmorNBTTags(newArmoredElytra, newArmorTier,
                                                                isUnbreakable, name, lore, color);
@@ -379,7 +381,6 @@ public class ArmoredElytraBuilder
                 throw new IllegalArgumentException("A regular elytra cannot be combined with an armored one!");
 
             withColor(getItemColor(newArmoredElytra, item));
-            unbreakable(config.unbreakable());
 
             addEnchantments(item);
 
