@@ -96,7 +96,7 @@ public class EventHandlers implements Listener
         // Even when we don't subtract durability, we still want to update the durability, so just subtract 0.
         final int durabilityLoss = removeDurability ? (int) Math.max(1, e.getDamage() / 4) : 0;
         final int newDurability = durabilityManager.removeDurability(elytra, durabilityLoss, armorTier);
-        if (newDurability >= durabilityManager.getMaxDurability(armorTier))
+        if (durabilityManager.isBroken(newDurability, armorTier))
             Util.moveChestplateToInventory(p);
     }
 
