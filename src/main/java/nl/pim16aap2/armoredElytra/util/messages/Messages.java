@@ -5,12 +5,14 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.EnumMap;
 import java.util.Map;
@@ -21,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class Messages
 {
-    private static final String DEFAULTFILENAME = "en_US.txt";
+    private static final String DEFAULT_FILENAME = "en_US.txt";
 
     /**
      * The map of all messages.
@@ -30,10 +32,10 @@ public class Messages
      * <p>
      * Value: The translated message.
      */
-    private Map<Message, String> messageMap = new EnumMap<>(Message.class);
+    private final Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     private final ArmoredElytra plugin;
-    private File textFile;
+    private Path textFile;
 
     private static final Pattern matchDots = Pattern.compile("\\.");
     private static final Pattern matchNewLines = Pattern.compile("\\\\n");
@@ -43,27 +45,29 @@ public class Messages
     {
         this.plugin = plugin;
         writeDefaultFile();
-        final String fileName = plugin.getConfigLoader().languageFile();
-        // Only append .txt if the provided name doesn't already have it.
-        textFile = new File(plugin.getDataFolder(), fileName.endsWith(".txt") ? fileName : (fileName + ".txt"));
 
-        if (!textFile.exists())
+        String fileName = plugin.getConfigLoader().languageFile();
+        fileName = fileName.endsWith(".txt") ? fileName : (fileName + ".txt");
+
+        textFile = Path.of(plugin.getDataFolder().toURI()).resolve(fileName);
+
+        if (!Files.exists(textFile))
         {
             plugin.myLogger(Level.WARNING, "Failed to load language file: \"" + textFile +
-                "\": File not found! Using default file (\"" + DEFAULTFILENAME + "\") instead!");
-            textFile = new File(plugin.getDataFolder(), DEFAULTFILENAME);
+                "\": File not found! Using default file (\"" + DEFAULT_FILENAME + "\") instead!");
+            textFile = Path.of(plugin.getDataFolder().toURI()).resolve(DEFAULT_FILENAME);
         }
         populateMessageMap();
     }
 
     private void writeDefaultFile()
     {
-        File defaultFile = new File(plugin.getDataFolder(), DEFAULTFILENAME);
+        File defaultFile = new File(plugin.getDataFolder(), DEFAULT_FILENAME);
 
         InputStream in = null;
         try
         {
-            URL url = getClass().getClassLoader().getResource(DEFAULTFILENAME);
+            URL url = getClass().getClassLoader().getResource(DEFAULT_FILENAME);
             if (url == null)
                 plugin.myLogger(Level.SEVERE, "Failed to read resources file from the jar! " +
                     "The default translation file cannot be generated! Please contact pim16aap2");
@@ -166,7 +170,7 @@ public class Messages
      */
     private void populateMessageMap()
     {
-        try (BufferedReader br = new BufferedReader(new FileReader(textFile)))
+        try (BufferedReader br = Files.newBufferedReader(textFile, StandardCharsets.UTF_8))
         {
             processFile(br, this::addMessage);
         }
@@ -181,10 +185,9 @@ public class Messages
             e.printStackTrace();
         }
 
-
+        final URL defaultFileUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(DEFAULT_FILENAME));
         try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME)).openStream())))
+            new InputStreamReader(defaultFileUrl.openStream(), StandardCharsets.UTF_8)))
         {
             processFile(br, this::addBackupMessage);
         }
