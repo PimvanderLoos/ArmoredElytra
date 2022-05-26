@@ -3,21 +3,23 @@ package nl.pim16aap2.armoredElytra.util.messages;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -44,7 +46,7 @@ public class Messages
     public Messages(final ArmoredElytra plugin)
     {
         this.plugin = plugin;
-        writeDefaultFile();
+        writeDefaultFiles(plugin);
 
         String fileName = plugin.getConfigLoader().languageFile();
         fileName = fileName.endsWith(".txt") ? fileName : (fileName + ".txt");
@@ -58,44 +60,6 @@ public class Messages
             textFile = Path.of(plugin.getDataFolder().toURI()).resolve(DEFAULT_FILENAME);
         }
         populateMessageMap();
-    }
-
-    private void writeDefaultFile()
-    {
-        File defaultFile = new File(plugin.getDataFolder(), DEFAULT_FILENAME);
-
-        InputStream in = null;
-        try
-        {
-            URL url = getClass().getClassLoader().getResource(DEFAULT_FILENAME);
-            if (url == null)
-                plugin.myLogger(Level.SEVERE, "Failed to read resources file from the jar! " +
-                    "The default translation file cannot be generated! Please contact pim16aap2");
-            else
-            {
-                URLConnection connection = url.openConnection();
-                connection.setUseCaches(false);
-                in = connection.getInputStream();
-                java.nio.file.Files.copy(in, defaultFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
-        catch (Exception e)
-        {
-            plugin.myLogger(Level.SEVERE, "Failed to write default file to \"" + textFile + "\".");
-            e.printStackTrace();
-        }
-        finally
-        {
-            try
-            {
-                if (in != null)
-                    in.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -253,5 +217,42 @@ public class Messages
 
         plugin.myLogger(Level.WARNING, "Failed to get the translation for key " + msg.name());
         return getFailureString(msg.name());
+    }
+
+    private static void writeDefaultFiles(ArmoredElytra plugin)
+    {
+        try
+        {
+            getPackagedLocalizations(plugin).forEach(file -> plugin.saveResource(file, false));
+        }
+        catch (IOException e)
+        {
+            plugin.myLogger(Level.SEVERE, "Failed to write default localization files!");
+            e.printStackTrace();
+        }
+    }
+
+    private static List<String> getPackagedLocalizations(ArmoredElytra plugin)
+        throws IOException
+    {
+        final List<String> files = new ArrayList<>();
+
+        final Enumeration<URL> enumeration = plugin.getClass().getClassLoader().getResources("META-INF");
+        while (enumeration.hasMoreElements())
+        {
+            final URL url = enumeration.nextElement();
+            final JarURLConnection connection = (JarURLConnection) url.openConnection();
+            try (JarFile jarFile = connection.getJarFile())
+            {
+                final Enumeration<JarEntry> jarEntries = jarFile.entries();
+                while (jarEntries.hasMoreElements())
+                {
+                    final String name = jarEntries.nextElement().getName();
+                    if (!name.contains("/") && (name.endsWith(".txt")))
+                        files.add(name);
+                }
+            }
+        }
+        return files;
     }
 }
