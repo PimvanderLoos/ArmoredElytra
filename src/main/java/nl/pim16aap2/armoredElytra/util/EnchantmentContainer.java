@@ -103,19 +103,24 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
      * <br>This does <b>not</b> include the provided enchantment
      *
      * @param enchantment The enchantment to get the mutually exclusives of
-     * @return            A linked list containing all the mutually exclusive enchantments
+     * @return A linked list containing all the mutually exclusive enchantments
      */
     private static List<Enchantment> getMutuallyExclusiveEnchantments(Enchantment enchantment)
     {
-        List<Enchantment> enchantments = new LinkedList<>();
-        for (List<Enchantment> mutuallyExclusiveEnchantments : ArmoredElytra.getInstance().getConfigLoader().getMutuallyExclusiveEnchantments())
+        final List<Enchantment> enchantments = new LinkedList<>();
+        for (final List<Enchantment> mutuallyExclusiveEnchantments :
+            ArmoredElytra.getInstance().getConfigLoader().getMutuallyExclusiveEnchantments())
+        {
             for (Enchantment mutuallyExclusiveEnchantment : mutuallyExclusiveEnchantments)
+            {
                 if (mutuallyExclusiveEnchantment.equals(enchantment))
                 {
-                    enchantments.addAll(mutuallyExclusiveEnchantments.stream()
-                            .filter(i -> !i.equals(enchantment)).toList());
+                    enchantments.addAll(
+                        mutuallyExclusiveEnchantments.stream().filter(i -> !i.equals(enchantment)).toList());
                     break;
                 }
+            }
+        }
         return enchantments;
     }
 
@@ -226,9 +231,9 @@ public class EnchantmentContainer implements Iterable<Map.Entry<Enchantment, Int
             return second;
 
         final List<Enchantment> blackList =
-                second.keySet().stream()
-                        .flatMap(ench -> getMutuallyExclusiveEnchantments(ench).stream())
-                        .toList();
+            second.keySet().stream()
+                  .flatMap(ench -> getMutuallyExclusiveEnchantments(ench).stream())
+                  .toList();
         blackList.forEach(first.keySet()::remove);
 
         final Map<Enchantment, Integer> combined = new HashMap<>(first);

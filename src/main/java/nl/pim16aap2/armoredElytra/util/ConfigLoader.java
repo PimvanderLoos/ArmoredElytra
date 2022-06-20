@@ -11,7 +11,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class ConfigLoader
@@ -86,12 +90,16 @@ public class ConfigLoader
         String[] mutuallyExclusiveEnchantmentsComment =
             {
                 "The lists of enchantments that are mutually exclusive.",
-                "Each group [] on this list is treated as mutually exclusive, so only one of them can be on an ArmoredElytra.",
-                "The default follows modern vanilla rules by making the different types of protection mutually exclusive.",
-                "If you do not want any enchantments to be mutually exclusive, replace all the entries in this list with \"[]\"",
+                "Each group [] on this list is treated as mutually exclusive, " +
+                    "so only one of them can be on an ArmoredElytra.",
+                "The default follows modern vanilla rules by making the different " +
+                    "types of protection mutually exclusive.",
+                "If you do not want any enchantments to be mutually exclusive, " +
+                    "replace all the entries in this list with \"[]\"",
                 "You can find supported enchantments by running the command:",
                 "\"armoredelytra listAvailableEnchantments\" in console",
-                "If you install additional enchant plugins, you can make their enchantments mutually exclusive as well.",
+                "If you install additional enchant plugins, " +
+                    "you can make their enchantments mutually exclusive as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
             };
         String[] dropNetheriteAsChestplateComment =
@@ -205,8 +213,9 @@ public class ConfigLoader
         allowedEnchantments = new LinkedHashSet<>();
         defaultAllowedEnchantments.forEach(this::addNameSpacedKey);
 
-        defaultMutuallyExclusiveEnchantments = addNewConfigOption(config, "mutuallyExclusiveEnchantments",
-                                                                  defaultMutuallyExclusiveEnchantments, mutuallyExclusiveEnchantmentsComment);
+        defaultMutuallyExclusiveEnchantments =
+            addNewConfigOption(config, "mutuallyExclusiveEnchantments",
+                               defaultMutuallyExclusiveEnchantments, mutuallyExclusiveEnchantmentsComment);
         mutuallyExclusiveEnchantments = new LinkedList<>();
         defaultMutuallyExclusiveEnchantments.forEach(this::addMutuallyExclusiveEnchantments);
 
@@ -227,7 +236,7 @@ public class ConfigLoader
         writeConfig();
     }
 
-    private void addNameSpacedKey(String fullKey)
+    private @Nullable Enchantment enchantmentFromNameSpacedKey(String fullKey)
     {
         try
         {
@@ -235,7 +244,7 @@ public class ConfigLoader
             if (keyParts.length < 2)
             {
                 Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
-                return;
+                return null;
             }
             //noinspection deprecation
             final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
@@ -243,41 +252,32 @@ public class ConfigLoader
             if (enchantment == null)
             {
                 Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
-                return;
+                return null;
             }
-            allowedEnchantments.add(enchantment);
+            return enchantment;
         }
         catch (Exception e)
         {
             plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
         }
+        return null;
+    }
+
+    private void addNameSpacedKey(String fullKey)
+    {
+        final @Nullable Enchantment enchantment = enchantmentFromNameSpacedKey(fullKey);
+        if (enchantment != null)
+            allowedEnchantments.add(enchantment);
     }
 
     private void addMutuallyExclusiveEnchantments(List<String> fullKeys)
     {
-        List<Enchantment> enchantments = new LinkedList<>();
-        for (String fullKey : fullKeys) {
-            try {
-                final String[] keyParts = fullKey.strip().split(":", 2);
-                if (keyParts.length < 2)
-                {
-                    Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
-                    return;
-                }
-                //noinspection deprecation
-                final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
-                final Enchantment enchantment = Enchantment.getByKey(key);
-                if (enchantment == null)
-                {
-                    Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
-                    return;
-                }
+        final List<Enchantment> enchantments = new LinkedList<>();
+        for (String fullKey : fullKeys)
+        {
+            final @Nullable Enchantment enchantment = enchantmentFromNameSpacedKey(fullKey);
+            if (enchantment != null)
                 enchantments.add(enchantment);
-            }
-            catch (Exception e)
-            {
-                plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
-            }
         }
         mutuallyExclusiveEnchantments.add(enchantments);
     }
