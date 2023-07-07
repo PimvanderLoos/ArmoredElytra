@@ -44,9 +44,8 @@ public class Util
     public static ArmorTier armorToTier(Material mat)
     {
         ArmorTier ret = ArmorTier.NONE;
-        XMaterial xmat = XMaterial.matchXMaterial(mat);
 
-        switch (xmat)
+        switch (mat)
         {
             case LEATHER_CHESTPLATE:
                 ret = ArmorTier.LEATHER;
@@ -82,11 +81,9 @@ public class Util
     {
         try
         {
-            XMaterial xmat = XMaterial.matchXMaterial(mat);
-
-            return xmat == XMaterial.LEATHER_CHESTPLATE || xmat == XMaterial.GOLDEN_CHESTPLATE ||
-                xmat == XMaterial.CHAINMAIL_CHESTPLATE || xmat == XMaterial.IRON_CHESTPLATE ||
-                xmat == XMaterial.DIAMOND_CHESTPLATE || xmat == XMaterial.NETHERITE_CHESTPLATE;
+            return mat == Material.LEATHER_CHESTPLATE || mat == Material.GOLDEN_CHESTPLATE ||
+                mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE ||
+                mat == Material.DIAMOND_CHESTPLATE || mat == Material.NETHERITE_CHESTPLATE;
         }
         catch (IllegalArgumentException e)
         {
@@ -157,6 +154,22 @@ public class Util
             chestplate.setAmount(0);
 
         player.updateInventory();
+    }
+
+    public static int toInt(String str, int defaultValue)
+    {
+        if (str == null)
+        {
+            return defaultValue;
+        }
+        try
+        {
+            return Integer.parseInt(str);
+        }
+        catch (NumberFormatException nfe)
+        {
+            return defaultValue;
+        }
     }
 
     /**

@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -22,8 +21,8 @@ import java.util.regex.Pattern;
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
  * <a href="https://spigotmc.org/resources/">SpigotMC</a>. Before any members of
- * this class are accessed, {@link #init(ArmoredElytra, int)} must be invoked by the plugin, preferably in its {@link
- * JavaPlugin#onEnable()} method, though that is not a requirement.
+ * this class are accessed, {@link #init(ArmoredElytra, int)} must be invoked by the plugin, preferably in its
+ * {@link JavaPlugin#onEnable()} method, though that is not a requirement.
  * <p>
  * This class performs asynchronous queries to
  * <a href="https://spiget.org">SpiGet</a>, an REST server which is updated
@@ -44,7 +43,7 @@ public final class UpdateChecker
 
         for (int i = 0; i < Math.min(firstSplit.length, secondSplit.length); i++)
         {
-            int currentValue = NumberUtils.toInt(firstSplit[i]), newestValue = NumberUtils.toInt(secondSplit[i]);
+            int currentValue = Util.toInt(firstSplit[i], 0), newestValue = Util.toInt(secondSplit[i], 0);
 
             if (newestValue > currentValue)
                 return second;
