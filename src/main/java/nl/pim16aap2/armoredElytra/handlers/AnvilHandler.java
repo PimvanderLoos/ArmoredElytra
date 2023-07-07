@@ -7,7 +7,6 @@ import nl.pim16aap2.armoredElytra.util.Action;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
-import nl.pim16aap2.armoredElytra.util.XMaterial;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -80,7 +79,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             // Pick the block action, as that would repair the elytra by default (vanilla).
             // Also block Armored Elytra + Elytra and Elytra + Membrane
             if (itemOneTier != ArmorTier.LEATHER && matTwo == Material.LEATHER || matTwo == Material.ELYTRA ||
-                matTwo.equals(XMaterial.PHANTOM_MEMBRANE.parseMaterial()))
+                matTwo.equals(Material.PHANTOM_MEMBRANE))
                 return Action.BLOCK;
         }
         return Action.NONE;
@@ -134,14 +133,14 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         final @Nullable ItemStack result =
             !plugin.playerHasCraftPerm(player, newArmorTier) ? null :
             switch (action)
-                {
-                    case REPAIR -> armoredElytraBuilder.repair(itemA, itemB, name);
-                    case ENCHANT -> armoredElytraBuilder.enchant(itemA, itemB, name);
-                    case COMBINE, CREATE -> armoredElytraBuilder.combine(itemA, itemB, newArmorTier, name);
-                    case BLOCK -> null;
-                    //noinspection ConstantConditions
-                    case NONE -> itemA;
-                };
+            {
+                case REPAIR -> armoredElytraBuilder.repair(itemA, itemB, name);
+                case ENCHANT -> armoredElytraBuilder.enchant(itemA, itemB, name);
+                case COMBINE, CREATE -> armoredElytraBuilder.combine(itemA, itemB, newArmorTier, name);
+                case BLOCK -> null;
+                //noinspection ConstantConditions
+                case NONE -> itemA;
+            };
 
         event.setResult(result);
         player.updateInventory();
