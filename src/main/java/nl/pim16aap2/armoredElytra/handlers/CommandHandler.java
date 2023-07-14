@@ -141,15 +141,15 @@ public class CommandHandler implements CommandExecutor
                 BY_KEY_FIELD.setAccessible(true);
             }
 
-            @SuppressWarnings("unchecked")
-            final Map<NamespacedKey, Enchantment> byKey = (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(null);
+            @SuppressWarnings("unchecked") final Map<NamespacedKey, Enchantment> byKey = (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(
+                null);
 
             final StringBuilder sb = new StringBuilder("\nAvailable enchantments: \n");
             byKey.keySet().stream()
                  .map(NamespacedKey::toString).sorted()
                  .forEach(name -> sb.append("  - ").append(name).append("\n"));
 
-            Bukkit.getLogger().info(sb.toString());
+            plugin.getLogger().info(sb.toString());
         }
         catch (NoSuchFieldException | IllegalAccessException e)
         {
