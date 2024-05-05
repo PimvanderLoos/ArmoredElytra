@@ -1,16 +1,20 @@
 package nl.pim16aap2.armoredElytra.util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class Util
 {
@@ -35,8 +39,10 @@ public class Util
     }
 
     // Get the armor tier from a chest plate.
-    public static ArmorTier armorToTier(ItemStack itemStack)
+    public static ArmorTier armorToTier(@Nullable ItemStack itemStack)
     {
+        if (itemStack == null)
+            return ArmorTier.NONE;
         return armorToTier(itemStack.getType());
     }
 
@@ -90,6 +96,37 @@ public class Util
             // No need to handle this, this is just XMaterial complaining the material doesn't exist.
             return false;
         }
+    }
+
+    /**
+     * Converts a human entity to a player. If the human entity is not a player, it will try to get the player from the
+     * UUID of the human entity.
+     * <p>
+     * If the player is not found, an {@link NullPointerException} will be thrown.
+     *
+     * @param humanEntity
+     *     The human entity to convert.
+     *
+     * @return The player.
+     *
+     * @throws NullPointerException
+     *     If the player could not be found.
+     */
+    public static @Nonnull Player humanEntityToPlayer(HumanEntity humanEntity)
+    {
+        if (humanEntity instanceof Player player)
+            return player;
+
+        return Objects.requireNonNull(
+            Bukkit.getPlayer(humanEntity.getUniqueId()),
+            "Could not get player from human entity: '" + humanEntity + "'!");
+    }
+
+    public static @Nullable Player humanEntityToOptionalPlayer(HumanEntity humanEntity)
+    {
+        if (humanEntity instanceof Player player)
+            return player;
+        return null;
     }
 
     public static String snakeToCamelCase(String input)
@@ -175,9 +212,13 @@ public class Util
     /**
      * Ensures that a given value does not exceed the provided upper and lower bounds.
      *
-     * @param val The value to check.
-     * @param min The lower bound limit.
-     * @param max The upper bound limit.
+     * @param val
+     *     The value to check.
+     * @param min
+     *     The lower bound limit.
+     * @param max
+     *     The upper bound limit.
+     *
      * @return The value if it is bigger than min and larger than max, otherwise either min or max.
      */
     public static int between(int val, int min, int max)
