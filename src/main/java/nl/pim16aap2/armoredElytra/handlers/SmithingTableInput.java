@@ -9,7 +9,10 @@ import org.bukkit.inventory.SmithingInventory;
 
 import javax.annotation.Nullable;
 
-import static nl.pim16aap2.armoredElytra.handlers.SmithingTableListener.*;
+import static nl.pim16aap2.armoredElytra.handlers.SmithingTableListener.HAS_TEMPLATE_SLOT;
+import static nl.pim16aap2.armoredElytra.handlers.SmithingTableListener.SMITHING_TABLE_INPUT_SLOT_1;
+import static nl.pim16aap2.armoredElytra.handlers.SmithingTableListener.SMITHING_TABLE_INPUT_SLOT_2;
+import static nl.pim16aap2.armoredElytra.handlers.SmithingTableListener.SMITHING_TABLE_TEMPLATE_SLOT;
 
 /**
  * Represents the input of a smithing table.

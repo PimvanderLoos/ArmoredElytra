@@ -16,8 +16,11 @@ import javax.annotation.Nullable;
 
 public class NetheriteUpgradeListener extends SmithingTableListener
 {
-    public NetheriteUpgradeListener(final ArmoredElytra plugin, NBTEditor nbtEditor,
-                                    DurabilityManager durabilityManager, ConfigLoader config)
+    public NetheriteUpgradeListener(
+        ArmoredElytra plugin,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         super(plugin, false, nbtEditor, durabilityManager, config);
     }

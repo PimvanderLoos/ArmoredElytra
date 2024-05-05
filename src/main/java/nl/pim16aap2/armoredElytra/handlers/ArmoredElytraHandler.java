@@ -24,9 +24,13 @@ abstract class ArmoredElytraHandler
     protected final DurabilityManager durabilityManager;
     protected final ArmoredElytraBuilder armoredElytraBuilder;
 
-    protected ArmoredElytraHandler(ArmoredElytra plugin, boolean creationEnabled, NBTEditor nbtEditor,
-                                   DurabilityManager durabilityManager, ConfigLoader config,
-                                   ArmoredElytraBuilder armoredElytraBuilder)
+    protected ArmoredElytraHandler(
+        ArmoredElytra plugin,
+        boolean creationEnabled,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config,
+        ArmoredElytraBuilder armoredElytraBuilder)
     {
         this.plugin = plugin;
         this.creationEnabled = creationEnabled;
@@ -36,8 +40,12 @@ abstract class ArmoredElytraHandler
         this.armoredElytraBuilder = armoredElytraBuilder;
     }
 
-    protected ArmoredElytraHandler(ArmoredElytra plugin, boolean creationEnabled, NBTEditor nbtEditor,
-                                   DurabilityManager durabilityManager, ConfigLoader config)
+    protected ArmoredElytraHandler(
+        ArmoredElytra plugin,
+        boolean creationEnabled,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         this(plugin, creationEnabled, nbtEditor, durabilityManager, config,
              new ArmoredElytraBuilder(nbtEditor, durabilityManager, config, plugin));
@@ -46,10 +54,13 @@ abstract class ArmoredElytraHandler
     /**
      * Attempts to move an item to a player's inventory.
      *
-     * @param player The player to give the item to.
-     * @param item   The item to give.
-     * @param direct Whether to put it in the player's inventory. When set to false it will be put in their cursor
-     *               instead.
+     * @param player
+     *     The player to give the item to.
+     * @param item
+     *     The item to give.
+     * @param direct
+     *     Whether to put it in the player's inventory. When set to false it will be put in their cursor instead.
+     *
      * @return True if the item could be given to the player, otherwise false (e.g. when their inventory is full).
      */
     @CheckReturnValue

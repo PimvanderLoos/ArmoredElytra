@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@SuppressWarnings({"unused", "UnusedReturnValue", "ClassCanBeRecord"})
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ArmoredElytraBuilder
 {
     private final NBTEditor nbtEditor;
@@ -23,10 +23,12 @@ public class ArmoredElytraBuilder
     private final ConfigLoader config;
     private final ArmoredElytra plugin;
 
-    public ArmoredElytraBuilder(NBTEditor nbtEditor, DurabilityManager durabilityManager,
-                                ConfigLoader config, ArmoredElytra plugin)
+    public ArmoredElytraBuilder(
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config,
+        ArmoredElytra plugin)
     {
-
         this.nbtEditor = nbtEditor;
         this.durabilityManager = durabilityManager;
         this.config = config;
@@ -98,6 +100,7 @@ public class ArmoredElytraBuilder
         return newBuilder()
             .ofElytra(input.elytra())
             .combineWith(input.combinedWith(), input.newArmorTier())
+            .withTemplate(input.template())
             .withName(name)
             .build();
     }
@@ -171,6 +174,16 @@ public class ArmoredElytraBuilder
          * @return The current builder step.
          */
         IStep2 withColor(@Nullable Color color);
+
+        /**
+         * Specifies the template of the armored elytra.
+         *
+         * @param template
+         *     The template to use. When this is null (default), the template is inferred from the creation process.
+         *
+         * @return The current builder step.
+         */
+        IStep2 withTemplate(ItemStack template);
 
         /**
          * Specifies the new lore of the armored elytra.
@@ -309,14 +322,17 @@ public class ArmoredElytraBuilder
          * The new armored elytra that will be returned at the end of the build process.
          */
         private ItemStack newArmoredElytra;
+
         /**
          * The combined enchantments of the input items.
          */
         private EnchantmentContainer combinedEnchantments;
+
         /**
          * The current armor tier of the input elytra.
          */
         private ArmorTier currentArmorTier;
+
         /**
          * The durability of the output armored elytra.
          */
@@ -327,29 +343,46 @@ public class ArmoredElytraBuilder
          * The armor tier of the output armored elytra. This defaults to {@link #currentArmorTier} if this isn't set.
          */
         private @Nullable ArmorTier newArmorTier;
+
         /**
          * The name of the output armored elytra. This defaults to {@link ArmoredElytra#getArmoredElytraName(ArmorTier)}
          * when not overridden.
          */
         private @Nullable String name;
+
         /**
          * The lore of the output armored elytra. This defaults to {@link ArmoredElytra#getElytraLore(ArmorTier)} when
          * not overridden.
          */
         private @Nullable List<String> lore;
+
         /**
          * The color of the output armored elytra. By default, the existing color (if any is used). When combined with
          * another item, the color is inferred using {@link #getItemColor(ItemStack, ItemStack)}.
          */
         private @Nullable Color color;
+
+        /**
+         * The template of the output armored elytra. This defaults to null.
+         */
+        private @Nullable ItemStack template;
+
+        /**
+         * The other item to combine with the input elytra.
+         */
+        private @Nullable ItemStack otherItem;
+
         /**
          * Whether the output armored elytra should be unbreakable. This defaults to {@link ConfigLoader#unbreakable()}
          * when not overridden.
          */
         private @Nullable Boolean isUnbreakable = null;
 
-        private Builder(NBTEditor nbtEditor, DurabilityManager durabilityManager,
-                        ConfigLoader config, ArmoredElytra plugin)
+        private Builder(
+            NBTEditor nbtEditor,
+            DurabilityManager durabilityManager,
+            ConfigLoader config,
+            ArmoredElytra plugin)
         {
             this.nbtEditor = nbtEditor;
             this.durabilityManager = durabilityManager;
@@ -367,8 +400,14 @@ public class ArmoredElytraBuilder
 
             isUnbreakable = isUnbreakable == null ? config.unbreakable() : isUnbreakable;
 
-            final ItemStack output = nbtEditor.addArmorNBTTags(newArmoredElytra, newArmorTier,
-                                                               isUnbreakable, name, lore, color);
+            final ItemStack output = nbtEditor.addArmorNBTTags(
+                newArmoredElytra,
+                newArmorTier,
+                otherItem,
+                isUnbreakable,
+                name,
+                lore,
+                color);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
 
@@ -386,6 +425,13 @@ public class ArmoredElytraBuilder
         public IStep2 withColor(@Nullable Color color)
         {
             this.color = color;
+            return this;
+        }
+
+        @Override
+        public IStep2 withTemplate(ItemStack template)
+        {
+            this.template = template;
             return this;
         }
 
@@ -431,6 +477,8 @@ public class ArmoredElytraBuilder
             if (armorTier == ArmorTier.NONE && !Util.isChestPlate(item))
                 throw new IllegalArgumentException("Non-armored elytras can only be combined with chest plates!");
 
+            otherItem = item;
+
             newArmorTier = armorTier;
             if (currentArmorTier == ArmorTier.NONE &&
                 item.getType().equals(Material.ELYTRA) && newArmorTier != ArmorTier.NONE)
@@ -440,8 +488,8 @@ public class ArmoredElytraBuilder
 
             addEnchantments(item);
 
-            durability = durabilityManager.getCombinedDurability(newArmoredElytra, item,
-                                                                 currentArmorTier, newArmorTier);
+            durability = durabilityManager.getCombinedDurability(
+                newArmoredElytra, item, currentArmorTier, newArmorTier);
             return this;
         }
 

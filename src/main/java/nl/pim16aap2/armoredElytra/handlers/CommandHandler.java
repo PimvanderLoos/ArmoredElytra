@@ -16,6 +16,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.logging.Level;
@@ -26,14 +27,25 @@ public class CommandHandler implements CommandExecutor
     private static Field BY_KEY_FIELD;
     private final ArmoredElytraBuilder armoredElytraBuilder;
 
-    public CommandHandler(ArmoredElytra plugin, NBTEditor nbtEditor, DurabilityManager durabilityManager)
+    public CommandHandler(
+        ArmoredElytra plugin,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager)
     {
         this.plugin = plugin;
-        armoredElytraBuilder = new ArmoredElytraBuilder(nbtEditor, durabilityManager, plugin.getConfigLoader(), plugin);
+        armoredElytraBuilder = new ArmoredElytraBuilder(
+            nbtEditor,
+            durabilityManager,
+            plugin.getConfigLoader(),
+            plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    public boolean onCommand(
+        @Nonnull CommandSender sender,
+        @Nonnull Command cmd,
+        @Nonnull String label,
+        @Nonnull String[] args)
     {
         Player player;
 
@@ -141,8 +153,8 @@ public class CommandHandler implements CommandExecutor
                 BY_KEY_FIELD.setAccessible(true);
             }
 
-            @SuppressWarnings("unchecked") final Map<NamespacedKey, Enchantment> byKey = (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(
-                null);
+            @SuppressWarnings("unchecked") final Map<NamespacedKey, Enchantment> byKey =
+                (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(null);
 
             final StringBuilder sb = new StringBuilder("\nAvailable enchantments: \n");
             byKey.keySet().stream()

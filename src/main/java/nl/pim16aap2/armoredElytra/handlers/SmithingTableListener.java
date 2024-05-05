@@ -170,7 +170,9 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
             smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT) == null)
             return;
 
+
         final ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
+
         if (result == null ||
             result.getType() != Material.ELYTRA ||
             nbtEditor.getArmorTier(result) == ArmorTier.NONE)
@@ -178,15 +180,6 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
 
         if (!giveItemToPlayer(player, result, event.isShiftClick()))
             return;
-
-//        final @Nullable var template =
-//            HAS_TEMPLATE_SLOT ? smithingInventory.getItem(SMITHING_TABLE_TEMPLATE_SLOT) : null;
-//
-//        if (template != null)
-//        {
-//            template.setAmount(template.getAmount() - 1);
-//            smithingInventory.setItem(SMITHING_TABLE_TEMPLATE_SLOT, template);
-//        }
 
         smithingInventory.setItem(SMITHING_TABLE_RESULT_SLOT, null);
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_1, null);

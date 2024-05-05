@@ -16,13 +16,18 @@ import javax.annotation.Nullable;
 
 public class SmithingTableCraftHandler extends SmithingTableListener
 {
-    public SmithingTableCraftHandler(final ArmoredElytra plugin, NBTEditor nbtEditor,
-                                     DurabilityManager durabilityManager, ConfigLoader config)
+    public SmithingTableCraftHandler(
+        ArmoredElytra plugin,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         super(plugin, true, nbtEditor, durabilityManager, config);
+
         // Register the anvil handler with creation disabled so AEs can still be repaired and stuff.
-        Bukkit.getPluginManager()
-              .registerEvents(new AnvilHandler(plugin, false, nbtEditor, durabilityManager, config), plugin);
+        Bukkit.getPluginManager().registerEvents(
+            new AnvilHandler(plugin, false, nbtEditor, durabilityManager, config),
+            plugin);
     }
 
     @EventHandler(ignoreCancelled = true)
