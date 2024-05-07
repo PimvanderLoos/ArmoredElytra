@@ -16,8 +16,11 @@ import javax.annotation.Nullable;
 
 public class NetheriteUpgradeListener extends SmithingTableListener
 {
-    public NetheriteUpgradeListener(final ArmoredElytra plugin, NBTEditor nbtEditor,
-                                    DurabilityManager durabilityManager, ConfigLoader config)
+    public NetheriteUpgradeListener(
+        ArmoredElytra plugin,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         super(plugin, false, nbtEditor, durabilityManager, config);
     }
@@ -28,8 +31,8 @@ public class NetheriteUpgradeListener extends SmithingTableListener
         final SmithingInventory inventory = event.getInventory();
         final ItemStack[] contents = inventory.getContents();
 
-        final ItemStack itemStackA = contents[0];
-        final ItemStack itemStackB = contents[1];
+        final ItemStack itemStackA = contents[SMITHING_TABLE_INPUT_SLOT_1];
+        final ItemStack itemStackB = contents[SMITHING_TABLE_INPUT_SLOT_2];
 
         if (!validInput(itemStackA, itemStackB))
             return;

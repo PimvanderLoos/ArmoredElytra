@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.handlers.SmithingTableInput;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
@@ -14,7 +15,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@SuppressWarnings({"unused", "UnusedReturnValue", "ClassCanBeRecord"})
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ArmoredElytraBuilder
 {
     private final NBTEditor nbtEditor;
@@ -22,10 +23,12 @@ public class ArmoredElytraBuilder
     private final ConfigLoader config;
     private final ArmoredElytra plugin;
 
-    public ArmoredElytraBuilder(NBTEditor nbtEditor, DurabilityManager durabilityManager,
-                                ConfigLoader config, ArmoredElytra plugin)
+    public ArmoredElytraBuilder(
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config,
+        ArmoredElytra plugin)
     {
-
         this.nbtEditor = nbtEditor;
         this.durabilityManager = durabilityManager;
         this.config = config;
@@ -45,11 +48,14 @@ public class ArmoredElytraBuilder
     /**
      * Shortcut for repairing an armored elytra.
      *
-     * @param armoredElytra The armored elytra to repair.
-     * @param repairItems   The repair item(s) to use for repairing the armored elytra. It is assumed that they are of
-     *                      the correct type.
-     * @param name          The new name of the output armored elytra. When this is null, {@link
-     *                      ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     * @param armoredElytra
+     *     The armored elytra to repair.
+     * @param repairItems
+     *     The repair item(s) to use for repairing the armored elytra. It is assumed that they are of the correct type.
+     * @param name
+     *     The new name of the output armored elytra. When this is null,
+     *     {@link ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     *
      * @return The new armored elytra.
      */
     public @Nullable ItemStack repair(ItemStack armoredElytra, ItemStack repairItems, @Nullable String name)
@@ -60,10 +66,14 @@ public class ArmoredElytraBuilder
     /**
      * Shortcut for enchanting an armored elytra.
      *
-     * @param armoredElytra The armored elytra to repair.
-     * @param sourceItem    The source item from which to copy the enchantments from.
-     * @param name          The new name of the output armored elytra. When this is null, {@link
-     *                      ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     * @param armoredElytra
+     *     The armored elytra to repair.
+     * @param sourceItem
+     *     The source item from which to copy the enchantments from.
+     * @param name
+     *     The new name of the output armored elytra. When this is null,
+     *     {@link ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     *
      * @return The new armored elytra.
      */
     public @Nullable ItemStack enchant(ItemStack armoredElytra, ItemStack sourceItem, @Nullable String name)
@@ -75,15 +85,41 @@ public class ArmoredElytraBuilder
     }
 
     /**
+     * Shortcut for combining two items in a smithing table.
+     *
+     * @param input
+     *     The smithing table input.
+     * @param name
+     *     The new name of the output armored elytra. When this is null, the default name for the new tier will be
+     *     used.
+     *
+     * @return The new armored elytra.
+     */
+    public ItemStack combine(SmithingTableInput input, @Nullable String name)
+    {
+        return newBuilder()
+            .ofElytra(input.elytra())
+            .combineWith(input.combinedWith(), input.newArmorTier())
+            .withTemplate(input.template())
+            .withName(name)
+            .build();
+    }
+
+    /**
      * Shortcut for creating a new armored elytra from two items.
      *
-     * @param elytra    The input item. This should be an (armored) elytra.
-     * @param combiner  The item to combine with the elytra. This should either be an armored elytra of the same
-     *                  non-NONE tier as the input elytra or a chestplate.
-     * @param armorTier The armor tier of the input item. If this is not known, use {@link #combine(ItemStack,
-     *                  ItemStack, String)} instead.
-     * @param name      The new name of the output armored elytra. When this is null, {@link
-     *                  ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     * @param elytra
+     *     The input item. This should be an (armored) elytra.
+     * @param combiner
+     *     The item to combine with the elytra. This should either be an armored elytra of the same non-NONE tier as the
+     *     input elytra or a chestplate.
+     * @param armorTier
+     *     The armor tier of the input item. If this is not known, use {@link #combine(ItemStack, ItemStack, String)}
+     *     instead.
+     * @param name
+     *     The new name of the output armored elytra. When this is null,
+     *     {@link ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
+     *
      * @return The new armored elytra.
      */
     public ItemStack combine(ItemStack elytra, ItemStack combiner, ArmorTier armorTier, @Nullable String name)
@@ -102,7 +138,9 @@ public class ArmoredElytraBuilder
     /**
      * Creates a new armored elytra of a specific tier.
      *
-     * @param armorTier The tier of the new armored elytra.
+     * @param armorTier
+     *     The tier of the new armored elytra.
+     *
      * @return The new armored elytra.
      */
     public ItemStack newArmoredElytra(ArmorTier armorTier)
@@ -118,8 +156,10 @@ public class ArmoredElytraBuilder
         /**
          * Specifies the new name of the armored elytra.
          *
-         * @param name The new name of the armored elytra. When this is null (default), the default name for the new
-         *             tier will be used.
+         * @param name
+         *     The new name of the armored elytra. When this is null (default), the default name for the new tier will
+         *     be used.
+         *
          * @return The current builder step.
          */
         IStep2 withName(@Nullable String name);
@@ -127,17 +167,31 @@ public class ArmoredElytraBuilder
         /**
          * Specifies the new color of the armored elytra.
          *
-         * @param color The new color of the armored elytra. When this is null (default), the color to use is inferred
-         *              from the creation process.
+         * @param color
+         *     The new color of the armored elytra. When this is null (default), the color to use is inferred from the
+         *     creation process.
+         *
          * @return The current builder step.
          */
         IStep2 withColor(@Nullable Color color);
 
         /**
+         * Specifies the template of the armored elytra.
+         *
+         * @param template
+         *     The template to use. When this is null (default), the template is inferred from the creation process.
+         *
+         * @return The current builder step.
+         */
+        IStep2 withTemplate(ItemStack template);
+
+        /**
          * Specifies the new lore of the armored elytra.
          *
-         * @param lore The new lore of the armored elytra. When this is null (default), the default lore for the new
-         *             tier will be used.
+         * @param lore
+         *     The new lore of the armored elytra. When this is null (default), the default lore for the new tier will
+         *     be used.
+         *
          * @return The current builder step.
          */
         IStep2 withLore(@Nullable List<String> lore);
@@ -147,7 +201,9 @@ public class ArmoredElytraBuilder
          * <p>
          * By default, this value is read from {@link ConfigLoader#unbreakable()}.
          *
-         * @param isUnbreakable True if the armored elytra should be unbreakable.
+         * @param isUnbreakable
+         *     True if the armored elytra should be unbreakable.
+         *
          * @return The current builder step.
          */
         IStep2 unbreakable(boolean isUnbreakable);
@@ -168,7 +224,9 @@ public class ArmoredElytraBuilder
         /**
          * Repairs the armored elytra provided as input.
          *
-         * @param count The amount of repair items to process.
+         * @param count
+         *     The amount of repair items to process.
+         *
          * @return The next step of the builder process.
          */
         IStep2 repair(int count);
@@ -176,7 +234,9 @@ public class ArmoredElytraBuilder
         /**
          * Adds a set of enchantments to the armored elytra.
          *
-         * @param enchantmentContainer The enchantments to add.
+         * @param enchantmentContainer
+         *     The enchantments to add.
+         *
          * @return The next step of the builder process.
          */
         IStep2 addEnchantments(EnchantmentContainer enchantmentContainer);
@@ -184,7 +244,9 @@ public class ArmoredElytraBuilder
         /**
          * Adds a set of enchantments to the armored elytra.
          *
-         * @param sourceItem The source item from which to take the enchantments.
+         * @param sourceItem
+         *     The source item from which to take the enchantments.
+         *
          * @return The next step of the builder process.
          */
         IStep2 addEnchantments(ItemStack sourceItem);
@@ -192,10 +254,12 @@ public class ArmoredElytraBuilder
         /**
          * Combines the input elytra with another item.
          *
-         * @param item      The item to combine with the input elytra. This can either be a chestplate or, if the input
-         *                  elytra is an armored one, another armored elytra.
-         * @param armorTier The armor tier of the input item. If this is not known, use {@link #combineWith(ItemStack)}
-         *                  instead.
+         * @param item
+         *     The item to combine with the input elytra. This can either be a chestplate or, if the input elytra is an
+         *     armored one, another armored elytra.
+         * @param armorTier
+         *     The armor tier of the input item. If this is not known, use {@link #combineWith(ItemStack)} instead.
+         *
          * @return The next step of the builder process.
          */
         IStep2 combineWith(ItemStack item, ArmorTier armorTier);
@@ -210,7 +274,9 @@ public class ArmoredElytraBuilder
         /**
          * Upgrades the elytra to a specific armor tier.
          *
-         * @param armorTier The new armor tier.
+         * @param armorTier
+         *     The new armor tier.
+         *
          * @return The next step of the builder process.
          */
         IStep2 upgradeToTier(ArmorTier armorTier);
@@ -224,8 +290,9 @@ public class ArmoredElytraBuilder
         /**
          * Use an elytra as base item to create the new armored elytra from.
          *
-         * @param elytra An itemstack that represents an elytra. It does not matter whether the elytra is armored or
-         *               not.
+         * @param elytra
+         *     An itemstack that represents an elytra. It does not matter whether the elytra is armored or not.
+         *
          * @return The next step of the builder process.
          */
         IStep1 ofElytra(ItemStack elytra);
@@ -233,7 +300,9 @@ public class ArmoredElytraBuilder
         /**
          * Creates a fresh new armored elytra of a specific tier.
          *
-         * @param armorTier The tier of the new armored elytra.
+         * @param armorTier
+         *     The tier of the new armored elytra.
+         *
          * @return The next step of the builder process.
          */
         IStep2 newItem(ArmorTier armorTier);
@@ -253,14 +322,17 @@ public class ArmoredElytraBuilder
          * The new armored elytra that will be returned at the end of the build process.
          */
         private ItemStack newArmoredElytra;
+
         /**
          * The combined enchantments of the input items.
          */
         private EnchantmentContainer combinedEnchantments;
+
         /**
          * The current armor tier of the input elytra.
          */
         private ArmorTier currentArmorTier;
+
         /**
          * The durability of the output armored elytra.
          */
@@ -271,29 +343,46 @@ public class ArmoredElytraBuilder
          * The armor tier of the output armored elytra. This defaults to {@link #currentArmorTier} if this isn't set.
          */
         private @Nullable ArmorTier newArmorTier;
+
         /**
          * The name of the output armored elytra. This defaults to {@link ArmoredElytra#getArmoredElytraName(ArmorTier)}
          * when not overridden.
          */
         private @Nullable String name;
+
         /**
          * The lore of the output armored elytra. This defaults to {@link ArmoredElytra#getElytraLore(ArmorTier)} when
          * not overridden.
          */
         private @Nullable List<String> lore;
+
         /**
          * The color of the output armored elytra. By default, the existing color (if any is used). When combined with
          * another item, the color is inferred using {@link #getItemColor(ItemStack, ItemStack)}.
          */
         private @Nullable Color color;
+
+        /**
+         * The template of the output armored elytra. This defaults to null.
+         */
+        private @Nullable ItemStack template;
+
+        /**
+         * The other item to combine with the input elytra.
+         */
+        private @Nullable ItemStack otherItem;
+
         /**
          * Whether the output armored elytra should be unbreakable. This defaults to {@link ConfigLoader#unbreakable()}
          * when not overridden.
          */
         private @Nullable Boolean isUnbreakable = null;
 
-        private Builder(NBTEditor nbtEditor, DurabilityManager durabilityManager,
-                        ConfigLoader config, ArmoredElytra plugin)
+        private Builder(
+            NBTEditor nbtEditor,
+            DurabilityManager durabilityManager,
+            ConfigLoader config,
+            ArmoredElytra plugin)
         {
             this.nbtEditor = nbtEditor;
             this.durabilityManager = durabilityManager;
@@ -311,8 +400,14 @@ public class ArmoredElytraBuilder
 
             isUnbreakable = isUnbreakable == null ? config.unbreakable() : isUnbreakable;
 
-            final ItemStack output = nbtEditor.addArmorNBTTags(newArmoredElytra, newArmorTier,
-                                                               isUnbreakable, name, lore, color);
+            final ItemStack output = nbtEditor.addArmorNBTTags(
+                newArmoredElytra,
+                newArmorTier,
+                otherItem,
+                isUnbreakable,
+                name,
+                lore,
+                color);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
 
@@ -330,6 +425,13 @@ public class ArmoredElytraBuilder
         public IStep2 withColor(@Nullable Color color)
         {
             this.color = color;
+            return this;
+        }
+
+        @Override
+        public IStep2 withTemplate(ItemStack template)
+        {
+            this.template = template;
             return this;
         }
 
@@ -375,6 +477,8 @@ public class ArmoredElytraBuilder
             if (armorTier == ArmorTier.NONE && !Util.isChestPlate(item))
                 throw new IllegalArgumentException("Non-armored elytras can only be combined with chest plates!");
 
+            otherItem = item;
+
             newArmorTier = armorTier;
             if (currentArmorTier == ArmorTier.NONE &&
                 item.getType().equals(Material.ELYTRA) && newArmorTier != ArmorTier.NONE)
@@ -384,8 +488,8 @@ public class ArmoredElytraBuilder
 
             addEnchantments(item);
 
-            durability = durabilityManager.getCombinedDurability(newArmoredElytra, item,
-                                                                 currentArmorTier, newArmorTier);
+            durability = durabilityManager.getCombinedDurability(
+                newArmoredElytra, item, currentArmorTier, newArmorTier);
             return this;
         }
 
@@ -434,8 +538,11 @@ public class ArmoredElytraBuilder
          * <p>
          * See {@link LeatherArmorMeta#getColor()}.
          *
-         * @param itemA The first {@link ItemStack} to check.
-         * @param itemB The second {@link ItemStack} to check.
+         * @param itemA
+         *     The first {@link ItemStack} to check.
+         * @param itemB
+         *     The second {@link ItemStack} to check.
+         *
          * @return The color of the item, if it has a color, otherwise null.
          */
         private @Nullable Color getItemColor(final ItemStack itemA, final ItemStack itemB)
@@ -453,7 +560,9 @@ public class ArmoredElytraBuilder
          * <p>
          * This currently only applies to leather armor(ed elytras).
          *
-         * @param itemStack The item to analyze.
+         * @param itemStack
+         *     The item to analyze.
+         *
          * @return The color of the item, if available, otherwise null.
          */
         private @Nullable Color getItemColor(final ItemStack itemStack)

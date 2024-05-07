@@ -25,14 +25,21 @@ import java.util.logging.Level;
 
 public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
-    protected AnvilHandler(ArmoredElytra plugin, boolean creationEnabled,
-                           NBTEditor nbtEditor, DurabilityManager durabilityManager, ConfigLoader config)
+    protected AnvilHandler(
+        ArmoredElytra plugin,
+        boolean creationEnabled,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
     }
 
-    public AnvilHandler(ArmoredElytra plugin, NBTEditor nbtEditor,
-                        DurabilityManager durabilityManager, ConfigLoader config)
+    public AnvilHandler(
+        ArmoredElytra plugin,
+        NBTEditor nbtEditor,
+        DurabilityManager durabilityManager,
+        ConfigLoader config)
     {
         super(plugin, true, nbtEditor, durabilityManager, config);
     }

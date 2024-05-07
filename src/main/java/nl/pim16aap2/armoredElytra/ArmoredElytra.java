@@ -105,7 +105,8 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             Bukkit.getPluginManager().registerEvents(creationListener, this);
             if (config.allowUpgradeToNetherite())
                 Bukkit.getPluginManager()
-                      .registerEvents(new NetheriteUpgradeListener(this, nbtEditor, durabilityManager, config), this);
+                      .registerEvents(
+                          new NetheriteUpgradeListener(this, nbtEditor, durabilityManager, config), this);
 
             if (config.dropNetheriteAsChestplate())
                 Bukkit.getPluginManager().registerEvents(new ItemDropListener(nbtEditor), this);

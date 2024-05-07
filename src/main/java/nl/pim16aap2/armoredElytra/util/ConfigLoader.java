@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -243,7 +242,7 @@ public class ConfigLoader
             final String[] keyParts = fullKey.strip().split(":", 2);
             if (keyParts.length < 2)
             {
-                Bukkit.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
+                plugin.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
                 return null;
             }
             //noinspection deprecation
@@ -251,7 +250,7 @@ public class ConfigLoader
             final Enchantment enchantment = Enchantment.getByKey(key);
             if (enchantment == null)
             {
-                Bukkit.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
+                plugin.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
                 return null;
             }
             return enchantment;
@@ -315,7 +314,7 @@ public class ConfigLoader
         }
         catch (IOException e)
         {
-            Bukkit.getLogger().log(Level.SEVERE, "Could not save config.yml! " +
+            plugin.getLogger().log(Level.SEVERE, "Could not save config.yml! " +
                 "Please contact pim16aap2 and show him the following code:");
             e.printStackTrace();
         }
