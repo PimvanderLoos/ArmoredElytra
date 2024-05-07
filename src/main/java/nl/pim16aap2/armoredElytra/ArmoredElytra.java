@@ -13,7 +13,6 @@ import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ArmorTierName;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
-import nl.pim16aap2.armoredElytra.util.MinecraftVersion;
 import nl.pim16aap2.armoredElytra.util.UpdateManager;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import nl.pim16aap2.armoredElytra.util.messages.Messages;
@@ -25,6 +24,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.semver4j.Semver;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -36,8 +36,8 @@ import java.util.logging.Level;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
-    private static final MinecraftVersion minecraftVersion = MinecraftVersion
-        .get(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
+    private static final Semver SERVER_VERSION =
+        Objects.requireNonNull(Semver.parse(Bukkit.getServer().getBukkitVersion()));
 
     private static ArmoredElytra INSTANCE;
     private Messages messages;
@@ -48,11 +48,15 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
     private NBTEditor nbtEditor;
 
+    public ArmoredElytra()
+    {
+        INSTANCE = this;
+    }
+
     @Override
     public void onEnable()
     {
-        INSTANCE = this;
-        if (minecraftVersion.isOlderThan(MinecraftVersion.v1_17))
+        if (SERVER_VERSION.isLowerThan(Semver.of(1, 17, 0)))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             setEnabled(false);
@@ -116,11 +120,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             myLogger(Level.WARNING, "Plugin in uninstall mode!");
             Bukkit.getPluginManager().registerEvents(new Uninstaller(this, nbtEditor), this);
         }
-    }
-
-    public MinecraftVersion getMinecraftVersion()
-    {
-        return minecraftVersion;
     }
 
     public Messages getMyMessages()

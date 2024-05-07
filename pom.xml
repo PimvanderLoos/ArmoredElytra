@@ -16,6 +16,7 @@
         <version.maven.shade>3.3.0-SNAPSHOT</version.maven.shade>
         <version.maven.surefire>3.0.0-M5</version.maven.surefire>
 
+        <version.semver4j>5.3.0</version.semver4j>
         <version.spigot>1.17.1-R0.1-SNAPSHOT</version.spigot>
         <version.bstats>2.2.1</version.bstats>
         <version.checkstyle>9.1</version.checkstyle>
@@ -43,6 +44,13 @@
             <artifactId>spigot-api</artifactId>
             <version>${version.spigot}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.semver4j</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>${version.semver4j}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -107,6 +115,10 @@
                         <relocation>
                             <pattern>org.bstats</pattern>
                             <shadedPattern>nl.pim16aap2.armoredElytra.lib.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.semver4j</pattern>
+                            <shadedPattern>nl.pim16aap2.armoredElytra.lib.semver4j</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
