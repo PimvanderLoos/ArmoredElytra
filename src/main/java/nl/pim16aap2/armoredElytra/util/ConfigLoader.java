@@ -105,7 +105,9 @@ public class ConfigLoader
             {
                 "Whether to drop Netherite Armored Elytras as netherite chestplates when they are dropped",
                 "This means that they won't burn in lava etc.",
-                "When you pick them up, they will turn into Netherite Armored Elytras again."
+                "When you pick them up, they will turn into Netherite Armored Elytras again.",
+                "Only applies to versions prior to 1.20.5. ",
+                "In 1.20.5 and later, newly-created netherite elytras are already fire resistant."
             };
         String[] updateComment =
             {

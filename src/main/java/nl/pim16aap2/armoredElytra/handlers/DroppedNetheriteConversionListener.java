@@ -11,11 +11,16 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class ItemDropListener implements Listener
+/**
+ * Listens for dropped armored elytras of the netherite tier and converts them to netherite chest plates.
+ * <p>
+ * Also listens for picked-up netherite chest plates and converts them to armored elytras of the netherite tier.
+ */
+public class DroppedNetheriteConversionListener implements Listener
 {
     private final NBTEditor nbtEditor;
 
-    public ItemDropListener(NBTEditor nbtEditor)
+    public DroppedNetheriteConversionListener(NBTEditor nbtEditor)
     {
         this.nbtEditor = nbtEditor;
     }
@@ -26,7 +31,9 @@ public class ItemDropListener implements Listener
      * So when dropping an armored elytra of the netherite tier, it will return a netherite chestplate (with the meta
      * copied over).
      *
-     * @param itemStack The dropped item to analyze.
+     * @param itemStack
+     *     The dropped item to analyze.
+     *
      * @return The new item to drop if it should be changed. If no change is required, null is returned.
      */
     private ItemStack getNewDrop(final ItemStack itemStack)
@@ -47,7 +54,9 @@ public class ItemDropListener implements Listener
      * So when picking up a placeholder netherite chest plate (as replaced by {@link #getNewDrop(ItemStack)}) it would
      * return an armored elytra of the netherite tier.
      *
-     * @param itemStack The picked-up item to analyze.
+     * @param itemStack
+     *     The picked-up item to analyze.
+     *
      * @return The new item to pick up if it should be changed. If no change is required, null is returned.
      */
     private ItemStack getNewPickup(final ItemStack itemStack)

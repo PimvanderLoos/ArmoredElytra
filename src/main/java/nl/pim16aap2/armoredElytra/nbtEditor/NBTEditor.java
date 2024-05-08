@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.semver4j.Semver;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -25,6 +26,9 @@ import java.util.logging.Level;
 
 public class NBTEditor
 {
+    public static final boolean HAS_FIRE_RESISTANT_METHOD =
+        ArmoredElytra.SERVER_VERSION.isGreaterThanOrEqualTo(Semver.of(1, 20, 5));
+
     private static final NamespacedKey ARMOR_TIER_KEY =
         new NamespacedKey(ArmoredElytra.getInstance(), "armor_tier_level");
 
@@ -175,6 +179,9 @@ public class NBTEditor
         if (lore != null)
             meta.setLore(lore);
 
+        if (armorTier == ArmorTier.NETHERITE && HAS_FIRE_RESISTANT_METHOD)
+            meta.setFireResistant(true);
+
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);
         return ret;
@@ -215,6 +222,11 @@ public class NBTEditor
         return ArmorTier.NONE;
     }
 
+    private boolean isElytra(@Nullable ItemStack item)
+    {
+        return item != null && item.getType() == Material.ELYTRA;
+    }
+
     /**
      * Checks which {@link ArmorTier} is on an item.
      *
@@ -225,7 +237,7 @@ public class NBTEditor
      */
     public ArmorTier getArmorTier(@Nullable ItemStack item)
     {
-        if (item == null)
+        if (!isElytra(item))
             return ArmorTier.NONE;
         return getArmorTier(item.getItemMeta());
     }
@@ -294,5 +306,45 @@ public class NBTEditor
                 Level.INFO, "Failed to initialize TrimEditor! Item trimming will be disabled!");
             return null;
         }
+    }
+
+    /**
+     * Updates the fire resistance of an item.
+     * <p>
+     * This method is intended to be used to ensure that netherite items are fire-resistant, even if they were created
+     * before the fire resistance was added.
+     * <p>
+     * If the item is not a netherite armored elytra, this method does nothing.
+     *
+     * @param itemStack
+     *     The item to update the fire resistance of.
+     *
+     * @return True if the item was updated, false otherwise.
+     *
+     * @throws IllegalStateException
+     *     If the server version does not support fire resistance.
+     */
+    public boolean updateFireResistance(@Nullable ItemStack itemStack)
+    {
+        if (!HAS_FIRE_RESISTANT_METHOD)
+            throw new IllegalStateException("Trying to set fire resistance on a version that does not support it!");
+
+        if (!isElytra(itemStack))
+            return false;
+
+        final @Nullable ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null)
+            return false;
+
+        final ArmorTier armorTier = getArmorTier(meta);
+        if (armorTier != ArmorTier.NETHERITE)
+            return false;
+
+        if (meta.isFireResistant())
+            return false;
+
+        meta.setFireResistant(true);
+        itemStack.setItemMeta(meta);
+        return true;
     }
 }
