@@ -9,11 +9,11 @@ import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.AllowedToWearEnum;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.RemappedEnchantment;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -82,10 +82,10 @@ public class EventHandlers implements Listener
             return;
 
         final boolean removeDurability;
-        if (elytra.containsEnchantment(Enchantment.DURABILITY))
+        if (elytra.containsEnchantment(RemappedEnchantment.UNBREAKING))
         {
             final int randomInt = random.nextInt(101);
-            final int enchantLevel = elytra.getEnchantmentLevel(Enchantment.DURABILITY);
+            final int enchantLevel = elytra.getEnchantmentLevel(RemappedEnchantment.UNBREAKING);
             // Formula taken from: https://minecraft.fandom.com/wiki/Unbreaking#Usage
             final float removeDurabilityChance = 60 + 40f / (enchantLevel + 1);
             removeDurability = randomInt <= removeDurabilityChance;

@@ -17,7 +17,7 @@
         <version.maven.surefire>3.0.0-M5</version.maven.surefire>
 
         <version.semver4j>5.3.0</version.semver4j>
-        <version.spigot>1.20.4-R0.1-SNAPSHOT</version.spigot>
+        <version.spigot>1.20.6-R0.1-SNAPSHOT</version.spigot>
         <version.bstats>2.2.1</version.bstats>
         <version.checkstyle>9.1</version.checkstyle>
         <version.mockito>4.0.0</version.mockito>

@@ -2,9 +2,10 @@ package nl.pim16aap2.armoredElytra;
 
 import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
+import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
+import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
-import nl.pim16aap2.armoredElytra.handlers.ItemDropListener;
 import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
@@ -36,7 +37,7 @@ import java.util.logging.Level;
 
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
-    private static final Semver SERVER_VERSION =
+    public static final Semver SERVER_VERSION =
         Objects.requireNonNull(Semver.parse(Bukkit.getServer().getBukkitVersion()));
 
     private static ArmoredElytra INSTANCE;
@@ -56,7 +57,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
-        if (SERVER_VERSION.isLowerThan(Semver.of(1, 17, 0)))
+        if (SERVER_VERSION.isLowerThan(Semver.of(1, 16, 0)))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             setEnabled(false);
@@ -108,13 +109,15 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                       .registerEvents(
                           new NetheriteUpgradeListener(this, nbtEditor, durabilityManager, config), this);
 
-            if (config.dropNetheriteAsChestplate())
-                Bukkit.getPluginManager().registerEvents(new ItemDropListener(nbtEditor), this);
+            if (NBTEditor.HAS_FIRE_RESISTANT_METHOD)
+                Bukkit.getPluginManager().registerEvents(new DroppedNetheriteUpdateListener(nbtEditor), this);
+            else if (config.dropNetheriteAsChestplate())
+                Bukkit.getPluginManager().registerEvents(new DroppedNetheriteConversionListener(nbtEditor), this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
             for (final Enchantment enchantment : config.allowedEnchantments())
-                myLogger(Level.INFO, " - " + enchantment.toString());
+                myLogger(Level.INFO, " - " + enchantment.getKey());
         }
         else
         {
