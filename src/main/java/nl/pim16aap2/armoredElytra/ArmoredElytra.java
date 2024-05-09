@@ -57,7 +57,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
-        if (SERVER_VERSION.isLowerThan(Semver.of(1, 17, 0)))
+        if (SERVER_VERSION.isLowerThan(Semver.of(1, 16, 0)))
         {
             myLogger(Level.SEVERE, "Trying to run this plugin on an unsupported version... ABORT!");
             setEnabled(false);
@@ -117,7 +117,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
             for (final Enchantment enchantment : config.allowedEnchantments())
-                myLogger(Level.INFO, " - " + enchantment.toString());
+                myLogger(Level.INFO, " - " + enchantment.getKey());
         }
         else
         {

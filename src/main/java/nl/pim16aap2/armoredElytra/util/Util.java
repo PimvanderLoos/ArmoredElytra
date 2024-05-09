@@ -168,15 +168,15 @@ public class Util
     public static int getProtectionEnchantmentsVal(Map<Enchantment, Integer> enchantments)
     {
         int ret = 0;
-        if (enchantments.containsKey(Enchantment.PROTECTION_ENVIRONMENTAL))
+        if (enchantments.containsKey(RemappedEnchantment.PROTECTION_ENVIRONMENTAL))
             ret += 1;
-        if (enchantments.containsKey(Enchantment.PROTECTION_EXPLOSIONS))
+        if (enchantments.containsKey(RemappedEnchantment.PROTECTION_EXPLOSIONS))
             ret += 2;
-        if (enchantments.containsKey(Enchantment.PROTECTION_FALL))
+        if (enchantments.containsKey(RemappedEnchantment.PROTECTION_FALL))
             ret += 4;
-        if (enchantments.containsKey(Enchantment.PROTECTION_FIRE))
+        if (enchantments.containsKey(RemappedEnchantment.PROTECTION_FIRE))
             ret += 8;
-        if (enchantments.containsKey(Enchantment.PROTECTION_PROJECTILE))
+        if (enchantments.containsKey(RemappedEnchantment.PROTECTION_PROJECTILE))
             ret += 16;
         return ret;
     }
