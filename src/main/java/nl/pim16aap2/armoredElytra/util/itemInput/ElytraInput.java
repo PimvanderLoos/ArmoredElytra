@@ -164,6 +164,11 @@ public record ElytraInput(
                 inputAction = InputAction.CREATE;
         }
 
+        else if (newArmorTier != ArmorTier.NONE)
+        {
+            inputAction = InputAction.IGNORE;
+        }
+
         // For all other cases, we need a second item to combine the elytra with.
         else if (!inputItems.isFilled())
         {
