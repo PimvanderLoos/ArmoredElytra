@@ -10,8 +10,11 @@ import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
 import nl.pim16aap2.armoredElytra.util.itemInput.InputAction;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.SmithingInventory;
@@ -26,18 +29,55 @@ import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_R
 import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_TEMPLATE_SLOT;
 
 /**
- * Abstract class for handling smithing table events.
+ * Class for handling smithing table events.
  */
-public abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
+public class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
-    protected SmithingTableListener(
+    public SmithingTableListener(
         ArmoredElytra plugin,
-        boolean creationEnabled,
         NBTEditor nbtEditor,
         DurabilityManager durabilityManager,
         ConfigLoader config)
     {
-        super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
+        super(plugin, nbtEditor, durabilityManager, config);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSmithingTableUsage(final PrepareSmithingEvent event)
+    {
+        final SmithingInventory inventory = event.getInventory();
+
+        final var input = ElytraInput.fromInventory(config, inventory);
+        if (input.isIgnored())
+            return;
+
+        event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));
+    }
+
+    /**
+     * Processes the general {@link InventoryClickEvent} for this plugin.
+     * <p>
+     * This method will check if the event is fired while a smithing table is open, and if so, will call the appropriate
+     * methods to further process the event.
+     * <p>
+     * See {@link #onPlayerInventoryClick(InventoryClickEvent, SmithingInventory)} and
+     * {@link #onSmithingInventoryClick(InventoryClickEvent, Player, SmithingInventory)}.
+     *
+     * @param event
+     *     The {@link InventoryClickEvent} to process.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onInventoryClick(InventoryClickEvent event)
+    {
+        final Player player = Util.humanEntityToPlayer(event.getWhoClicked());
+
+        if (!(player.getOpenInventory().getTopInventory() instanceof SmithingInventory smithingInventory))
+            return;
+
+        if (event.getClickedInventory() instanceof PlayerInventory)
+            onPlayerInventoryClick(event, smithingInventory);
+        else if (event.getClickedInventory() instanceof SmithingInventory clickedSmithingInventory)
+            onSmithingInventoryClick(event, player, clickedSmithingInventory);
     }
 
     /**
@@ -226,30 +266,5 @@ public abstract class SmithingTableListener extends ArmoredElytraHandler impleme
             onSmithingInventoryResultClick(event, player, smithingInventory);
         else if (event.getSlot() == SMITHING_TABLE_INPUT_SLOT_2 || event.getSlot() == SMITHING_TABLE_INPUT_SLOT_1)
             insertElytraToSmithingTable(smithingInventory, event, event.getSlot());
-    }
-
-    /**
-     * Processes the general {@link InventoryClickEvent} for this plugin.
-     * <p>
-     * This method will check if the event is fired while a smithing table is open, and if so, will call the appropriate
-     * methods to further process the event.
-     * <p>
-     * See {@link #onPlayerInventoryClick(InventoryClickEvent, SmithingInventory)} and
-     * {@link #onSmithingInventoryClick(InventoryClickEvent, Player, SmithingInventory)}.
-     *
-     * @param event
-     *     The {@link InventoryClickEvent} to process.
-     */
-    protected void onInventoryClick(InventoryClickEvent event)
-    {
-        final Player player = Util.humanEntityToPlayer(event.getWhoClicked());
-
-        if (!(player.getOpenInventory().getTopInventory() instanceof SmithingInventory smithingInventory))
-            return;
-
-        if (event.getClickedInventory() instanceof PlayerInventory)
-            onPlayerInventoryClick(event, smithingInventory);
-        else if (event.getClickedInventory() instanceof SmithingInventory clickedSmithingInventory)
-            onSmithingInventoryClick(event, player, clickedSmithingInventory);
     }
 }

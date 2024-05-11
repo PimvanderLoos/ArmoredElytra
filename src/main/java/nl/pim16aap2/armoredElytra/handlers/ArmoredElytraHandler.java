@@ -18,7 +18,6 @@ import javax.annotation.CheckReturnValue;
 abstract class ArmoredElytraHandler
 {
     protected final ArmoredElytra plugin;
-    protected final boolean creationEnabled;
     protected final ConfigLoader config;
     protected final NBTEditor nbtEditor;
     protected final DurabilityManager durabilityManager;
@@ -26,14 +25,12 @@ abstract class ArmoredElytraHandler
 
     protected ArmoredElytraHandler(
         ArmoredElytra plugin,
-        boolean creationEnabled,
         NBTEditor nbtEditor,
         DurabilityManager durabilityManager,
         ConfigLoader config,
         ArmoredElytraBuilder armoredElytraBuilder)
     {
         this.plugin = plugin;
-        this.creationEnabled = creationEnabled;
         this.nbtEditor = nbtEditor;
         this.durabilityManager = durabilityManager;
         this.config = config;
@@ -42,12 +39,11 @@ abstract class ArmoredElytraHandler
 
     protected ArmoredElytraHandler(
         ArmoredElytra plugin,
-        boolean creationEnabled,
         NBTEditor nbtEditor,
         DurabilityManager durabilityManager,
         ConfigLoader config)
     {
-        this(plugin, creationEnabled, nbtEditor, durabilityManager, config,
+        this(plugin, nbtEditor, durabilityManager, config,
              new ArmoredElytraBuilder(nbtEditor, durabilityManager, config, plugin));
     }
 

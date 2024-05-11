@@ -6,7 +6,7 @@ import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
-import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
+import nl.pim16aap2.armoredElytra.handlers.SmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
@@ -97,12 +97,12 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         {
             Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(config.noFlightDurability(),
                                                                               nbtEditor, durabilityManager), this);
-            final Listener creationListener =
-                config.allowCraftingInSmithingTable() ?
-                new SmithingTableCraftHandler(this, nbtEditor, durabilityManager, config) :
-                new AnvilHandler(this, nbtEditor, durabilityManager, config);
 
-            Bukkit.getPluginManager().registerEvents(creationListener, this);
+            Bukkit.getPluginManager()
+                  .registerEvents(new SmithingTableListener(this, nbtEditor, durabilityManager, config), this);
+
+            Bukkit.getPluginManager()
+                  .registerEvents(new AnvilHandler(this, nbtEditor, durabilityManager, config), this);
 
             if (NBTEditor.HAS_FIRE_RESISTANT_METHOD)
                 Bukkit.getPluginManager().registerEvents(new DroppedNetheriteUpdateListener(nbtEditor), this);
