@@ -319,7 +319,8 @@ public class NBTEditor
 
     private static @Nullable TrimEditor newTrimEditor()
     {
-        // TODO: Rewrite this once we have better version parsing.
+        if (!ArmoredElytra.SERVER_VERSION.isGreaterThanOrEqualTo(Semver.of(1, 20, 0)))
+            return null;
         try
         {
             return new TrimEditor();
