@@ -96,7 +96,8 @@ public class CommandHandler implements CommandExecutor
                     if (allowed)
                     {
                         plugin.elytraReceivedMessage(receiver, armorTier);
-                        plugin.giveArmoredElytraToPlayer(receiver, armoredElytraBuilder.newArmoredElytra(armorTier));
+                        plugin.giveArmoredElytraToPlayer(
+                            receiver, armoredElytraBuilder.newArmoredElytra(receiver, armorTier));
                     }
                     else
                         plugin.sendNoGivePermissionMessage(player, armorTier);
@@ -131,7 +132,7 @@ public class CommandHandler implements CommandExecutor
                         return false;
 
                     plugin.elytraReceivedMessage(player, armorTier);
-                    plugin.giveArmoredElytraToPlayer(player, armoredElytraBuilder.newArmoredElytra(armorTier));
+                    plugin.giveArmoredElytraToPlayer(player, armoredElytraBuilder.newArmoredElytra(player, armorTier));
                     plugin.myLogger(Level.INFO, ("Giving an armored elytra of the " + ArmorTier.getArmor(armorTier) +
                         " armor tier to player " + player.getName()));
                     return true;

@@ -38,8 +38,7 @@ public class DroppedNetheriteConversionListener implements Listener
      */
     private ItemStack getNewDrop(final ItemStack itemStack)
     {
-        if (itemStack == null || itemStack.getType() != Material.ELYTRA ||
-            nbtEditor.getArmorTier(itemStack) != ArmorTier.NETHERITE)
+        if (nbtEditor.getArmorTierFromElytra(itemStack) != ArmorTier.NETHERITE)
             return null;
 
         final ItemStack newDrop = new ItemStack(Material.NETHERITE_CHESTPLATE, 1);
@@ -62,7 +61,7 @@ public class DroppedNetheriteConversionListener implements Listener
     private ItemStack getNewPickup(final ItemStack itemStack)
     {
         if (itemStack == null || itemStack.getType() != Material.NETHERITE_CHESTPLATE ||
-            nbtEditor.getArmorTier(itemStack) != ArmorTier.NETHERITE)
+            nbtEditor.getArmorTierFromElytra(itemStack) != ArmorTier.NETHERITE)
             return null;
 
         final ItemStack newDrop = new ItemStack(Material.ELYTRA, 1);

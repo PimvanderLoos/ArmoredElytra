@@ -3,8 +3,8 @@ package nl.pim16aap2.armoredElytra.handlers;
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
-import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
+import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,18 +34,12 @@ public class SmithingTableCraftHandler extends SmithingTableListener
     public void onSmithingTableUsage(final PrepareSmithingEvent event)
     {
         final SmithingInventory inventory = event.getInventory();
-        final @Nullable SmithingTableInput input = SmithingTableInput.fromInventory(inventory);
 
-        if (input == null || !input.isFullWithoutTemplate())
+        final @Nullable ElytraInput input = ElytraInput.fromInventory(config, inventory);
+        if (ElytraInput.isIgnored(input))
             return;
 
-        if (input.newArmorTier() == ArmorTier.NONE)
-            return;
-
-        if (!plugin.playerHasCraftPerm(event.getView().getPlayer(), input.newArmorTier()))
-            return;
-
-        event.setResult(armoredElytraBuilder.combine(input, null));
+        event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));
     }
 
     @Override

@@ -38,7 +38,16 @@ public class Util
         return item.getDurability() >= item.getType().getMaxDurability();
     }
 
-    // Get the armor tier from a chest plate.
+    /**
+     * Get the armor tier from an item stack.
+     * <p>
+     * If the item stack is null or not a chestplate, it will return {@link ArmorTier#NONE}.
+     *
+     * @param itemStack
+     *     The item stack to get the armor tier from.
+     *
+     * @return The armor tier of the item stack.
+     */
     public static ArmorTier armorToTier(@Nullable ItemStack itemStack)
     {
         if (itemStack == null)
@@ -77,9 +86,9 @@ public class Util
         return ret;
     }
 
-    public static boolean isChestPlate(ItemStack itemStack)
+    public static boolean isChestPlate(@Nullable ItemStack itemStack)
     {
-        return isChestPlate(itemStack.getType());
+        return itemStack != null && isChestPlate(itemStack.getType());
     }
 
     // Check if mat is a chest plate.

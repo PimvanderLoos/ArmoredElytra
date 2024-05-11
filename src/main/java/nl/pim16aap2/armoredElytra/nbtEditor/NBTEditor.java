@@ -228,18 +228,38 @@ public class NBTEditor
     }
 
     /**
-     * Checks which {@link ArmorTier} is on an item.
+     * Gets the {@link ArmorTier} of an item.
      *
-     * @param item
-     *     The item to check.
+     * @param itemStack
+     *     The item to check. If the item is not an armored elytra or chestplate, {@link ArmorTier#NONE} is returned.
      *
-     * @return The {@link ArmorTier} that is on the item. If none is found, {@link ArmorTier#NONE} is returned.
+     * @return The {@link ArmorTier} of the item if it is an armored elytra or chestplate. Otherwise,
+     * {@link ArmorTier#NONE} is returned.
      */
-    public ArmorTier getArmorTier(@Nullable ItemStack item)
+    public ArmorTier getArmorTier(@Nullable ItemStack itemStack)
     {
-        if (!isElytra(item))
+        if (itemStack == null)
             return ArmorTier.NONE;
-        return getArmorTier(item.getItemMeta());
+
+        if (Util.isChestPlate(itemStack))
+            return Util.armorToTier(itemStack);
+
+        return getArmorTier(itemStack.getItemMeta());
+    }
+
+    /**
+     * Checks which {@link ArmorTier} is on an elytra.
+     *
+     * @param elytra
+     *     The elytra to check.
+     *
+     * @return The {@link ArmorTier} if the elytra is an armored elytra, otherwise {@link ArmorTier#NONE}.
+     */
+    public ArmorTier getArmorTierFromElytra(@Nullable ItemStack elytra)
+    {
+        if (!isElytra(elytra))
+            return ArmorTier.NONE;
+        return getArmorTier(elytra.getItemMeta());
     }
 
     /**

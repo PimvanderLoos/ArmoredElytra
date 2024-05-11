@@ -99,7 +99,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             Bukkit.getPluginManager().registerEvents(new FlyDurabilityHandler(config.noFlightDurability(),
                                                                               nbtEditor, durabilityManager), this);
             final Listener creationListener =
-                config.craftingInSmithingTable() ?
+                config.allowCraftingInSmithingTable() ?
                 new SmithingTableCraftHandler(this, nbtEditor, durabilityManager, config) :
                 new AnvilHandler(this, nbtEditor, durabilityManager, config);
 

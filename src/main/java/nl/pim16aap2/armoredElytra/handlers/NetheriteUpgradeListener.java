@@ -14,6 +14,9 @@ import org.bukkit.inventory.SmithingInventory;
 
 import javax.annotation.Nullable;
 
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_1;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_2;
+
 public class NetheriteUpgradeListener extends SmithingTableListener
 {
     public NetheriteUpgradeListener(
@@ -41,7 +44,7 @@ public class NetheriteUpgradeListener extends SmithingTableListener
             return;
 
         event.setResult(armoredElytraBuilder
-                            .newBuilder()
+                            .newBuilder(event.getView().getPlayer())
                             .ofElytra(itemStackA)
                             .upgradeToTier(ArmorTier.NETHERITE)
                             .build());
@@ -51,7 +54,7 @@ public class NetheriteUpgradeListener extends SmithingTableListener
     {
         if (itemStackA == null || itemStackB == null ||
             itemStackA.getType() != Material.ELYTRA ||
-            plugin.getNbtEditor().getArmorTier(itemStackA) != ArmorTier.DIAMOND ||
+            plugin.getNbtEditor().getArmorTierFromElytra(itemStackA) != ArmorTier.DIAMOND ||
             itemStackB.getType() != Material.NETHERITE_INGOT)
             return false;
 

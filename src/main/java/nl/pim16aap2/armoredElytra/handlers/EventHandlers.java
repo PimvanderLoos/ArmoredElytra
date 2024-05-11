@@ -71,7 +71,7 @@ public class EventHandlers implements Listener
         if (elytra == null)
             return;
 
-        final ArmorTier armorTier = nbtEditor.getArmorTier(elytra);
+        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(elytra);
         if (armorTier == ArmorTier.NONE)
             return;
 
@@ -103,7 +103,7 @@ public class EventHandlers implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onMending(PlayerItemMendEvent e)
     {
-        final ArmorTier armorTier = nbtEditor.getArmorTier(e.getItem());
+        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(e.getItem());
         if (armorTier == ArmorTier.NONE)
             return;
         final int newDurability = durabilityManager.removeDurability(e.getItem(), -e.getRepairAmount(), armorTier);
@@ -126,7 +126,7 @@ public class EventHandlers implements Listener
             !e.getNewArmorPiece().getType().equals(Material.ELYTRA))
             return;
 
-        final ArmorTier armorTier = nbtEditor.getArmorTier(e.getNewArmorPiece());
+        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(e.getNewArmorPiece());
         final AllowedToWearEnum allowed = isAllowedToWear(e.getNewArmorPiece(), e.getPlayer(), armorTier);
         switch (allowed)
         {

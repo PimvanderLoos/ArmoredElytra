@@ -6,65 +6,25 @@ import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.SmithingInventory;
 
 import javax.annotation.Nullable;
 
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_1;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_2;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_RESULT_SLOT;
+
 /**
  * Abstract class for handling smithing table events.
  */
-abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
+public abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
-    /**
-     * Whether the smithing table inventory has a slot for a template item.
-     * <p>
-     * Versions prior to 1.20 do not have this slot.
-     */
-    public static final boolean HAS_TEMPLATE_SLOT;
-
-    /**
-     * The slot in the smithing table inventory where the template item is placed.
-     * <p>
-     * This slot is -1 on versions that do not have this slot in the smithing table inventory.
-     */
-    public static final int SMITHING_TABLE_TEMPLATE_SLOT;
-
-    /**
-     * The slot in the smithing table inventory where the first input item is placed.
-     */
-    public static final int SMITHING_TABLE_INPUT_SLOT_1;
-
-    /**
-     * The slot in the smithing table inventory where the second input item is placed.
-     */
-    public static final int SMITHING_TABLE_INPUT_SLOT_2;
-
-    /**
-     * The slot in the smithing table inventory where the result is placed.
-     */
-    public static final int SMITHING_TABLE_RESULT_SLOT;
-
-    static
-    {
-        final Inventory smithingInventory = Bukkit.createInventory(null, InventoryType.SMITHING);
-        HAS_TEMPLATE_SLOT = smithingInventory.getSize() == 4;
-
-        SMITHING_TABLE_RESULT_SLOT = smithingInventory.getSize() - 1;
-
-        SMITHING_TABLE_INPUT_SLOT_2 = SMITHING_TABLE_RESULT_SLOT - 1;
-        SMITHING_TABLE_INPUT_SLOT_1 = SMITHING_TABLE_INPUT_SLOT_2 - 1;
-        SMITHING_TABLE_TEMPLATE_SLOT = HAS_TEMPLATE_SLOT ? 0 : -1;
-    }
-
     protected SmithingTableListener(
         ArmoredElytra plugin,
         boolean creationEnabled,
@@ -73,6 +33,11 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         ConfigLoader config)
     {
         super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
+    }
+
+    private static String getItemType(@Nullable ItemStack itemStack)
+    {
+        return itemStack == null ? "null" : itemStack.getType().name();
     }
 
     /**
@@ -97,14 +62,20 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         final @Nullable ItemStack cursor = event.getCursor();
         final @Nullable ItemStack current = event.getCurrentItem();
 
+        // Sometimes the elytra to be inserted is in the cursor,
+        // sometimes it is the 'current' item (in which case the cursor is null).
         final @Nullable ItemStack source =
             cursor == null || cursor.getType() == Material.AIR ? current : cursor;
 
         if (source == null || source.getType() != Material.ELYTRA)
             return;
 
+        // Do not allow the player to insert an armored elytra.
+        if (nbtEditor.getArmorTierFromElytra(source) != ArmorTier.NONE)
+            return;
+
         final ItemStack itemA = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_1);
-        if (itemA != null && !Util.isChestPlate(itemA))
+        if (!Util.isChestPlate(itemA))
             return;
 
         final ItemStack itemB = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_2);
@@ -116,6 +87,7 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
 
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_2, newItemB);
         source.setAmount(source.getAmount() - 1);
+
         event.setCancelled(true);
     }
 
@@ -170,12 +142,9 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
             smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT) == null)
             return;
 
-
         final ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
 
-        if (result == null ||
-            result.getType() != Material.ELYTRA ||
-            nbtEditor.getArmorTier(result) == ArmorTier.NONE)
+        if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
             return;
 
         if (!giveItemToPlayer(player, result, event.isShiftClick()))
@@ -184,6 +153,8 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         smithingInventory.setItem(SMITHING_TABLE_RESULT_SLOT, null);
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_1, null);
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_2, null);
+
+        event.setCancelled(true);
     }
 
     /**
