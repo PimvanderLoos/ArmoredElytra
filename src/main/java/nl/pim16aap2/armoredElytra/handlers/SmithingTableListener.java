@@ -102,9 +102,7 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
     {
         final @Nullable ItemStack cursor = event.getCursor();
         final @Nullable ItemStack current = event.getCurrentItem();
-
-        final @Nullable ItemStack source =
-            cursor == null || cursor.getType() == Material.AIR ? current : cursor;
+        final @Nullable ItemStack source = event.isShiftClick() ? current : cursor;
 
         if (source == null || source.getType() != Material.ELYTRA)
             return;
@@ -118,21 +116,29 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
         final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(source);
         final int targetSlot;
         if (armorTier == ArmorTier.NONE)
+        {
+            if (!config.allowCraftingInSmithingTable())
+                return;
             targetSlot = SMITHING_TABLE_INPUT_SLOT_2;
+        }
         else
             targetSlot = SMITHING_TABLE_INPUT_SLOT_1;
 
         if (clickedSlot != null && clickedSlot != targetSlot)
             return;
 
-        if (smithingInventory.getItem(targetSlot) != null)
+        if (event.isShiftClick() && smithingInventory.getItem(targetSlot) != null)
             return;
 
         final ItemStack insertedItem = source.clone();
         insertedItem.setAmount(1);
 
+        final @Nullable ItemStack swapItem = current;
+
         smithingInventory.setItem(targetSlot, insertedItem);
         source.setAmount(source.getAmount() - 1);
+
+        event.getWhoClicked().setItemOnCursor(swapItem);
 
         event.setCancelled(true);
     }
