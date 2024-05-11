@@ -327,9 +327,28 @@ public class ConfigLoader
         return allowStats;
     }
 
-    public boolean craftingInSmithingTable()
+    /**
+     * Whether to allow crafting in a smithing table.
+     * <p>
+     * This is the inverse of {@link #allowCraftingInAnvil()}.
+     *
+     * @return True if crafting in a smithing table is allowed, false otherwise.
+     */
+    public boolean allowCraftingInSmithingTable()
     {
         return craftingInSmithingTable;
+    }
+
+    /**
+     * Whether to allow crafting in an anvil.
+     * <p>
+     * This is the inverse of {@link #allowCraftingInSmithingTable()}.
+     *
+     * @return True if crafting in an anvil is allowed, false otherwise.
+     */
+    public boolean allowCraftingInAnvil()
+    {
+        return !craftingInSmithingTable;
     }
 
     public boolean allowUpgradeToNetherite()

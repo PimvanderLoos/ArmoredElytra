@@ -6,84 +6,85 @@ import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
+import nl.pim16aap2.armoredElytra.util.itemInput.InputAction;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.SmithingInventory;
 
 import javax.annotation.Nullable;
+import java.util.logging.Level;
+
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_HAS_TEMPLATE_SLOT;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_1;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_2;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_RESULT_SLOT;
+import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_TEMPLATE_SLOT;
 
 /**
- * Abstract class for handling smithing table events.
+ * Class for handling smithing table events.
  */
-abstract class SmithingTableListener extends ArmoredElytraHandler implements Listener
+public class SmithingTableListener extends ArmoredElytraHandler implements Listener
 {
-    /**
-     * Whether the smithing table inventory has a slot for a template item.
-     * <p>
-     * Versions prior to 1.20 do not have this slot.
-     */
-    public static final boolean HAS_TEMPLATE_SLOT;
-
-    /**
-     * The slot in the smithing table inventory where the template item is placed.
-     * <p>
-     * This slot is -1 on versions that do not have this slot in the smithing table inventory.
-     */
-    public static final int SMITHING_TABLE_TEMPLATE_SLOT;
-
-    /**
-     * The slot in the smithing table inventory where the first input item is placed.
-     */
-    public static final int SMITHING_TABLE_INPUT_SLOT_1;
-
-    /**
-     * The slot in the smithing table inventory where the second input item is placed.
-     */
-    public static final int SMITHING_TABLE_INPUT_SLOT_2;
-
-    /**
-     * The slot in the smithing table inventory where the result is placed.
-     */
-    public static final int SMITHING_TABLE_RESULT_SLOT;
-
-    static
-    {
-        final Inventory smithingInventory = Bukkit.createInventory(null, InventoryType.SMITHING);
-        HAS_TEMPLATE_SLOT = smithingInventory.getSize() == 4;
-
-        SMITHING_TABLE_RESULT_SLOT = smithingInventory.getSize() - 1;
-
-        SMITHING_TABLE_INPUT_SLOT_2 = SMITHING_TABLE_RESULT_SLOT - 1;
-        SMITHING_TABLE_INPUT_SLOT_1 = SMITHING_TABLE_INPUT_SLOT_2 - 1;
-        SMITHING_TABLE_TEMPLATE_SLOT = HAS_TEMPLATE_SLOT ? 0 : -1;
-    }
-
-    protected SmithingTableListener(
+    public SmithingTableListener(
         ArmoredElytra plugin,
-        boolean creationEnabled,
         NBTEditor nbtEditor,
         DurabilityManager durabilityManager,
         ConfigLoader config)
     {
-        super(plugin, creationEnabled, nbtEditor, durabilityManager, config);
+        super(plugin, nbtEditor, durabilityManager, config);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSmithingTableUsage(final PrepareSmithingEvent event)
+    {
+        final SmithingInventory inventory = event.getInventory();
+
+        final var input = ElytraInput.fromInventory(config, inventory);
+        if (input.isIgnored())
+            return;
+
+        event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));
+    }
+
+    /**
+     * Processes the general {@link InventoryClickEvent} for this plugin.
+     * <p>
+     * This method will check if the event is fired while a smithing table is open, and if so, will call the appropriate
+     * methods to further process the event.
+     * <p>
+     * See {@link #onPlayerInventoryClick(InventoryClickEvent, SmithingInventory)} and
+     * {@link #onSmithingInventoryClick(InventoryClickEvent, Player, SmithingInventory)}.
+     *
+     * @param event
+     *     The {@link InventoryClickEvent} to process.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onInventoryClick(InventoryClickEvent event)
+    {
+        final Player player = Util.humanEntityToPlayer(event.getWhoClicked());
+
+        if (!(player.getOpenInventory().getTopInventory() instanceof SmithingInventory smithingInventory))
+            return;
+
+        if (event.getClickedInventory() instanceof PlayerInventory)
+            onPlayerInventoryClick(event, smithingInventory);
+        else if (event.getClickedInventory() instanceof SmithingInventory clickedSmithingInventory)
+            onSmithingInventoryClick(event, player, clickedSmithingInventory);
     }
 
     /**
      * Attempts to insert the given {@link ItemStack} into the smithing table.
      * <p>
-     * The source item will be inserted into the second slot if the following conditions are met:
-     * <ul>
-     *     <li>The source item is an elytra.</li>
-     *     <li>The first slot is empty or contains a chestplate.</li>
-     *     <li>The second slot is empty.</li>
-     * </ul>
+     * The source item will be inserted into the first slot if it is an armored elytra, and into the second slot if it
+     * is a regular elytra.
      * <p>
      * Only 1 item will be inserted into the second slot, and the source item will have its amount reduced by 1.
      *
@@ -91,31 +92,54 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
      *     The {@link SmithingInventory} to insert the item into.
      * @param event
      *     The {@link InventoryClickEvent} to process.
+     * @param clickedSlot
+     *     The slot that was clicked in the smithing table or {@code null} if the slot was not in the smithing table.
      */
-    protected void insertElytraToSmithingTable(SmithingInventory smithingInventory, InventoryClickEvent event)
+    protected void insertElytraToSmithingTable(
+        SmithingInventory smithingInventory,
+        InventoryClickEvent event,
+        @Nullable Integer clickedSlot)
     {
         final @Nullable ItemStack cursor = event.getCursor();
         final @Nullable ItemStack current = event.getCurrentItem();
-
-        final @Nullable ItemStack source =
-            cursor == null || cursor.getType() == Material.AIR ? current : cursor;
+        final @Nullable ItemStack source = event.isShiftClick() ? current : cursor;
 
         if (source == null || source.getType() != Material.ELYTRA)
             return;
 
-        final ItemStack itemA = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_1);
-        if (itemA != null && !Util.isChestPlate(itemA))
+        final @Nullable ItemStack itemA = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_1);
+        final @Nullable ItemStack itemB = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_2);
+
+        if (itemA != null && itemB != null)
             return;
 
-        final ItemStack itemB = smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_2);
-        if (itemB != null)
+        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(source);
+        final int targetSlot;
+        if (armorTier == ArmorTier.NONE)
+        {
+            if (!config.allowCraftingInSmithingTable())
+                return;
+            targetSlot = SMITHING_TABLE_INPUT_SLOT_2;
+        }
+        else
+            targetSlot = SMITHING_TABLE_INPUT_SLOT_1;
+
+        if (clickedSlot != null && clickedSlot != targetSlot)
             return;
 
-        final ItemStack newItemB = source.clone();
-        newItemB.setAmount(1);
+        if (event.isShiftClick() && smithingInventory.getItem(targetSlot) != null)
+            return;
 
-        smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_2, newItemB);
+        final ItemStack insertedItem = source.clone();
+        insertedItem.setAmount(1);
+
+        final @Nullable ItemStack swapItem = current;
+
+        smithingInventory.setItem(targetSlot, insertedItem);
         source.setAmount(source.getAmount() - 1);
+
+        event.getWhoClicked().setItemOnCursor(swapItem);
+
         event.setCancelled(true);
     }
 
@@ -138,7 +162,7 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
         if (!event.isShiftClick())
             return;
 
-        insertElytraToSmithingTable(smithingInventory, event);
+        insertElytraToSmithingTable(smithingInventory, event, null);
     }
 
     /**
@@ -170,20 +194,63 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
             smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT) == null)
             return;
 
+        final @Nullable ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
+        final var input = ElytraInput.fromInventory(config, smithingInventory);
 
-        final ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
-
-        if (result == null ||
-            result.getType() != Material.ELYTRA ||
-            nbtEditor.getArmorTier(result) == ArmorTier.NONE)
+        if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
+        {
+            plugin.myLogger(
+                Level.SEVERE,
+                "Smithing Table: Attempted to retrieve an item that is not an armored elytra! Result: " + result +
+                    ", input: " + input);
             return;
+        }
+
+        if (input.isIgnored())
+            return;
+
+        event.setCancelled(true);
+
+        if (input.isBlocked())
+        {
+            plugin.myLogger(
+                Level.SEVERE,
+                "Smithing Table: Attempted to retrieve an item from a blocked recipe! Input: " + input);
+            return;
+        }
 
         if (!giveItemToPlayer(player, result, event.isShiftClick()))
             return;
 
         smithingInventory.setItem(SMITHING_TABLE_RESULT_SLOT, null);
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_1, null);
-        smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_2, null);
+        useItem(smithingInventory, SMITHING_TABLE_INPUT_SLOT_2);
+
+        if (SMITHING_TABLE_HAS_TEMPLATE_SLOT &&
+            (input.inputAction() == InputAction.APPLY_TEMPLATE || input.inputAction() == InputAction.UPGRADE))
+        {
+            useItem(smithingInventory, SMITHING_TABLE_TEMPLATE_SLOT);
+        }
+    }
+
+    /**
+     * Consumes a single item from the given slot in the given {@link SmithingInventory}.
+     *
+     * @param smithingInventory
+     *     The {@link SmithingInventory} to consume the item from.
+     * @param slot
+     *     The slot to consume the item from.
+     */
+    private void useItem(SmithingInventory smithingInventory, int slot)
+    {
+        final ItemStack item = smithingInventory.getItem(slot);
+        if (item == null)
+            return;
+
+        item.setAmount(item.getAmount() - 1);
+        if (item.getAmount() == 0)
+            smithingInventory.setItem(slot, null);
+        smithingInventory.setItem(slot, item);
     }
 
     /**
@@ -203,32 +270,7 @@ abstract class SmithingTableListener extends ArmoredElytraHandler implements Lis
     {
         if (event.getSlot() == SMITHING_TABLE_RESULT_SLOT)
             onSmithingInventoryResultClick(event, player, smithingInventory);
-        else if (event.getSlot() == SMITHING_TABLE_INPUT_SLOT_2)
-            insertElytraToSmithingTable(smithingInventory, event);
-    }
-
-    /**
-     * Processes the general {@link InventoryClickEvent} for this plugin.
-     * <p>
-     * This method will check if the event is fired while a smithing table is open, and if so, will call the appropriate
-     * methods to further process the event.
-     * <p>
-     * See {@link #onPlayerInventoryClick(InventoryClickEvent, SmithingInventory)} and
-     * {@link #onSmithingInventoryClick(InventoryClickEvent, Player, SmithingInventory)}.
-     *
-     * @param event
-     *     The {@link InventoryClickEvent} to process.
-     */
-    protected void onInventoryClick(InventoryClickEvent event)
-    {
-        final Player player = Util.humanEntityToPlayer(event.getWhoClicked());
-
-        if (!(player.getOpenInventory().getTopInventory() instanceof SmithingInventory smithingInventory))
-            return;
-
-        if (event.getClickedInventory() instanceof PlayerInventory)
-            onPlayerInventoryClick(event, smithingInventory);
-        else if (event.getClickedInventory() instanceof SmithingInventory clickedSmithingInventory)
-            onSmithingInventoryClick(event, player, clickedSmithingInventory);
+        else if (event.getSlot() == SMITHING_TABLE_INPUT_SLOT_2 || event.getSlot() == SMITHING_TABLE_INPUT_SLOT_1)
+            insertElytraToSmithingTable(smithingInventory, event, event.getSlot());
     }
 }

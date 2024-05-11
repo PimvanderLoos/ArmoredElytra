@@ -26,18 +26,23 @@ public class DurabilityManager
     }
 
     /**
-     * Combination of {@link #getCombinedDurability(ItemStack, ItemStack, ArmorTier, ArmorTier)} and {@link
-     * #setDurability(ItemStack, int, ArmorTier)}.
+     * Combination of {@link #getCombinedDurability(ItemStack, ItemStack, ArmorTier, ArmorTier)} and
+     * {@link #setDurability(ItemStack, int, ArmorTier)}.
      * <p>
      * First gets the combined of the input armored elytra and the other item and then applies it to the target armored
      * elytra.
      *
-     * @param armoredElytraOut The output armored elytra item. This is the elytra that will be updated.
-     * @param armoredElytraIn  The input armored elytra item.
-     * @param other            The other item that will be combined with the armored elytra. This can be another armored
-     *                         elytra, a chestplate, or any other item.
-     * @param currentTier      The current armor tier of the armored elytra.
-     * @param targetTier       The target tier of the armored elytra.
+     * @param armoredElytraOut
+     *     The output armored elytra item. This is the elytra that will be updated.
+     * @param armoredElytraIn
+     *     The input armored elytra item.
+     * @param other
+     *     The other item that will be combined with the armored elytra. This can be another armored elytra, a
+     *     chestplate, or any other item.
+     * @param currentTier
+     *     The current armor tier of the armored elytra.
+     * @param targetTier
+     *     The target tier of the armored elytra.
      */
     public int setCombinedDurability(ItemStack armoredElytraOut, ItemStack armoredElytraIn, ItemStack other,
                                      ArmorTier currentTier, ArmorTier targetTier)
@@ -53,11 +58,16 @@ public class DurabilityManager
     /**
      * Gets durability value resulting from combining an armored elytra with some other item with durability.
      *
-     * @param armoredElytra The armored elytra item.
-     * @param other         The other item that will be combined with the armored elytra. This can be another armored
-     *                      elytra, a chestplate, or any other item.
-     * @param currentTier   The current armor tier of the armored elytra.
-     * @param targetTier    The target tier of the armored elytra.
+     * @param armoredElytra
+     *     The armored elytra item.
+     * @param other
+     *     The other item that will be combined with the armored elytra. This can be another armored elytra, a
+     *     chestplate, or any other item.
+     * @param currentTier
+     *     The current armor tier of the armored elytra.
+     * @param targetTier
+     *     The target tier of the armored elytra.
+     *
      * @return The new real durability value of the armored elytra if it were to be combined with the other item.
      */
     public int getCombinedDurability(ItemStack armoredElytra, ItemStack other,
@@ -66,7 +76,7 @@ public class DurabilityManager
         if (nbtEditor.isUnbreakable(armoredElytra))
             return 0;
 
-        final ArmorTier otherTier = nbtEditor.getArmorTier(other);
+        final ArmorTier otherTier = nbtEditor.getArmorTierFromElytra(other);
 
         final int currentMaxDurability = getMaxDurability(currentTier);
         final int targetMaxDurability = getMaxDurability(targetTier);
@@ -86,10 +96,14 @@ public class DurabilityManager
     /**
      * Removes durability from an armored elytra.
      *
-     * @param armoredElytra  The armored elytra item to damage.
-     * @param durabilityLoss The amount of durability to remove from the armored elytra.
-     * @param providedTier   The tier of the armored elytra (if this is available). If this is null, it will be
-     *                       retrieved from the item itself.
+     * @param armoredElytra
+     *     The armored elytra item to damage.
+     * @param durabilityLoss
+     *     The amount of durability to remove from the armored elytra.
+     * @param providedTier
+     *     The tier of the armored elytra (if this is available). If this is null, it will be retrieved from the item
+     *     itself.
+     *
      * @return The new durability after removing the provided amount.
      */
     public int removeDurability(ItemStack armoredElytra, int durabilityLoss, @Nullable ArmorTier providedTier)
@@ -97,7 +111,8 @@ public class DurabilityManager
         if (nbtEditor.isUnbreakable(armoredElytra))
             return 0;
 
-        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
+        final ArmorTier currentTier =
+            providedTier == null ? nbtEditor.getArmorTierFromElytra(armoredElytra) : providedTier;
         final int currentDurability = getRealDurability(armoredElytra, currentTier);
         final int newDurability = Util.between(currentDurability + durabilityLoss, 0, getMaxDurability(currentTier));
         setDurability(armoredElytra, newDurability, providedTier);
@@ -110,9 +125,12 @@ public class DurabilityManager
      * For example, for an ArmoredElytra that is damaged for 50 durability and its repair item restores 40 durability,
      * this method would return 2.
      *
-     * @param armoredElytra The armored elytra item for which to check how many items are needed to fully repair it.
-     * @param providedTier  The tier of the armored elytra (if this is available). If this is null, it will be retrieved
-     *                      from the item itself.
+     * @param armoredElytra
+     *     The armored elytra item for which to check how many items are needed to fully repair it.
+     * @param providedTier
+     *     The tier of the armored elytra (if this is available). If this is null, it will be retrieved from the item
+     *     itself.
+     *
      * @return The required number of repair items required to fully repair the armored elytra.
      */
     public int getFullRepairItemCount(ItemStack armoredElytra, @Nullable ArmorTier providedTier)
@@ -120,19 +138,25 @@ public class DurabilityManager
         if (nbtEditor.isUnbreakable(armoredElytra))
             return 0;
 
-        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
-        final int repairableDurability = getMaxDurability(currentTier) - getRealDurability(armoredElytra, currentTier);
-        return (int) Math.ceil((float) repairableDurability / getRepairAmount(currentTier));
+        final ArmorTier currentTier =
+            providedTier == null ? nbtEditor.getArmorTierFromElytra(armoredElytra) : providedTier;
+
+        final int currentDurability = getRealDurability(armoredElytra, currentTier);
+
+        return (int) Math.ceil((float) currentDurability / getRepairAmount(currentTier));
     }
 
     /**
      * Gets the new durability of an armored elytra if it were to be repaired right now.
      *
-     * @param armoredElytra The armored elytra item for which to check what the new durability would be after repairing
-     *                      it.
-     * @param repairCount   The number of repair items.
-     * @param providedTier  The tier of the armored elytra (if this is available). If this is null, it will be retrieved
-     *                      from the item itself.
+     * @param armoredElytra
+     *     The armored elytra item for which to check what the new durability would be after repairing it.
+     * @param repairCount
+     *     The number of repair items.
+     * @param providedTier
+     *     The tier of the armored elytra (if this is available). If this is null, it will be retrieved from the item
+     *     itself.
+     *
      * @return The real durability value of the armored elytra if it were to be repaired.
      */
     public int getRepairedDurability(ItemStack armoredElytra, int repairCount, @Nullable ArmorTier providedTier)
@@ -140,7 +164,8 @@ public class DurabilityManager
         if (nbtEditor.isUnbreakable(armoredElytra))
             return 0;
 
-        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(armoredElytra) : providedTier;
+        final ArmorTier currentTier =
+            providedTier == null ? nbtEditor.getArmorTierFromElytra(armoredElytra) : providedTier;
         final int restoredDurability = repairCount * getRepairAmount(currentTier);
         final int currentDurability = getRealDurability(armoredElytra, currentTier);
         return Math.max(0, currentDurability - restoredDurability);
@@ -151,14 +176,17 @@ public class DurabilityManager
      * <p>
      * If the item is an armored elytra, and it does not have a real durability yet, it will be upgraded.
      *
-     * @param item         The item for which to figure out the real durability.
-     * @param providedTier The tier of the armored elytra (if this is available). If this is null, it will be retrieved
-     *                     from the item itself.
+     * @param item
+     *     The item for which to figure out the real durability.
+     * @param providedTier
+     *     The tier of the armored elytra (if this is available). If this is null, it will be retrieved from the item
+     *     itself.
+     *
      * @return The real durability of the item.
      */
     public int getRealDurability(ItemStack item, @Nullable ArmorTier providedTier)
     {
-        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(item) : providedTier;
+        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTierFromElytra(item) : providedTier;
 
         if (currentTier == ArmorTier.NONE)
             return getItemDurability(item);
@@ -173,17 +201,20 @@ public class DurabilityManager
     /**
      * Sets the durability values (real + shown) of an armored elytra.
      *
-     * @param item         The armored elytra item for which to set the durability values.
-     * @param durability   The real durability value.
-     * @param providedTier The tier of the armored elytra (if this is available). If this is null, it will be retrieved
-     *                     from the item itself.
+     * @param item
+     *     The armored elytra item for which to set the durability values.
+     * @param durability
+     *     The real durability value.
+     * @param providedTier
+     *     The tier of the armored elytra (if this is available). If this is null, it will be retrieved from the item
+     *     itself.
      */
     public void setDurability(ItemStack item, int durability, @Nullable ArmorTier providedTier)
     {
         if (nbtEditor.isUnbreakable(item))
             return;
 
-        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTier(item) : providedTier;
+        final ArmorTier currentTier = providedTier == null ? nbtEditor.getArmorTierFromElytra(item) : providedTier;
         final int oldMaxDurability = getMaxDurability(currentTier);
         final int rawDurability = getRemappedDurability(durability, oldMaxDurability, ELYTRA_MAX_DURABILITY);
         nbtEditor.updateDurability(item, durability, rawDurability);
@@ -195,8 +226,11 @@ public class DurabilityManager
      * The real durability is calculated from the current 'raw' durability. The real durability will be the same
      * percentage of the max durability for the type as the raw durability is of an elytra's maximum durability.
      *
-     * @param armoredElytra The armored elytra to upgrade to an armored elytra with durability.
-     * @param currentTier   The current tier of the armored elytra.
+     * @param armoredElytra
+     *     The armored elytra to upgrade to an armored elytra with durability.
+     * @param currentTier
+     *     The current tier of the armored elytra.
+     *
      * @return The real durability of the armored elytra.
      */
     private int upgradeArmoredElytraToDurability(ItemStack armoredElytra, ArmorTier currentTier)
@@ -213,10 +247,12 @@ public class DurabilityManager
     }
 
     /**
-     * Gets the maximum durability for an armor tier. This may or may not be {@link
-     * ArmorTier#getMaxDurability(ArmorTier)} depending on {@link ConfigLoader#useTierDurability()}.
+     * Gets the maximum durability for an armor tier. This may or may not be
+     * {@link ArmorTier#getMaxDurability(ArmorTier)} depending on {@link ConfigLoader#useTierDurability()}.
      *
-     * @param armorTier The armor tier for which to figure out the maximum durability.
+     * @param armorTier
+     *     The armor tier for which to figure out the maximum durability.
+     *
      * @return The maximum durability of the armor tier.
      */
     private int calculateMaxDurability(ArmorTier armorTier)
@@ -229,8 +265,11 @@ public class DurabilityManager
     /**
      * Checks if an armored elytra should be considered 'broken'.
      *
-     * @param durability The current 'real' durability. See {@link #getRealDurability(ItemStack, ArmorTier)}.
-     * @param armorTier  The armor tier for which to check.
+     * @param durability
+     *     The current 'real' durability. See {@link #getRealDurability(ItemStack, ArmorTier)}.
+     * @param armorTier
+     *     The armor tier for which to check.
+     *
      * @return True if the provided durability should be considered 'broken' for the provided armor tier.
      */
     public boolean isBroken(int durability, ArmorTier armorTier)
@@ -241,8 +280,11 @@ public class DurabilityManager
     /**
      * Checks if an armored elytra should be considered 'broken'.
      *
-     * @param armoredElytra The armored elytra to check.
-     * @param armorTier     The armor tier for which to check.
+     * @param armoredElytra
+     *     The armored elytra to check.
+     * @param armorTier
+     *     The armor tier for which to check.
+     *
      * @return True if the provided armored elytra should be considered 'broken'.
      */
     public boolean isBroken(ItemStack armoredElytra, @Nullable ArmorTier armorTier)
@@ -250,13 +292,16 @@ public class DurabilityManager
         final int realDurability = getRealDurability(armoredElytra, armorTier);
         if (realDurability == 0)
             return false;
-        return isBroken(realDurability, armorTier == null ? nbtEditor.getArmorTier(armoredElytra) : armorTier);
+        return isBroken(realDurability,
+                        armorTier == null ? nbtEditor.getArmorTierFromElytra(armoredElytra) : armorTier);
     }
 
     /**
      * Gets the maximum durability for a given armor tier.
      *
-     * @param armorTier The armor tier for which to get the maximum durability.
+     * @param armorTier
+     *     The armor tier for which to get the maximum durability.
+     *
      * @return The maximum durability of the given armor tier.
      */
     private int getMaxDurability(ArmorTier armorTier)
@@ -267,7 +312,9 @@ public class DurabilityManager
     /**
      * Gets the amount of durability restored per repair step for a given armor tier.
      *
-     * @param armorTier The armor tier.
+     * @param armorTier
+     *     The armor tier.
+     *
      * @return The amount of durability restored per repair step for the given armor tier.
      */
     private int getRepairAmount(ArmorTier armorTier)
@@ -279,9 +326,13 @@ public class DurabilityManager
      * Remaps a durability value from an old maximum value to a new maximum while maintaining the same durability
      * percentage.
      *
-     * @param durability The current durability value.
-     * @param oldMax     The old maximum durability.
-     * @param newMax     The new maximum durability.
+     * @param durability
+     *     The current durability value.
+     * @param oldMax
+     *     The old maximum durability.
+     * @param newMax
+     *     The new maximum durability.
+     *
      * @return The new durability value after remapping it to the new maximum. The value cannot be less than 0 or more
      * than newMax.
      */
@@ -315,7 +366,9 @@ public class DurabilityManager
     /**
      * Gets the durability of an item. See {@link ItemStack#getDurability()}.
      *
-     * @param item The item to analyze.
+     * @param item
+     *     The item to analyze.
+     *
      * @return The durability of the item.
      */
     @SuppressWarnings("deprecation")

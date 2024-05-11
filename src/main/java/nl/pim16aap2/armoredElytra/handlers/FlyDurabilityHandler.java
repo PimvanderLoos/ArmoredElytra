@@ -33,7 +33,7 @@ public class FlyDurabilityHandler implements Listener
         if (!e.getPlayer().isGliding())
             return;
 
-        final ArmorTier armorTier = nbtEditor.getArmorTier(e.getItem());
+        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(e.getItem());
         if (armorTier == ArmorTier.NONE)
             return;
 

@@ -1,19 +1,20 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import nl.pim16aap2.armoredElytra.handlers.SmithingTableInput;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
-import nl.pim16aap2.armoredElytra.util.Util;
+import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ArmoredElytraBuilder
@@ -40,14 +41,16 @@ public class ArmoredElytraBuilder
      *
      * @return The first step of the new builder.
      */
-    public IStep0 newBuilder()
+    public IStep0 newBuilder(HumanEntity player)
     {
-        return new Builder(nbtEditor, durabilityManager, config, plugin);
+        return new Builder(player, nbtEditor, durabilityManager, config, plugin);
     }
 
     /**
      * Shortcut for repairing an armored elytra.
      *
+     * @param player
+     *     The player that is repairing the armored elytra.
      * @param armoredElytra
      *     The armored elytra to repair.
      * @param repairItems
@@ -58,14 +61,24 @@ public class ArmoredElytraBuilder
      *
      * @return The new armored elytra.
      */
-    public @Nullable ItemStack repair(ItemStack armoredElytra, ItemStack repairItems, @Nullable String name)
+    public @Nullable ItemStack repair(
+        HumanEntity player,
+        ItemStack armoredElytra,
+        ItemStack repairItems,
+        @Nullable String name)
     {
-        return newBuilder().ofElytra(armoredElytra).repair(repairItems.getAmount()).withName(name).build();
+        return newBuilder(player)
+            .ofElytra(armoredElytra)
+            .repair(repairItems.getAmount())
+            .withName(name)
+            .build();
     }
 
     /**
      * Shortcut for enchanting an armored elytra.
      *
+     * @param player
+     *     The player that is enchanting the armored elytra.
      * @param armoredElytra
      *     The armored elytra to repair.
      * @param sourceItem
@@ -76,76 +89,119 @@ public class ArmoredElytraBuilder
      *
      * @return The new armored elytra.
      */
-    public @Nullable ItemStack enchant(ItemStack armoredElytra, ItemStack sourceItem, @Nullable String name)
+    public @Nullable ItemStack enchant(
+        HumanEntity player,
+        ItemStack armoredElytra,
+        ItemStack sourceItem,
+        @Nullable String name)
     {
         final EnchantmentContainer enchantments = EnchantmentContainer.getEnchantmentsOf(sourceItem, plugin);
         if (enchantments.isEmpty())
             return null;
-        return newBuilder().ofElytra(armoredElytra).addEnchantments(enchantments).withName(name).build();
+
+        return newBuilder(player)
+            .ofElytra(armoredElytra)
+            .addEnchantments(enchantments)
+            .withName(name)
+            .build();
     }
 
     /**
-     * Shortcut for combining two items in a smithing table.
+     * Shortcut for handling elytra input.
      *
+     * @param player
+     *     The player that provided the input.
      * @param input
-     *     The smithing table input.
-     * @param name
-     *     The new name of the output armored elytra. When this is null, the default name for the new tier will be
-     *     used.
+     *     The input to process.
      *
      * @return The new armored elytra.
      */
-    public ItemStack combine(SmithingTableInput input, @Nullable String name)
+    public @Nullable ItemStack handleInput(HumanEntity player, ElytraInput input)
     {
-        return newBuilder()
-            .ofElytra(input.elytra())
-            .combineWith(input.combinedWith(), input.newArmorTier())
-            .withTemplate(input.template())
-            .withName(name)
+        if (input.isBlocked())
+            return null;
+
+        final var builder = newBuilder(player)
+            .ofElytra(input.elytra());
+
+        final @Nullable var withAction = switch (input.inputAction())
+        {
+            case APPLY_TEMPLATE -> builder.applyTrim(input.template(), input.combinedWith());
+            case CREATE -> builder.combineWith(input.combinedWith(), input.newArmorTier());
+            case ENCHANT ->
+            {
+                final var container = EnchantmentContainer.getEnchantmentsOf(input.combinedWith(), plugin);
+                if (container.isEmpty())
+                    yield null;
+                yield builder.addEnchantments(container);
+            }
+            case RENAME -> builder.skipStep();
+            case REPAIR -> builder.repair(input.combinedWith());
+            case UPGRADE -> builder.upgradeToTier(input.newArmorTier());
+
+            // 'BLOCK' should have been handled by the caller. Nothing we can do about that here.
+            default -> throw new IllegalStateException("Unexpected input action: '" + input.inputAction() + "'");
+        };
+
+        return withAction == null ? null : withAction
+            .withName(input.name())
             .build();
     }
 
     /**
      * Shortcut for creating a new armored elytra from two items.
      *
+     * @param player
+     *     The player that is combining the items.
      * @param elytra
      *     The input item. This should be an (armored) elytra.
      * @param combiner
      *     The item to combine with the elytra. This should either be an armored elytra of the same non-NONE tier as the
      *     input elytra or a chestplate.
      * @param armorTier
-     *     The armor tier of the input item. If this is not known, use {@link #combine(ItemStack, ItemStack, String)}
-     *     instead.
+     *     The armor tier of the input item. If this is not known, use
+     *     {@link #combine(HumanEntity, ItemStack, ItemStack, String)} instead.
      * @param name
      *     The new name of the output armored elytra. When this is null,
      *     {@link ArmoredElytra#getArmoredElytraName(ArmorTier)} is used to set the name.
      *
      * @return The new armored elytra.
      */
-    public ItemStack combine(ItemStack elytra, ItemStack combiner, ArmorTier armorTier, @Nullable String name)
+    public ItemStack combine(
+        HumanEntity player,
+        ItemStack elytra,
+        ItemStack combiner,
+        ArmorTier armorTier,
+        @Nullable String name)
     {
-        return newBuilder().ofElytra(elytra).combineWith(combiner, armorTier).withName(name).build();
+        return newBuilder(player).ofElytra(elytra).combineWith(combiner, armorTier).withName(name).build();
     }
 
     /**
-     * See {@link #combine(ItemStack, ItemStack, ArmorTier, String)} for unknown armor tiers.
+     * See {@link #combine(HumanEntity, ItemStack, ItemStack, ArmorTier, String)} for unknown armor tiers.
      */
-    public ItemStack combine(ItemStack elytra, ItemStack combiner, @Nullable String name)
+    public ItemStack combine(HumanEntity player, ItemStack elytra, ItemStack combiner, @Nullable String name)
     {
-        return newBuilder().ofElytra(elytra).combineWith(combiner).withName(name).build();
+        return newBuilder(player)
+            .ofElytra(elytra)
+            .combineWith(combiner)
+            .withName(name)
+            .build();
     }
 
     /**
      * Creates a new armored elytra of a specific tier.
      *
+     * @param player
+     *     The player that is creating the new armored elytra.
      * @param armorTier
      *     The tier of the new armored elytra.
      *
      * @return The new armored elytra.
      */
-    public ItemStack newArmoredElytra(ArmorTier armorTier)
+    public ItemStack newArmoredElytra(HumanEntity player, ArmorTier armorTier)
     {
-        return newBuilder().newItem(armorTier).build();
+        return newBuilder(player).newItem(armorTier).build();
     }
 
     /**
@@ -174,16 +230,6 @@ public class ArmoredElytraBuilder
          * @return The current builder step.
          */
         IStep2 withColor(@Nullable Color color);
-
-        /**
-         * Specifies the template of the armored elytra.
-         *
-         * @param template
-         *     The template to use. When this is null (default), the template is inferred from the creation process.
-         *
-         * @return The current builder step.
-         */
-        IStep2 withTemplate(ItemStack template);
 
         /**
          * Specifies the new lore of the armored elytra.
@@ -232,6 +278,22 @@ public class ArmoredElytraBuilder
         IStep2 repair(int count);
 
         /**
+         * Repairs the armored elytra provided as input.
+         *
+         * @param repairItems
+         *     The repair items to use for repairing the armored elytra.
+         *
+         * @return The next step of the builder process.
+         *
+         * @throws NullPointerException
+         *     If the repair items are null.
+         */
+        default IStep2 repair(@Nullable ItemStack repairItems)
+        {
+            return repair(Objects.requireNonNull(repairItems, "Repair ItemStack cannot be null!").getAmount());
+        }
+
+        /**
          * Adds a set of enchantments to the armored elytra.
          *
          * @param enchantmentContainer
@@ -250,6 +312,38 @@ public class ArmoredElytraBuilder
          * @return The next step of the builder process.
          */
         IStep2 addEnchantments(ItemStack sourceItem);
+
+        /**
+         * Applies a pattern to the armored elytra.
+         *
+         * @param pattern
+         *     The pattern of the trim to apply.
+         * @param material
+         *     The material of the trim to apply.
+         *
+         * @return The next step of the builder process.
+         */
+        IStep2 applyTrim(Material pattern, Material material);
+
+        /**
+         * Applies a pattern to the armored elytra.
+         * <p>
+         * This is a convenience method that calls {@link #applyTrim(Material, Material)}.
+         *
+         * @param pattern
+         *     The item representing the pattern of the trim to apply.
+         * @param material
+         *     The item representing the material of the trim to apply.
+         *
+         * @return The next step of the builder process.
+         *
+         * @throws NullPointerException
+         *     If either of the items is null.
+         */
+        default IStep2 applyTrim(ItemStack pattern, ItemStack material)
+        {
+            return applyTrim(Objects.requireNonNull(pattern).getType(), Objects.requireNonNull(material).getType());
+        }
 
         /**
          * Combines the input elytra with another item.
@@ -280,6 +374,13 @@ public class ArmoredElytraBuilder
          * @return The next step of the builder process.
          */
         IStep2 upgradeToTier(ArmorTier armorTier);
+
+        /**
+         * Skips the current step and returns the next step.
+         *
+         * @return The next step of the builder process.
+         */
+        IStep2 skipStep();
     }
 
     /**
@@ -316,6 +417,11 @@ public class ArmoredElytraBuilder
         private final DurabilityManager durabilityManager;
         private final ConfigLoader config;
         private final ArmoredElytra plugin;
+
+        /**
+         * The player that is responsible for the build process.
+         */
+        private final HumanEntity player;
 
         // These aren't nullable, as they are set by the only entry points.
         /**
@@ -363,11 +469,6 @@ public class ArmoredElytraBuilder
         private @Nullable Color color;
 
         /**
-         * The template of the output armored elytra. This defaults to null.
-         */
-        private @Nullable ItemStack template;
-
-        /**
          * The other item to combine with the input elytra.
          */
         private @Nullable ItemStack otherItem;
@@ -378,12 +479,19 @@ public class ArmoredElytraBuilder
          */
         private @Nullable Boolean isUnbreakable = null;
 
+        /**
+         * The trim data of the output armored elytra.
+         */
+        private @Nullable ArmorTrimData trimData = null;
+
         private Builder(
+            HumanEntity player,
             NBTEditor nbtEditor,
             DurabilityManager durabilityManager,
             ConfigLoader config,
             ArmoredElytra plugin)
         {
+            this.player = player;
             this.nbtEditor = nbtEditor;
             this.durabilityManager = durabilityManager;
             this.config = config;
@@ -395,6 +503,10 @@ public class ArmoredElytraBuilder
         {
             // Get default values if unset.
             newArmorTier = newArmorTier == null ? currentArmorTier : newArmorTier;
+
+            if (!plugin.playerHasCraftPerm(player, newArmorTier))
+                return null;
+
             name = name == null ? plugin.getArmoredElytraName(newArmorTier) : name;
             lore = lore == null ? plugin.getElytraLore(newArmorTier) : lore;
 
@@ -407,7 +519,8 @@ public class ArmoredElytraBuilder
                 isUnbreakable,
                 name,
                 lore,
-                color);
+                color,
+                trimData);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
 
@@ -425,13 +538,6 @@ public class ArmoredElytraBuilder
         public IStep2 withColor(@Nullable Color color)
         {
             this.color = color;
-            return this;
-        }
-
-        @Override
-        public IStep2 withTemplate(ItemStack template)
-        {
-            this.template = template;
             return this;
         }
 
@@ -472,39 +578,49 @@ public class ArmoredElytraBuilder
         }
 
         @Override
+        public IStep2 applyTrim(Material pattern, Material material)
+        {
+            trimData = new ArmorTrimData(pattern, material);
+            return this;
+        }
+
+        @Override
         public IStep2 combineWith(ItemStack item, ArmorTier armorTier)
         {
-            if (armorTier == ArmorTier.NONE && !Util.isChestPlate(item))
-                throw new IllegalArgumentException("Non-armored elytras can only be combined with chest plates!");
+            if (armorTier == ArmorTier.NONE)
+                throw new IllegalArgumentException("Cannot combine an elytra with a non-armor item!");
+
+            if (currentArmorTier != ArmorTier.NONE)
+                throw new IllegalArgumentException("An armored elytra cannot be combined with another chestplate!");
 
             otherItem = item;
-
             newArmorTier = armorTier;
-            if (currentArmorTier == ArmorTier.NONE &&
-                item.getType().equals(Material.ELYTRA) && newArmorTier != ArmorTier.NONE)
-                throw new IllegalArgumentException("A regular elytra cannot be combined with an armored one!");
 
             withColor(getItemColor(newArmoredElytra, item));
-
             addEnchantments(item);
 
             durability = durabilityManager.getCombinedDurability(
                 newArmoredElytra, item, currentArmorTier, newArmorTier);
+
             return this;
         }
 
         @Override
         public IStep2 combineWith(ItemStack item)
         {
-            final ArmorTier armorTier = item.getType().equals(Material.ELYTRA) ?
-                                        nbtEditor.getArmorTier(item) : Util.armorToTier(item.getType());
-            return combineWith(item, armorTier);
+            return combineWith(item, nbtEditor.getArmorTier(item));
         }
 
         @Override
         public IStep2 upgradeToTier(ArmorTier armorTier)
         {
             newArmorTier = armorTier;
+            return this;
+        }
+
+        @Override
+        public IStep2 skipStep()
+        {
             return this;
         }
 
@@ -517,7 +633,7 @@ public class ArmoredElytraBuilder
             newArmoredElytra = new ItemStack(elytra);
 
             if (currentArmorTier == null)
-                currentArmorTier = nbtEditor.getArmorTier(elytra);
+                currentArmorTier = nbtEditor.getArmorTierFromElytra(elytra);
 
             combinedEnchantments = EnchantmentContainer.getEnchantmentsOf(newArmoredElytra, plugin);
 

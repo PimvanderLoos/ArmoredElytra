@@ -107,12 +107,12 @@ public class NBTEditor
      * @return The resulting item meta. If any changes were made, this will be a new instance of {@link ItemMeta}.
      * Otherwise, the input meta is returned.
      */
-    private ItemMeta copyArmorTrim(ItemMeta elytraMeta, ItemStack chestplate)
+    private void copyArmorTrim(ItemMeta elytraMeta, ItemStack chestplate)
     {
         if (trimEditor == null)
-            return elytraMeta;
+            return;
 
-        return trimEditor.copyArmorTrim(elytraMeta, chestplate);
+        trimEditor.copyArmorTrim(elytraMeta, chestplate);
     }
 
     /**
@@ -143,7 +143,8 @@ public class NBTEditor
         boolean unbreakable,
         String name,
         @Nullable List<String> lore,
-        @Nullable Color color)
+        @Nullable Color color,
+        @Nullable ArmorTrimData trimData)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -151,8 +152,8 @@ public class NBTEditor
         final ItemStack ret = new ItemStack(item);
         ItemMeta meta = getOrCreateItemMeta(ret);
 
-        if (otherItem != null && Util.isChestPlate(otherItem))
-            meta = copyArmorTrim(meta, otherItem);
+        if (Util.isChestPlate(otherItem))
+            copyArmorTrim(meta, otherItem);
 
         meta.getPersistentDataContainer().set(
             ARMOR_TIER_KEY,
@@ -181,6 +182,9 @@ public class NBTEditor
 
         if (armorTier == ArmorTier.NETHERITE && HAS_FIRE_RESISTANT_METHOD)
             meta.setFireResistant(true);
+
+        if (trimEditor != null)
+            trimEditor.applyArmorTrim(meta, trimData);
 
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);
@@ -228,18 +232,38 @@ public class NBTEditor
     }
 
     /**
-     * Checks which {@link ArmorTier} is on an item.
+     * Gets the {@link ArmorTier} of an item.
      *
-     * @param item
-     *     The item to check.
+     * @param itemStack
+     *     The item to check. If the item is not an armored elytra or chestplate, {@link ArmorTier#NONE} is returned.
      *
-     * @return The {@link ArmorTier} that is on the item. If none is found, {@link ArmorTier#NONE} is returned.
+     * @return The {@link ArmorTier} of the item if it is an armored elytra or chestplate. Otherwise,
+     * {@link ArmorTier#NONE} is returned.
      */
-    public ArmorTier getArmorTier(@Nullable ItemStack item)
+    public ArmorTier getArmorTier(@Nullable ItemStack itemStack)
     {
-        if (!isElytra(item))
+        if (itemStack == null)
             return ArmorTier.NONE;
-        return getArmorTier(item.getItemMeta());
+
+        if (Util.isChestPlate(itemStack))
+            return Util.armorToTier(itemStack);
+
+        return getArmorTier(itemStack.getItemMeta());
+    }
+
+    /**
+     * Checks which {@link ArmorTier} is on an elytra.
+     *
+     * @param elytra
+     *     The elytra to check.
+     *
+     * @return The {@link ArmorTier} if the elytra is an armored elytra, otherwise {@link ArmorTier#NONE}.
+     */
+    public ArmorTier getArmorTierFromElytra(@Nullable ItemStack elytra)
+    {
+        if (!isElytra(elytra))
+            return ArmorTier.NONE;
+        return getArmorTier(elytra.getItemMeta());
     }
 
     /**
@@ -295,7 +319,8 @@ public class NBTEditor
 
     private static @Nullable TrimEditor newTrimEditor()
     {
-        // TODO: Rewrite this once we have better version parsing.
+        if (!ArmoredElytra.SERVER_VERSION.isGreaterThanOrEqualTo(Semver.of(1, 20, 0)))
+            return null;
         try
         {
             return new TrimEditor();
@@ -304,6 +329,7 @@ public class NBTEditor
         {
             ArmoredElytra.getInstance().myLogger(
                 Level.INFO, "Failed to initialize TrimEditor! Item trimming will be disabled!");
+            t.printStackTrace();
             return null;
         }
     }
