@@ -5,7 +5,6 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.EnchantmentContainer;
 import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
-import nl.pim16aap2.armoredElytra.util.itemInput.InputAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -117,9 +116,9 @@ public class ArmoredElytraBuilder
      *
      * @return The new armored elytra.
      */
-    public @Nullable ItemStack handleInput(HumanEntity player, @Nullable ElytraInput input)
+    public @Nullable ItemStack handleInput(HumanEntity player, ElytraInput input)
     {
-        if (input == null || input.inputAction() == InputAction.BLOCK)
+        if (input.isBlocked())
             return null;
 
         final var builder = newBuilder(player)
@@ -127,8 +126,7 @@ public class ArmoredElytraBuilder
 
         final @Nullable var withAction = switch (input.inputAction())
         {
-            case RENAME -> builder.skipStep();
-            case REPAIR -> builder.repair(input.combinedWith());
+            case APPLY_TEMPLATE -> builder.applyTrim(input.template(), input.combinedWith());
             case CREATE -> builder.combineWith(input.combinedWith(), input.newArmorTier());
             case ENCHANT ->
             {
@@ -137,10 +135,13 @@ public class ArmoredElytraBuilder
                     yield null;
                 yield builder.addEnchantments(container);
             }
-            case APPLY_TEMPLATE -> throw new UnsupportedOperationException("Not implemented yet.");
-            default -> throw new IllegalStateException("Unexpected value: " + input.inputAction());
-        };
+            case RENAME -> builder.skipStep();
+            case REPAIR -> builder.repair(input.combinedWith());
+            case UPGRADE -> builder.upgradeToTier(input.newArmorTier());
 
+            // 'BLOCK' should have been handled by the caller. Nothing we can do about that here.
+            default -> throw new IllegalStateException("Unexpected input action: '" + input.inputAction() + "'");
+        };
 
         return withAction == null ? null : withAction
             .withName(input.name())
@@ -313,6 +314,38 @@ public class ArmoredElytraBuilder
         IStep2 addEnchantments(ItemStack sourceItem);
 
         /**
+         * Applies a pattern to the armored elytra.
+         *
+         * @param pattern
+         *     The pattern of the trim to apply.
+         * @param material
+         *     The material of the trim to apply.
+         *
+         * @return The next step of the builder process.
+         */
+        IStep2 applyTrim(Material pattern, Material material);
+
+        /**
+         * Applies a pattern to the armored elytra.
+         * <p>
+         * This is a convenience method that calls {@link #applyTrim(Material, Material)}.
+         *
+         * @param pattern
+         *     The item representing the pattern of the trim to apply.
+         * @param material
+         *     The item representing the material of the trim to apply.
+         *
+         * @return The next step of the builder process.
+         *
+         * @throws NullPointerException
+         *     If either of the items is null.
+         */
+        default IStep2 applyTrim(ItemStack pattern, ItemStack material)
+        {
+            return applyTrim(Objects.requireNonNull(pattern).getType(), Objects.requireNonNull(material).getType());
+        }
+
+        /**
          * Combines the input elytra with another item.
          *
          * @param item
@@ -446,6 +479,11 @@ public class ArmoredElytraBuilder
          */
         private @Nullable Boolean isUnbreakable = null;
 
+        /**
+         * The trim data of the output armored elytra.
+         */
+        private @Nullable ArmorTrimData trimData = null;
+
         private Builder(
             HumanEntity player,
             NBTEditor nbtEditor,
@@ -481,7 +519,8 @@ public class ArmoredElytraBuilder
                 isUnbreakable,
                 name,
                 lore,
-                color);
+                color,
+                trimData);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
 
@@ -536,6 +575,13 @@ public class ArmoredElytraBuilder
         public IStep2 addEnchantments(ItemStack sourceItem)
         {
             return addEnchantments(EnchantmentContainer.getEnchantmentsOf(sourceItem, plugin));
+        }
+
+        @Override
+        public IStep2 applyTrim(Material pattern, Material material)
+        {
+            trimData = new ArmorTrimData(pattern, material);
+            return this;
         }
 
         @Override

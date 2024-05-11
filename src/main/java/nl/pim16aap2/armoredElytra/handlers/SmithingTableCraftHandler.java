@@ -12,8 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.SmithingInventory;
 
-import javax.annotation.Nullable;
-
 public class SmithingTableCraftHandler extends SmithingTableListener
 {
     public SmithingTableCraftHandler(
@@ -35,8 +33,8 @@ public class SmithingTableCraftHandler extends SmithingTableListener
     {
         final SmithingInventory inventory = event.getInventory();
 
-        final @Nullable ElytraInput input = ElytraInput.fromInventory(config, inventory);
-        if (ElytraInput.isIgnored(input))
+        final var input = ElytraInput.fromInventory(config, inventory);
+        if (input.isIgnored())
             return;
 
         event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));

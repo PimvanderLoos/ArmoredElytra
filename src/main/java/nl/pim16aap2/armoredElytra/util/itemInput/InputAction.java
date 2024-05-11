@@ -11,6 +11,11 @@ public enum InputAction
     CREATE,
 
     /**
+     * Upgrade an existing armored elytra.
+     */
+    UPGRADE,
+
+    /**
      * The input is used to repair an armored elytra.
      */
     REPAIR,

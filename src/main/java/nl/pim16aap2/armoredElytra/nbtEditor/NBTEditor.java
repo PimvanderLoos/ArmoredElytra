@@ -107,12 +107,12 @@ public class NBTEditor
      * @return The resulting item meta. If any changes were made, this will be a new instance of {@link ItemMeta}.
      * Otherwise, the input meta is returned.
      */
-    private ItemMeta copyArmorTrim(ItemMeta elytraMeta, ItemStack chestplate)
+    private void copyArmorTrim(ItemMeta elytraMeta, ItemStack chestplate)
     {
         if (trimEditor == null)
-            return elytraMeta;
+            return;
 
-        return trimEditor.copyArmorTrim(elytraMeta, chestplate);
+        trimEditor.copyArmorTrim(elytraMeta, chestplate);
     }
 
     /**
@@ -143,7 +143,8 @@ public class NBTEditor
         boolean unbreakable,
         String name,
         @Nullable List<String> lore,
-        @Nullable Color color)
+        @Nullable Color color,
+        @Nullable ArmorTrimData trimData)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -151,8 +152,8 @@ public class NBTEditor
         final ItemStack ret = new ItemStack(item);
         ItemMeta meta = getOrCreateItemMeta(ret);
 
-        if (otherItem != null && Util.isChestPlate(otherItem))
-            meta = copyArmorTrim(meta, otherItem);
+        if (Util.isChestPlate(otherItem))
+            copyArmorTrim(meta, otherItem);
 
         meta.getPersistentDataContainer().set(
             ARMOR_TIER_KEY,
@@ -181,6 +182,9 @@ public class NBTEditor
 
         if (armorTier == ArmorTier.NETHERITE && HAS_FIRE_RESISTANT_METHOD)
             meta.setFireResistant(true);
+
+        if (trimEditor != null)
+            trimEditor.applyArmorTrim(meta, trimData);
 
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);
@@ -324,6 +328,7 @@ public class NBTEditor
         {
             ArmoredElytra.getInstance().myLogger(
                 Level.INFO, "Failed to initialize TrimEditor! Item trimming will be disabled!");
+            t.printStackTrace();
             return null;
         }
     }

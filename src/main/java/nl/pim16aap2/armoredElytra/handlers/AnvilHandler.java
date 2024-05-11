@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 public class AnvilHandler extends ArmoredElytraHandler implements Listener
 {
@@ -49,8 +50,8 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
         if (!(event.getView().getPlayer() instanceof Player player))
             return;
 
-        final @Nullable ElytraInput input = ElytraInput.fromInventory(config, durabilityManager, event.getInventory());
-        if (ElytraInput.isIgnored(input))
+        final var input = ElytraInput.fromInventory(config, durabilityManager, event.getInventory());
+        if (input.isIgnored())
             return;
 
         event.setResult(armoredElytraBuilder.handleInput(player, input));
@@ -69,16 +70,26 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             return;
 
         final @Nullable ItemStack result = anvilInventory.getItem(2);
+        final var input = ElytraInput.fromInventory(config, durabilityManager, anvilInventory);
 
-        final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(result);
-        if (armorTier == ArmorTier.NONE)
+        if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
+        {
+            plugin.myLogger(
+                Level.SEVERE, "Anvil: Attempted to retrieve an item that is not an armored elytra! Result: " + result +
+                    ", input: " + input);
+            return;
+        }
+
+        if (input.isIgnored())
             return;
 
         event.setCancelled(true);
 
-        final @Nullable var input = ElytraInput.fromInventory(config, durabilityManager, anvilInventory);
-        if (input == null)
+        if (input.isBlocked())
+        {
+            plugin.getLogger().severe("Anvil: Attempted to retrieve an item from a blocked recipe! Input: " + input);
             return;
+        }
 
         if (!giveItemToPlayer(player, result, event.isShiftClick()))
             return;

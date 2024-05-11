@@ -7,11 +7,13 @@ import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -53,9 +55,6 @@ public record ElytraInput(
     ArmorTier newArmorTier
 )
 {
-    /**
-     * The default instance of {@link ElytraInput} used when the {@link InputAction} is {@link InputAction#IGNORE}.
-     */
     private static final ElytraInput IGNORED =
         new ElytraInput(
             new ItemStack(Material.ELYTRA),
@@ -64,7 +63,8 @@ public record ElytraInput(
             null,
             InputAction.IGNORE,
             ArmorTier.NONE,
-            ArmorTier.NONE);
+            ArmorTier.NONE
+        );
 
     public ElytraInput
     {
@@ -85,15 +85,26 @@ public record ElytraInput(
 
     /**
      * Checks whether the input is ignored.
-     *
-     * @param input
-     *     The input to check. If null, this method will return false.
+     * <p>
+     * When the input is ignored, the plugin will not do anything and let the server decide what to do.
      *
      * @return Whether the input is ignored.
      */
-    public static boolean isIgnored(@Nullable ElytraInput input)
+    public boolean isIgnored()
     {
-        return input != null && input.inputAction() == InputAction.IGNORE;
+        return inputAction == InputAction.IGNORE;
+    }
+
+    /**
+     * Checks whether the input is blocked.
+     * <p>
+     * When the input is blocked, the plugin will not handle the input and prevent the server from doing so either.
+     *
+     * @return Whether the input is blocked.
+     */
+    public boolean isBlocked()
+    {
+        return inputAction == InputAction.BLOCK;
     }
 
     /**
@@ -109,7 +120,7 @@ public record ElytraInput(
      *
      * @return The created {@link ElytraInput} or null if the input is invalid.
      */
-    public static @Nullable ElytraInput fromInventory(
+    public static @Nonnull ElytraInput fromInventory(
         ConfigLoader config,
         DurabilityManager durabilityManager,
         AnvilInventory inventory)
@@ -181,10 +192,21 @@ public record ElytraInput(
         }
 
         if (inputAction == null)
-            return null;
-
-        if (inputAction == InputAction.IGNORE)
-            return ElytraInput.IGNORED;
+            throw new IllegalStateException(String.format(
+                """
+                Could not determine the input action for the input:
+                Input items: %s
+                Template: %s
+                NameUpdate: %s
+                Old armor tier: %s
+                New armor tier: %s
+                """,
+                inputItems,
+                null,
+                nameUpdate,
+                oldArmorTier,
+                newArmorTier
+            ));
 
         return new ElytraInput(
             inputItems,
@@ -207,37 +229,60 @@ public record ElytraInput(
      *
      * @return The created {@link ElytraInput} or null if the input is invalid.
      */
-    public static @Nullable ElytraInput fromInventory(ConfigLoader config, SmithingInventory inventory)
+    public static @Nonnull ElytraInput fromInventory(ConfigLoader config, SmithingInventory inventory)
     {
         final ItemStack[] contents = inventory.getContents();
 
         final InputItems inputItems = InputItems.fromContents(
             SMITHING_TABLE_INPUT_SLOT_1, SMITHING_TABLE_INPUT_SLOT_2, contents);
-
-        if (!inputItems.isValid())
+        if (!inputItems.isValid() || inputItems.combinedWith() == null)
             return ElytraInput.IGNORED;
 
-        // Only a regular elytra can be upgraded into an armored elytra.
+        var newArmorTier = Util.armorToTier(inputItems.combinedWith());
         final var oldArmorTier = ArmoredElytra.getInstance().getNbtEditor().getArmorTierFromElytra(inputItems.elytra());
-        if (oldArmorTier != ArmorTier.NONE)
-            return ElytraInput.IGNORED;
-
-        // We can only apply chest plates to elytras.
-        final var newArmorTier = Util.armorToTier(inputItems.combinedWith());
-        if (newArmorTier == ArmorTier.NONE)
-            return ElytraInput.IGNORED;
-
         final @Nullable ItemStack template =
             SMITHING_TABLE_HAS_TEMPLATE_SLOT ? contents[SMITHING_TABLE_TEMPLATE_SLOT] : null;
+        final @Nullable Material templateType = template != null ? template.getType() : null;
 
-        if (!config.allowCraftingInSmithingTable())
-            return ElytraInput.IGNORED;
+        final @Nullable InputAction inputAction;
+        if (oldArmorTier == ArmorTier.NONE)
+        {
+            if (config.allowCraftingInSmithingTable() && newArmorTier != ArmorTier.NONE)
+                inputAction = InputAction.CREATE;
+            else
+                // Ignore other handling of regular elytras.
+                inputAction = InputAction.IGNORE;
+        }
 
-        final var inputAction = InputAction.CREATE;
+        else if (!SMITHING_TABLE_HAS_TEMPLATE_SLOT || templateType == Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+        {
+            if (config.allowUpgradeToNetherite() &&
+                oldArmorTier == ArmorTier.DIAMOND &&
+                inputItems.combinedWithType() == Material.NETHERITE_INGOT)
+            {
+                inputAction = InputAction.UPGRADE;
+                newArmorTier = ArmorTier.NETHERITE;
+            }
+            else
+                inputAction = InputAction.IGNORE;
+        }
+
+        else if (template == null)
+        {
+            inputAction = InputAction.IGNORE;
+        }
+
+        else
+        {
+            if (Tag.ITEMS_TRIM_MATERIALS.isTagged(inputItems.combinedWith().getType()) &&
+                Tag.ITEMS_TRIM_TEMPLATES.isTagged(templateType))
+                inputAction = InputAction.APPLY_TEMPLATE;
+            else
+                inputAction = InputAction.IGNORE;
+        }
 
         return new ElytraInput(
-            inputItems.elytra(),
-            inputItems.combinedWith(),
+            inputItems,
             template,
             null,
             inputAction,

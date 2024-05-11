@@ -6,7 +6,6 @@ import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
-import nl.pim16aap2.armoredElytra.handlers.NetheriteUpgradeListener;
 import nl.pim16aap2.armoredElytra.handlers.SmithingTableCraftHandler;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
@@ -104,10 +103,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                 new AnvilHandler(this, nbtEditor, durabilityManager, config);
 
             Bukkit.getPluginManager().registerEvents(creationListener, this);
-            if (config.allowUpgradeToNetherite())
-                Bukkit.getPluginManager()
-                      .registerEvents(
-                          new NetheriteUpgradeListener(this, nbtEditor, durabilityManager, config), this);
 
             if (NBTEditor.HAS_FIRE_RESISTANT_METHOD)
                 Bukkit.getPluginManager().registerEvents(new DroppedNetheriteUpdateListener(nbtEditor), this);
