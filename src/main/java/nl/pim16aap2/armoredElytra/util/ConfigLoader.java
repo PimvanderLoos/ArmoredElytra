@@ -1,7 +1,6 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
@@ -23,6 +22,8 @@ public class ConfigLoader
         "Config file for ArmoredElytra. Don't forget to make a backup before making changes!";
 
     private final ArmoredElytra plugin;
+
+    private final EnchantmentParser enchantmentParser;
 
     private final int[] repairCounts = new int[ArmorTier.values().length];
     private final ArrayList<ConfigOption<?>> configOptionsList = new ArrayList<>();
@@ -48,6 +49,7 @@ public class ConfigLoader
     public ConfigLoader(ArmoredElytra plugin)
     {
         this.plugin = plugin;
+        this.enchantmentParser = new EnchantmentParser(plugin);
         makeConfig();
     }
 
@@ -237,36 +239,10 @@ public class ConfigLoader
         writeConfig();
     }
 
-    private @Nullable Enchantment enchantmentFromNameSpacedKey(String fullKey)
-    {
-        try
-        {
-            final String[] keyParts = fullKey.strip().split(":", 2);
-            if (keyParts.length < 2)
-            {
-                plugin.getLogger().warning("\"" + fullKey + "\" is not a valid NamespacedKey!");
-                return null;
-            }
-            //noinspection deprecation
-            final NamespacedKey key = new NamespacedKey(keyParts[0], keyParts[1]);
-            final Enchantment enchantment = Enchantment.getByKey(key);
-            if (enchantment == null)
-            {
-                plugin.getLogger().warning("The enchantment \"" + fullKey + "\" could not be found!");
-                return null;
-            }
-            return enchantment;
-        }
-        catch (Exception e)
-        {
-            plugin.getLogger().log(Level.WARNING, e, () -> "Failed to register NamespacedKey key: '" + fullKey + "'");
-        }
-        return null;
-    }
 
     private void addNameSpacedKey(String fullKey)
     {
-        final @Nullable Enchantment enchantment = enchantmentFromNameSpacedKey(fullKey);
+        final @Nullable Enchantment enchantment = enchantmentParser.parse(fullKey);
         if (enchantment != null)
             allowedEnchantments.add(enchantment);
     }
@@ -276,7 +252,7 @@ public class ConfigLoader
         final List<Enchantment> enchantments = new LinkedList<>();
         for (String fullKey : fullKeys)
         {
-            final @Nullable Enchantment enchantment = enchantmentFromNameSpacedKey(fullKey);
+            final @Nullable Enchantment enchantment = enchantmentParser.parse(fullKey);
             if (enchantment != null)
                 enchantments.add(enchantment);
         }
