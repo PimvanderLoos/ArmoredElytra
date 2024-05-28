@@ -8,23 +8,19 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class CommandHandler implements CommandExecutor
 {
     private final ArmoredElytra plugin;
-    private static Field BY_KEY_FIELD;
     private final ArmoredElytraBuilder armoredElytraBuilder;
 
     public CommandHandler(
@@ -146,27 +142,8 @@ public class CommandHandler implements CommandExecutor
 
     private void listAvailableEnchantments()
     {
-        try
-        {
-            if (BY_KEY_FIELD == null)
-            {
-                BY_KEY_FIELD = Enchantment.class.getDeclaredField("byKey");
-                BY_KEY_FIELD.setAccessible(true);
-            }
-
-            @SuppressWarnings("unchecked") final Map<NamespacedKey, Enchantment> byKey =
-                (Map<NamespacedKey, Enchantment>) BY_KEY_FIELD.get(null);
-
-            final StringBuilder sb = new StringBuilder("\nAvailable enchantments: \n");
-            byKey.keySet().stream()
-                 .map(NamespacedKey::toString).sorted()
-                 .forEach(name -> sb.append("  - ").append(name).append("\n"));
-
-            plugin.getLogger().info(sb.toString());
-        }
-        catch (NoSuchFieldException | IllegalAccessException e)
-        {
-            throw new RuntimeException("Failed to get registered enchantments!", e);
-        }
+        final StringBuilder sb = new StringBuilder("\nAvailable enchantments: \n");
+        Registry.ENCHANTMENT.forEach(enchantment -> sb.append("  - ").append(enchantment.getKey()).append("\n"));
+        plugin.getLogger().info(sb.toString());
     }
 }
