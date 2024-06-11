@@ -195,7 +195,12 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
             return;
 
         final @Nullable ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
+        if (result == null)
+            return;
+
         final var input = ElytraInput.fromInventory(config, smithingInventory);
+        if (input.isIgnored())
+            return;
 
         if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
         {
@@ -205,9 +210,6 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
                     ", input: " + input);
             return;
         }
-
-        if (input.isIgnored())
-            return;
 
         event.setCancelled(true);
 

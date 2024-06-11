@@ -60,18 +60,21 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
             return;
 
         final @Nullable ItemStack result = anvilInventory.getItem(2);
+        if (result == null)
+            return;
+
         final var input = ElytraInput.fromInventory(config, durabilityManager, anvilInventory);
+        if (input.isIgnored())
+            return;
 
         if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
         {
             plugin.myLogger(
-                Level.SEVERE, "Anvil: Attempted to retrieve an item that is not an armored elytra! Result: " + result +
+                Level.SEVERE,
+                "Anvil: Attempted to retrieve an item that is not an armored elytra! Result: " + result +
                     ", input: " + input);
             return;
         }
-
-        if (input.isIgnored())
-            return;
 
         event.setCancelled(true);
 
