@@ -37,7 +37,7 @@ import java.util.logging.Level;
 public class ArmoredElytra extends JavaPlugin implements Listener
 {
     public static final Semver SERVER_VERSION =
-        Objects.requireNonNull(Semver.coerce(Bukkit.getServer().getBukkitVersion()));
+        Objects.requireNonNull(Semver.coerce(Bukkit.getServer().getBukkitVersion())).withClearedPreReleaseAndBuild();
 
     private static ArmoredElytra INSTANCE;
     private Messages messages;
