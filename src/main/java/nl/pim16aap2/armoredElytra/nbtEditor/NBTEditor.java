@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,7 +20,6 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class NBTEditor
@@ -39,10 +37,12 @@ public class NBTEditor
         new NamespacedKey(ArmoredElytra.getInstance(), "armored_elytra_durability");
 
 
+    private final AttributeModifierManager attributeModifierManager;
     private final @Nullable TrimEditor trimEditor;
 
     public NBTEditor()
     {
+        attributeModifierManager = AttributeModifierManager.create(ArmoredElytra.SERVER_VERSION);
         trimEditor = newTrimEditor();
     }
 
@@ -166,14 +166,7 @@ public class NBTEditor
                 PersistentDataType.INTEGER,
                 color.asRGB());
 
-        overwriteNBTValue(meta, Attribute.GENERIC_ARMOR, ArmorTier.getArmor(armorTier), "generic.armor");
-        if (ArmorTier.getToughness(armorTier) > 0)
-            overwriteNBTValue(meta, Attribute.GENERIC_ARMOR_TOUGHNESS, ArmorTier.getToughness(armorTier),
-                              "generic.armor_toughness");
-
-        if (ArmorTier.getKnockbackResistance(armorTier) > 0)
-            overwriteNBTValue(meta, Attribute.GENERIC_KNOCKBACK_RESISTANCE, ArmorTier.getKnockbackResistance(armorTier),
-                              "generic.knockback_resistance");
+        attributeModifierManager.overwriteAttributeModifiers(meta, armorTier);
 
         meta.setUnbreakable(unbreakable);
         meta.setDisplayName(name);
@@ -189,17 +182,6 @@ public class NBTEditor
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);
         return ret;
-    }
-
-    void overwriteNBTValue(ItemMeta meta, Attribute attribute, double value, String modifierName)
-    {
-        if (meta.hasAttributeModifiers())
-            meta.removeAttributeModifier(attribute);
-
-        final AttributeModifier attributeModifier = new AttributeModifier(UUID.randomUUID(), modifierName, value,
-                                                                          AttributeModifier.Operation.ADD_NUMBER,
-                                                                          EquipmentSlot.CHEST);
-        meta.addAttributeModifier(attribute, attributeModifier);
     }
 
     ArmorTier getArmorTier(@Nullable ItemMeta meta)
