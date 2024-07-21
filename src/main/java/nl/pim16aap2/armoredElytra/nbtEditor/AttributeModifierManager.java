@@ -1,5 +1,7 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -9,7 +11,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.semver4j.Semver;
 
-import java.lang.reflect.Constructor;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -65,7 +67,14 @@ abstract class AttributeModifierManager
      */
     public final void overwriteAttributeModifiers(ItemMeta meta, ArmorTier armorTier)
     {
-        ATTRIBUTE_SETTERS.forEach(setter -> setter.apply(this, meta, armorTier));
+        final @Nullable Multimap<Attribute, AttributeModifier> existingModifiers = meta.getAttributeModifiers();
+
+        final Multimap<Attribute, AttributeModifier> updatedModifiers =
+            existingModifiers == null ? LinkedHashMultimap.create() : LinkedHashMultimap.create(existingModifiers);
+
+        ATTRIBUTE_SETTERS.forEach(setter -> setter.apply(this, updatedModifiers, armorTier));
+
+        meta.setAttributeModifiers(updatedModifiers);
     }
 
     protected abstract AttributeModifier newGenericArmorModifier(double value);
@@ -82,9 +91,6 @@ abstract class AttributeModifierManager
     @SuppressWarnings("UnstableApiUsage")
     private static final class AttributeModifierManagerNamespacedKey extends AttributeModifierManager
     {
-        private static final Constructor<AttributeModifier> ATTRIBUTE_MODIFIER_CONSTRUCTOR =
-            findAttributeModifierConstructor();
-
         @Override
         protected AttributeModifier newGenericArmorModifier(double value)
         {
@@ -105,38 +111,12 @@ abstract class AttributeModifierManager
 
         private static AttributeModifier addNumberToChestModifier(NamespacedKey key, double value)
         {
-            try
-            {
-                return ATTRIBUTE_MODIFIER_CONSTRUCTOR.newInstance(
-                    key,
-                    value,
-                    AttributeModifier.Operation.ADD_NUMBER,
-                    EquipmentSlotGroup.CHEST
-                );
-            }
-            catch (ReflectiveOperationException e)
-            {
-                throw new RuntimeException(
-                    "Could not create a new AttributeModifier{ key: " + key + ", value: " + value + " }", e);
-            }
-        }
-
-        private static Constructor<AttributeModifier> findAttributeModifierConstructor()
-        {
-            try
-            {
-                //noinspection JavaReflectionMemberAccess
-                return AttributeModifier.class.getDeclaredConstructor(
-                    NamespacedKey.class,
-                    double.class,
-                    AttributeModifier.Operation.class,
-                    EquipmentSlotGroup.class
-                );
-            }
-            catch (NoSuchMethodException e)
-            {
-                throw new RuntimeException("Could not find the constructor of AttributeModifier.", e);
-            }
+            return new AttributeModifier(
+                key,
+                value,
+                AttributeModifier.Operation.ADD_NUMBER,
+                EquipmentSlotGroup.CHEST
+            );
         }
     }
 
@@ -186,6 +166,7 @@ abstract class AttributeModifierManager
             );
         }
 
+        @SuppressWarnings("deprecation") // It's not deprecated on the version this is used on.
         private AttributeModifier addNumberToChestModifier(UUID key, Attribute attribute, double value)
         {
             return new AttributeModifier(
@@ -215,23 +196,41 @@ abstract class AttributeModifierManager
     )
     {
         /**
-         * Applies the attribute modifier to the item meta.
+         * Applies the attribute modifier to the existing attribute modifiers of the item meta.
          * <p>
          * If the attribute modifier already exists, it will be removed first.
          *
          * @param manager
          *     The manager to apply the attribute modifier with.
-         * @param meta
-         *     The item meta to apply the attribute modifier to.
+         * @param modifiers
+         *     The existing attribute modifiers of the item meta.
          * @param armorTier
          *     The armor tier to get the value from.
          */
-        public void apply(AttributeModifierManager manager, ItemMeta meta, ArmorTier armorTier)
+        void apply(
+            AttributeModifierManager manager,
+            Multimap<Attribute, AttributeModifier> modifiers,
+            ArmorTier armorTier)
         {
-            meta.removeAttributeModifier(attribute);
+            try
+            {
+                modifiers.removeAll(attribute);
 
-            final double value = valuePredicate.applyAsDouble(armorTier);
-            meta.addAttributeModifier(attribute, creator.apply(manager, value));
+                final double value = valuePredicate.applyAsDouble(armorTier);
+                final AttributeModifier modifier = creator.apply(manager, value);
+
+                modifiers.put(attribute, modifier);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(
+                    "Failed to apply attribute modifier!" +
+                        "\n  For attribute:  " + attribute +
+                        "\n  For armor tier: " + armorTier +
+                        "\n  With current modifiers: " + modifiers,
+                    e
+                );
+            }
         }
     }
 }

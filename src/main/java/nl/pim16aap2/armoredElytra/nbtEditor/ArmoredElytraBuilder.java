@@ -118,6 +118,18 @@ public class ArmoredElytraBuilder
      */
     public @Nullable ItemStack handleInput(HumanEntity player, ElytraInput input)
     {
+        try
+        {
+            return handleInput0(player, input);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("An error occurred while handling input: " + input, e);
+        }
+    }
+
+    private @Nullable ItemStack handleInput0(HumanEntity player, ElytraInput input)
+    {
         if (input.isBlocked())
             return null;
 
@@ -174,7 +186,11 @@ public class ArmoredElytraBuilder
         ArmorTier armorTier,
         @Nullable String name)
     {
-        return newBuilder(player).ofElytra(elytra).combineWith(combiner, armorTier).withName(name).build();
+        return newBuilder(player)
+            .ofElytra(elytra)
+            .combineWith(combiner, armorTier)
+            .withName(name)
+            .build();
     }
 
     /**
@@ -201,7 +217,9 @@ public class ArmoredElytraBuilder
      */
     public ItemStack newArmoredElytra(HumanEntity player, ArmorTier armorTier)
     {
-        return newBuilder(player).newItem(armorTier).build();
+        return newBuilder(player)
+            .newItem(armorTier)
+            .build();
     }
 
     /**
@@ -501,6 +519,18 @@ public class ArmoredElytraBuilder
         @Override
         public ItemStack build()
         {
+            try
+            {
+                return build0();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("An error occurred while building the armored elytra from data: " + this, e);
+            }
+        }
+
+        private ItemStack build0()
+        {
             // Get default values if unset.
             newArmorTier = newArmorTier == null ? currentArmorTier : newArmorTier;
 
@@ -690,6 +720,25 @@ public class ArmoredElytraBuilder
                 return null;
 
             return ((LeatherArmorMeta) itemStack.getItemMeta()).getColor();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Builder{" +
+                "player=" + player +
+                ", newArmoredElytra=" + newArmoredElytra +
+                ", combinedEnchantments=" + combinedEnchantments +
+                ", currentArmorTier=" + currentArmorTier +
+                ", newArmorTier=" + newArmorTier +
+                ", durability=" + durability +
+                ", name='" + name + '\'' +
+                ", lore=" + lore +
+                ", color=" + color +
+                ", otherItem=" + otherItem +
+                ", isUnbreakable=" + isUnbreakable +
+                ", trimData=" + trimData +
+                '}';
         }
     }
 }
