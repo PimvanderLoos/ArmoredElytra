@@ -195,7 +195,18 @@ public class DurabilityManager
             return 0;
 
         final int realDurability = nbtEditor.getRealDurability(item, currentTier);
-        return realDurability == -1 ? upgradeArmoredElytraToDurability(item, currentTier) : realDurability;
+
+        // If the vanilla durability is 0, we assume that the item was repaired externally.
+        // In this case, we need to update the real durability.
+        if (getItemDurability(item) == 0 && realDurability > 0)
+        {
+            nbtEditor.updateDurability(item, 0, 0);
+            return 0;
+        }
+
+        return realDurability == NBTEditor.HAS_NO_CUSTOM_DURABILITY ?
+               upgradeArmoredElytraToDurability(item, currentTier) :
+               realDurability;
     }
 
     /**
@@ -238,9 +249,7 @@ public class DurabilityManager
         final int maxDurability = getMaxDurability(currentTier);
         final int rawDurability = getItemDurability(armoredElytra);
 
-        final int realDurability = maxDurability == ELYTRA_MAX_DURABILITY ?
-                                   rawDurability :
-                                   getRemappedDurability(rawDurability, ELYTRA_MAX_DURABILITY, maxDurability);
+        final int realDurability = getRemappedDurability(rawDurability, ELYTRA_MAX_DURABILITY, maxDurability);
 
         nbtEditor.updateDurability(armoredElytra, realDurability, rawDurability);
         return realDurability;
@@ -338,8 +347,19 @@ public class DurabilityManager
      */
     private int getRemappedDurability(int durability, int oldMax, int newMax)
     {
-        final float relativeDurability = (float) durability / oldMax;
-        return Util.between((int) Math.ceil(relativeDurability * newMax), 0, newMax);
+        if (durability == 0)
+            return 0;
+
+        final int scaledDurability;
+        if (oldMax == newMax)
+            scaledDurability = durability;
+        else
+        {
+            final float relativeDurability = (float) durability / oldMax;
+            scaledDurability = (int) Math.ceil(relativeDurability * newMax);
+        }
+
+        return Util.between(scaledDurability, 0, newMax);
     }
 
     /**

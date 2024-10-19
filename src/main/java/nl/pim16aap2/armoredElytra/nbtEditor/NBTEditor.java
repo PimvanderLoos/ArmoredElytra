@@ -36,6 +36,10 @@ public class NBTEditor
     private static final NamespacedKey DURABILITY_KEY =
         new NamespacedKey(ArmoredElytra.getInstance(), "armored_elytra_durability");
 
+    /**
+     * Magic value to indicate that an item has no custom durability.
+     */
+    public static final int HAS_NO_CUSTOM_DURABILITY = -1;
 
     private final AttributeModifierManager attributeModifierManager;
     private final @Nullable TrimEditor trimEditor;
@@ -54,7 +58,8 @@ public class NBTEditor
      * @param providedTier
      *     The armor tier of the armored elytra. If this is null, it will be retrieved from NBT.
      *
-     * @return The real durability of the itemstack if the itemstack has the AE durability attribute, or -1 otherwise.
+     * @return The real durability of the itemstack if the itemstack has the AE durability attribute, or
+     * {@link #HAS_NO_CUSTOM_DURABILITY} otherwise.
      */
     public int getRealDurability(ItemStack itemStack, @Nullable ArmorTier providedTier)
     {
@@ -62,16 +67,13 @@ public class NBTEditor
         final ArmorTier armorTier = providedTier == null ? getArmorTier(meta) : providedTier;
 
         if (armorTier == ArmorTier.NONE)
-            return -1;
-
-        if (!(meta instanceof Damageable))
-            throw new IllegalStateException("Item \"" + itemStack + "\" with meta \"" + meta + "\" is not Damageable!");
+            return HAS_NO_CUSTOM_DURABILITY;
 
         final @Nullable Integer realDurability =
             Objects.requireNonNull(meta, "Meta cannot be null for armored elytras!")
                    .getPersistentDataContainer().get(DURABILITY_KEY, PersistentDataType.INTEGER);
 
-        return realDurability == null ? -1 : realDurability;
+        return realDurability == null ? HAS_NO_CUSTOM_DURABILITY : realDurability;
     }
 
     /**
@@ -90,8 +92,13 @@ public class NBTEditor
         final ItemMeta meta = getOrCreateItemMeta(itemStack);
         meta.getPersistentDataContainer().set(DURABILITY_KEY, PersistentDataType.INTEGER, realDurability);
 
-        if (meta instanceof Damageable)
-            ((Damageable) meta).setDamage(displayDurability);
+        // If the real durability is not 0 (i.e. fully repaired), the display durability should be at least 1.
+        // This is to prevent issues with the assumption that a vanilla durability of 0 means that the item
+        // was externally repaired (e.g. with /repair).
+        final int fixedDisplayDurability = realDurability > 0 ? Math.max(1, displayDurability) : displayDurability;
+
+        if (meta instanceof Damageable damageable)
+            damageable.setDamage(fixedDisplayDurability);
 
         itemStack.setItemMeta(meta);
     }
