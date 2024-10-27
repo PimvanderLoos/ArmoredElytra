@@ -109,10 +109,10 @@ final class TrimEditor
      */
     private static Map<Material, TrimPattern> getTrimPatternMap()
     {
-        final var templates = Tag.ITEMS_TRIM_TEMPLATES;
-        final Map<Material, TrimPattern> map = new HashMap<>(templates.getValues().size());
+        final var templates = Tag.ITEMS_TRIM_TEMPLATES.getValues();
+        final Map<Material, TrimPattern> map = new HashMap<>(templates.size());
 
-        for (final var template : templates.getValues())
+        for (final var template : templates)
         {
             final String name = template.name().replace("_ARMOR_TRIM_SMITHING_TEMPLATE", "");
             try
@@ -124,9 +124,9 @@ final class TrimEditor
             catch (NoSuchFieldException | IllegalAccessException | ClassCastException e)
             {
                 ArmoredElytra.getInstance().myLogger(
-                    Level.SEVERE, "Failed to get TrimPattern for template: '" + name + "'!");
-                //noinspection CallToPrintStackTrace
-                e.printStackTrace();
+                    Level.SEVERE,
+                    "Failed to get TrimPattern with name: '" + name + "' for template: '" + template + "'!"
+                );
             }
         }
 
