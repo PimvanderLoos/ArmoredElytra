@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -201,7 +200,7 @@ public class NBTEditor
         if (tierID != null)
             return ArmorTier.getArmorTierFromID(tierID);
 
-        final Collection<AttributeModifier> attributeModifiers = meta.getAttributeModifiers(Attribute.GENERIC_ARMOR);
+        final Collection<AttributeModifier> attributeModifiers = meta.getAttributeModifiers(Util.ATTRIBUTE_ARMOR);
         if (attributeModifiers == null)
             return ArmorTier.NONE;
 
