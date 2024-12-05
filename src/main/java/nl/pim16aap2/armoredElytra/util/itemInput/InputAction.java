@@ -31,11 +31,6 @@ public enum InputAction
     RENAME,
 
     /**
-     * The input is used to apply a template to an armored elytra.
-     */
-    APPLY_TEMPLATE,
-
-    /**
      * The input is used to block an otherwise valid input.
      */
     BLOCK,

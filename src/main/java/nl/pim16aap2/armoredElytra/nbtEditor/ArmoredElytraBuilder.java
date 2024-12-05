@@ -126,7 +126,6 @@ public class ArmoredElytraBuilder
 
         final @Nullable var withAction = switch (input.inputAction())
         {
-            case APPLY_TEMPLATE -> builder.applyTrim(input.template(), input.combinedWith());
             case CREATE -> builder.combineWith(input.combinedWith(), input.newArmorTier());
             case ENCHANT ->
             {
@@ -314,38 +313,6 @@ public class ArmoredElytraBuilder
         IStep2 addEnchantments(ItemStack sourceItem);
 
         /**
-         * Applies a pattern to the armored elytra.
-         *
-         * @param pattern
-         *     The pattern of the trim to apply.
-         * @param material
-         *     The material of the trim to apply.
-         *
-         * @return The next step of the builder process.
-         */
-        IStep2 applyTrim(Material pattern, Material material);
-
-        /**
-         * Applies a pattern to the armored elytra.
-         * <p>
-         * This is a convenience method that calls {@link #applyTrim(Material, Material)}.
-         *
-         * @param pattern
-         *     The item representing the pattern of the trim to apply.
-         * @param material
-         *     The item representing the material of the trim to apply.
-         *
-         * @return The next step of the builder process.
-         *
-         * @throws NullPointerException
-         *     If either of the items is null.
-         */
-        default IStep2 applyTrim(ItemStack pattern, ItemStack material)
-        {
-            return applyTrim(Objects.requireNonNull(pattern).getType(), Objects.requireNonNull(material).getType());
-        }
-
-        /**
          * Combines the input elytra with another item.
          *
          * @param item
@@ -479,11 +446,6 @@ public class ArmoredElytraBuilder
          */
         private @Nullable Boolean isUnbreakable = null;
 
-        /**
-         * The trim data of the output armored elytra.
-         */
-        private @Nullable ArmorTrimData trimData = null;
-
         private Builder(
             HumanEntity player,
             NBTEditor nbtEditor,
@@ -519,8 +481,7 @@ public class ArmoredElytraBuilder
                 isUnbreakable,
                 name,
                 lore,
-                color,
-                trimData);
+                color);
             durabilityManager.setDurability(output, durability, newArmorTier);
             combinedEnchantments.applyEnchantments(output);
 
@@ -578,20 +539,13 @@ public class ArmoredElytraBuilder
         }
 
         @Override
-        public IStep2 applyTrim(Material pattern, Material material)
-        {
-            trimData = new ArmorTrimData(pattern, material);
-            return this;
-        }
-
-        @Override
         public IStep2 combineWith(ItemStack item, ArmorTier armorTier)
         {
             if (armorTier == ArmorTier.NONE)
                 throw new IllegalArgumentException("Cannot combine an elytra with a non-armor item!");
 
             if (currentArmorTier != ArmorTier.NONE)
-                throw new IllegalArgumentException("An armored elytra cannot be combined with another chestplate!");
+                throw new IllegalArgumentException("An armored elytra cannot be combined with another chest plate!");
 
             otherItem = item;
             newArmorTier = armorTier;

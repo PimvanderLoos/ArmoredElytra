@@ -149,8 +149,7 @@ public class NBTEditor
         boolean unbreakable,
         String name,
         @Nullable List<String> lore,
-        @Nullable Color color,
-        @Nullable ArmorTrimData trimData)
+        @Nullable Color color)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -181,9 +180,6 @@ public class NBTEditor
 
         if (armorTier == ArmorTier.NETHERITE && HAS_FIRE_RESISTANT_METHOD)
             meta.setFireResistant(true);
-
-        if (trimEditor != null)
-            trimEditor.applyArmorTrim(meta, trimData);
 
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);

@@ -228,8 +228,7 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
         smithingInventory.setItem(SMITHING_TABLE_INPUT_SLOT_1, null);
         useItem(smithingInventory, SMITHING_TABLE_INPUT_SLOT_2);
 
-        if (SMITHING_TABLE_HAS_TEMPLATE_SLOT &&
-            (input.inputAction() == InputAction.APPLY_TEMPLATE || input.inputAction() == InputAction.UPGRADE))
+        if (SMITHING_TABLE_HAS_TEMPLATE_SLOT && input.inputAction() == InputAction.UPGRADE)
         {
             useItem(smithingInventory, SMITHING_TABLE_TEMPLATE_SLOT);
         }
