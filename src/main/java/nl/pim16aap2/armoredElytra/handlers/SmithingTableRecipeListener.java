@@ -20,7 +20,6 @@ import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingInventory;
-import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -29,7 +28,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Level;
 
-import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_HAS_TEMPLATE_SLOT;
 import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_RESULT_SLOT;
 
 /**
@@ -40,25 +38,12 @@ import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_R
 class SmithingTableRecipeListener extends AbstractSmithingTableListener implements Listener
 {
     /**
-     * The template item for upgrading to netherite.
-     * <p>
-     * This is {@code null} on versions without a template slot.
-     */
-    // Currently broken on 1.20.6 :(
-    private static final @Nullable Material NETHERITE_UPGRADE_TEMPLATE_MATERIAL =
-        SMITHING_TABLE_HAS_TEMPLATE_SLOT ?
-        Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE :
-        null;
-
-    /**
      * The recipe choice for the template item for upgrading to netherite.
      * <p>
      * This is {@code null} on versions without a template slot.
      */
     private static final @Nullable RecipeChoice NETHERITE_UPGRADE_TEMPLATE_CHOICE =
-        NETHERITE_UPGRADE_TEMPLATE_MATERIAL == null ?
-        null :
-        new RecipeChoice.MaterialChoice(NETHERITE_UPGRADE_TEMPLATE_MATERIAL);
+        new RecipeChoice.MaterialChoice(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
 
     /**
      * The namespaced key for the placeholder result.
@@ -81,8 +66,6 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
      * The recipe choice for the elytra.
      */
     private static final RecipeChoice RECIPE_CHOICE_ELYTRA = new RecipeChoice.MaterialChoice(Material.ELYTRA);
-
-    private static final @Nullable RecipeChoice RECIPE_NULL_TEMPLATE = null;
 
     SmithingTableRecipeListener(
         ArmoredElytra plugin,
@@ -214,41 +197,23 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
      */
     private void registerRecipes()
     {
-        final IRegisterSmithingRecipeFunction fun =
-            SMITHING_TABLE_HAS_TEMPLATE_SLOT ?
-            this::registerCraftingRecipeWithTemplate :
-            this::registerCraftingRecipeWithoutTemplate;
-
         if (config.allowCraftingInSmithingTable())
-            registerCraftingRecipes(fun);
+            ArmorTier.ARMOR_TIERS.forEach(this::registerCraftingRecipe);
 
         if (config.allowUpgradeToNetherite())
-            registerUpgradeToNetheriteRecipe(fun);
+            registerUpgradeToNetheriteRecipe();
     }
 
     /**
      * Registers the recipe for upgrading diamond elytras to netherite elytras.
-     *
-     * @param fun
-     *     The function to call to register the created recipe.
      */
-    private void registerUpgradeToNetheriteRecipe(IRegisterSmithingRecipeFunction fun)
+    private void registerUpgradeToNetheriteRecipe()
     {
         final NamespacedKey key = new NamespacedKey(plugin, "st_upgrade_to_netherite");
 
         final RecipeChoice netheriteIngot = new RecipeChoice.MaterialChoice(Material.NETHERITE_INGOT);
 
-        fun.register(
-            key, RECIPE_RESULT_PLACEHOLDER, NETHERITE_UPGRADE_TEMPLATE_CHOICE, RECIPE_CHOICE_ELYTRA, netheriteIngot
-        );
-    }
-
-    /**
-     * Registers the crafting recipes for the armored elytra.
-     */
-    private void registerCraftingRecipes(IRegisterSmithingRecipeFunction fun)
-    {
-        ArmorTier.ARMOR_TIERS.forEach(tier -> registerCraftingRecipe(tier, fun));
+        registerCraftingRecipe(key, NETHERITE_UPGRADE_TEMPLATE_CHOICE, netheriteIngot);
     }
 
     /**
@@ -258,17 +223,15 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
      *
      * @param tier
      *     The tier to register the recipe for.
-     * @param fun
-     *     The function to call to register the created recipe.
      */
-    private void registerCraftingRecipe(ArmorTier tier, IRegisterSmithingRecipeFunction fun)
+    private void registerCraftingRecipe(ArmorTier tier)
     {
         final NamespacedKey key = new NamespacedKey(plugin, "st_recipe_" + tier.name().toLowerCase(Locale.ROOT));
 
         final RecipeChoice chestPlate = new RecipeChoice.MaterialChoice(
             Objects.requireNonNull(Util.tierToChestPlate(tier)));
 
-        fun.register(key, RECIPE_RESULT_PLACEHOLDER, RECIPE_NULL_TEMPLATE, RECIPE_CHOICE_ELYTRA, chestPlate);
+        registerCraftingRecipe(key, null, chestPlate);
     }
 
     /**
@@ -278,86 +241,22 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
      *
      * @param key
      *     The key for the recipe.
-     * @param result
-     *     The result of the recipe.
      * @param template
      *     The recipe choice for the template item. May be null to not require a template item.
-     * @param elytra
-     *     The recipe choice for the elytra.
      * @param chestPlate
      *     The recipe choice for the chest plate.
      */
-    private void registerCraftingRecipeWithTemplate(
+    private void registerCraftingRecipe(
         NamespacedKey key,
-        ItemStack result,
         @Nullable RecipeChoice template,
-        RecipeChoice elytra,
         RecipeChoice chestPlate)
     {
-        Bukkit.addRecipe(new SmithingTransformRecipe(key, result, template, elytra, chestPlate));
-    }
-
-    /**
-     * Registers a smithing recipe without a template item.
-     * <p>
-     * This method does nothing on versions with a template slot.
-     *
-     * @param key
-     *     The key for the recipe.
-     * @param result
-     *     The result of the recipe.
-     * @param template
-     *     Unused. Only present for compatibility with {@link IRegisterSmithingRecipeFunction}.
-     * @param elytra
-     *     The recipe choice for the elytra.
-     * @param chestPlate
-     *     The recipe choice for the chest plate.
-     */
-    private void registerCraftingRecipeWithoutTemplate(
-        NamespacedKey key,
-        ItemStack result,
-        @Nullable RecipeChoice template,
-        RecipeChoice elytra,
-        RecipeChoice chestPlate)
-    {
-        // The SmithingRecipe constructor is not deprecated on MC <1.20.
-        //noinspection deprecation
-        Bukkit.addRecipe(new SmithingRecipe(key, result, elytra, chestPlate));
-    }
-
-    /**
-     * Function to register a smithing recipe.
-     * <p>
-     * On versions without a template slot (i.e. <1.20), this function will register a SmithingRecipe.
-     * <p>
-     * On versions with a template slot (i.e. >=1.20), this function will register a SmithingTransformRecipe.
-     * <p>
-     * This is done because versions that use SmithingTransformRecipe do not support SmithingRecipe and vice versa.
-     */
-    private interface IRegisterSmithingRecipeFunction
-    {
-        /**
-         * Registers a smithing recipe.
-         *
-         * @param key
-         *     The key for the recipe.
-         * @param result
-         *     The result of the recipe.
-         * @param template
-         *     The recipe choice for the template item. May be null to not require a template item.
-         *     <p>
-         *     On versions without a template slot, this parameter is ignored.
-         * @param elytra
-         *     The recipe choice for the elytra.
-         * @param chestPlate
-         *     The recipe choice for the chest plate.
-         */
-        void register(
-            NamespacedKey key,
-            ItemStack result,
-            @Nullable RecipeChoice template,
-            RecipeChoice elytra,
-            RecipeChoice chestPlate
-        );
+        Bukkit.addRecipe(new SmithingTransformRecipe(
+            key,
+            SmithingTableRecipeListener.RECIPE_RESULT_PLACEHOLDER,
+            template,
+            SmithingTableRecipeListener.RECIPE_CHOICE_ELYTRA,
+            chestPlate
+        ));
     }
 }
