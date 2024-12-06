@@ -8,7 +8,6 @@ import nl.pim16aap2.armoredElytra.util.ArmorTier;
 import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
 import nl.pim16aap2.armoredElytra.util.itemInput.ElytraInput;
-import nl.pim16aap2.armoredElytra.util.itemInput.InputAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -24,7 +23,6 @@ import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
 import org.bukkit.persistence.PersistentDataType;
-import org.semver4j.Semver;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -32,21 +30,15 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_HAS_TEMPLATE_SLOT;
-import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_1;
-import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_INPUT_SLOT_2;
 import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_RESULT_SLOT;
-import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_TEMPLATE_SLOT;
 
 /**
- * Class for handling smithing table events.
+ * Class for handling smithing table events using recipes.
+ * <p>
+ * This class should only be used on servers running Minecraft 1.21.1 or newer.
  */
-public class SmithingTableListener extends ArmoredElytraHandler implements Listener
+class SmithingTableRecipeListener extends AbstractSmithingTableListener implements Listener
 {
-    /**
-     * Whether the inventory needs to be updated manually after (some) smithing table events.
-     */
-    private static final boolean NEEDS_INV_UPDATE = ArmoredElytra.SERVER_VERSION.isLowerThan(Semver.of(1, 17, 0));
-
     /**
      * The template item for upgrading to netherite.
      * <p>
@@ -90,7 +82,9 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
      */
     private static final RecipeChoice RECIPE_CHOICE_ELYTRA = new RecipeChoice.MaterialChoice(Material.ELYTRA);
 
-    public SmithingTableListener(
+    private static final @Nullable RecipeChoice RECIPE_NULL_TEMPLATE = null;
+
+    SmithingTableRecipeListener(
         ArmoredElytra plugin,
         NBTEditor nbtEditor,
         DurabilityManager durabilityManager,
@@ -104,27 +98,8 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
     @EventHandler(ignoreCancelled = true)
     public void onSmithingTableUsage(final PrepareSmithingEvent event)
     {
-        final SmithingInventory inventory = event.getInventory();
-
-        final var input = ElytraInput.fromInventory(config, inventory);
-        if (input.isIgnored())
-        {
-            verifyRecipeResultPlaceholder(inventory, input);
-            return;
-        }
-
-        event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));
-
-        if (NEEDS_INV_UPDATE)
-            // Player::updateInventory should not be used directly (anymore?).
-            // However, if we don't use it on <1.17, the invalid result will still
-            // be shown to the player.
-            //noinspection UnstableApiUsage
-            event.getViewers().stream()
-                 .filter(Player.class::isInstance).map(Player.class::cast)
-                 .forEach(Player::updateInventory);
-
-        verifyRecipeResultPlaceholder(inventory, input);
+        final ElytraInput input = onSmithingTableUsage0(event);
+        verifyRecipeResultPlaceholder(event.getInventory(), input);
     }
 
     /**
@@ -148,101 +123,6 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
 
         if (event.getClickedInventory() instanceof SmithingInventory clickedSmithingInventory)
             onSmithingInventoryClick(event, player, clickedSmithingInventory);
-    }
-
-    /**
-     * Processes the {@link InventoryClickEvent} when the player clicks on the result slot in a smithing table.
-     * <p>
-     * This method will check if the result is an armored elytra, and if so, give it to the player.
-     *
-     * @param event
-     *     The {@link InventoryClickEvent} to process.
-     * @param player
-     *     The {@link Player} who clicked on the result slot.
-     * @param smithingInventory
-     *     The {@link SmithingInventory} which was clicked.
-     *
-     * @throws IllegalArgumentException
-     *     if the clicked slot is not the result slot.
-     */
-    protected void onSmithingInventoryResultClick(
-        InventoryClickEvent event,
-        Player player,
-        SmithingInventory smithingInventory)
-    {
-        if (event.getSlot() != SMITHING_TABLE_RESULT_SLOT)
-            throw new IllegalArgumentException(
-                "Clicked slot must be '" + SMITHING_TABLE_RESULT_SLOT + "' but received '" + event.getSlot() + "'");
-
-        if (smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_1) == null ||
-            smithingInventory.getItem(SMITHING_TABLE_INPUT_SLOT_2) == null ||
-            smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT) == null)
-            return;
-
-        final @Nullable ItemStack result = smithingInventory.getItem(SMITHING_TABLE_RESULT_SLOT);
-        if (result == null)
-            return;
-
-        final var input = ElytraInput.fromInventory(config, smithingInventory);
-        if (input.isIgnored())
-            return;
-
-        if (nbtEditor.getArmorTierFromElytra(result) == ArmorTier.NONE)
-        {
-            plugin.myLogger(
-                Level.SEVERE,
-                "Smithing Table: Attempted to retrieve an item that is not an armored elytra! Result: " + result +
-                    ", input: " + input);
-            return;
-        }
-
-        event.setCancelled(true);
-
-        if (isRecipeResultPlaceholder(result))
-        {
-            plugin.myLogger(
-                Level.SEVERE,
-                "Smithing Table: Attempted to retrieve a placeholder result! Result: " + result + ", input: " + input);
-            return;
-        }
-
-        if (input.isBlocked())
-        {
-            plugin.myLogger(
-                Level.SEVERE,
-                "Smithing Table: Attempted to retrieve an item from a blocked recipe! Input: " + input);
-            return;
-        }
-
-        if (!giveItemToPlayer(player, result, event.isShiftClick()))
-            return;
-
-        useItem(smithingInventory, SMITHING_TABLE_RESULT_SLOT);
-        useItem(smithingInventory, SMITHING_TABLE_INPUT_SLOT_1);
-        useItem(smithingInventory, SMITHING_TABLE_INPUT_SLOT_2);
-
-        if (SMITHING_TABLE_HAS_TEMPLATE_SLOT && input.inputAction() == InputAction.UPGRADE)
-            useItem(smithingInventory, SMITHING_TABLE_TEMPLATE_SLOT);
-    }
-
-    /**
-     * Consumes a single item from the given slot in the given {@link SmithingInventory}.
-     *
-     * @param smithingInventory
-     *     The {@link SmithingInventory} to consume the item from.
-     * @param slot
-     *     The slot to consume the item from.
-     */
-    private void useItem(SmithingInventory smithingInventory, int slot)
-    {
-        final ItemStack item = smithingInventory.getItem(slot);
-        if (item == null)
-            return;
-
-        item.setAmount(item.getAmount() - 1);
-        if (item.getAmount() == 0)
-            smithingInventory.setItem(slot, null);
-        smithingInventory.setItem(slot, item);
     }
 
     /**
@@ -289,7 +169,8 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
      *
      * @return {@code true} if the item is a placeholder result, {@code false} otherwise.
      */
-    private static boolean isRecipeResultPlaceholder(ItemStack item)
+    @Override
+    protected boolean isRecipeResultPlaceholder(ItemStack item)
     {
         if (item == null || item.getType() != Material.ELYTRA)
             return false;
@@ -387,7 +268,7 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
         final RecipeChoice chestPlate = new RecipeChoice.MaterialChoice(
             Objects.requireNonNull(Util.tierToChestPlate(tier)));
 
-        fun.register(key, RECIPE_RESULT_PLACEHOLDER, null, RECIPE_CHOICE_ELYTRA, chestPlate);
+        fun.register(key, RECIPE_RESULT_PLACEHOLDER, RECIPE_NULL_TEMPLATE, RECIPE_CHOICE_ELYTRA, chestPlate);
     }
 
     /**

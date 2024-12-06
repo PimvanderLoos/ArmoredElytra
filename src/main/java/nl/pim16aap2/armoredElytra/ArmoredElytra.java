@@ -1,12 +1,12 @@
 package nl.pim16aap2.armoredElytra;
 
+import nl.pim16aap2.armoredElytra.handlers.AbstractSmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
-import nl.pim16aap2.armoredElytra.handlers.SmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
@@ -100,7 +100,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                                               nbtEditor, durabilityManager), this);
 
             Bukkit.getPluginManager()
-                  .registerEvents(new SmithingTableListener(this, nbtEditor, durabilityManager, config), this);
+                  .registerEvents(
+                      AbstractSmithingTableListener.create(SERVER_VERSION, this, nbtEditor, durabilityManager, config),
+                      this);
 
             Bukkit.getPluginManager()
                   .registerEvents(new AnvilHandler(this, nbtEditor, durabilityManager, config), this);
