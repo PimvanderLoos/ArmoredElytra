@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.handlers;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import nl.pim16aap2.armoredElytra.nbtEditor.AutoPersistentDataContainer;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
+import org.bukkit.persistence.PersistentDataType;
 import org.semver4j.Semver;
 
 import javax.annotation.Nullable;
@@ -67,6 +69,12 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
         new RecipeChoice.MaterialChoice(NETHERITE_UPGRADE_TEMPLATE_MATERIAL);
 
     /**
+     * The namespaced key for the placeholder result.
+     */
+    private static final NamespacedKey RECIPE_PLACEHOLDER_KEY =
+        new NamespacedKey(ArmoredElytra.getInstance(), "st_placeholder");
+
+    /**
      * Placeholder result. Our event handler will handle the actual result, including:
      * <ul>
      *     <li>Permissions</li>
@@ -75,7 +83,7 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
      *     <li>Whatever else we might add in the future.</li>
      * </ul>
      */
-    private static final ItemStack RECIPE_RESULT_PLACEHOLDER = new ItemStack(Material.ELYTRA);
+    private static final ItemStack RECIPE_RESULT_PLACEHOLDER = createRecipeResultPlaceholder();
 
     /**
      * The recipe choice for the elytra.
@@ -100,7 +108,10 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
 
         final var input = ElytraInput.fromInventory(config, inventory);
         if (input.isIgnored())
+        {
+            verifyRecipeResultPlaceholder(inventory, input);
             return;
+        }
 
         event.setResult(armoredElytraBuilder.handleInput(event.getView().getPlayer(), input));
 
@@ -112,6 +123,8 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
             event.getViewers().stream()
                  .filter(Player.class::isInstance).map(Player.class::cast)
                  .forEach(Player::updateInventory);
+
+        verifyRecipeResultPlaceholder(inventory, input);
     }
 
     /**
@@ -185,6 +198,14 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
 
         event.setCancelled(true);
 
+        if (isRecipeResultPlaceholder(result))
+        {
+            plugin.myLogger(
+                Level.SEVERE,
+                "Smithing Table: Attempted to retrieve a placeholder result! Result: " + result + ", input: " + input);
+            return;
+        }
+
         if (input.isBlocked())
         {
             plugin.myLogger(
@@ -241,6 +262,68 @@ public class SmithingTableListener extends ArmoredElytraHandler implements Liste
     {
         if (event.getSlot() == SMITHING_TABLE_RESULT_SLOT)
             onSmithingInventoryResultClick(event, player, smithingInventory);
+    }
+
+    /**
+     * Creates a placeholder result for the recipe.
+     * <p>
+     * It is a regular elytra with custom marker data so we can identify it.
+     *
+     * @return The placeholder result.
+     */
+    private static ItemStack createRecipeResultPlaceholder()
+    {
+        final ItemStack result = new ItemStack(Material.ELYTRA);
+        try (var pdc = new AutoPersistentDataContainer(result))
+        {
+            pdc.set(RECIPE_PLACEHOLDER_KEY, PersistentDataType.BYTE, (byte) 1);
+        }
+        return result;
+    }
+
+    /**
+     * Checks if the given item is a placeholder result for a recipe.
+     *
+     * @param item
+     *     The item to check.
+     *
+     * @return {@code true} if the item is a placeholder result, {@code false} otherwise.
+     */
+    private static boolean isRecipeResultPlaceholder(ItemStack item)
+    {
+        if (item == null || item.getType() != Material.ELYTRA)
+            return false;
+        return NBTEditor.hasPdcWithWithKey(item, RECIPE_PLACEHOLDER_KEY, PersistentDataType.BYTE);
+    }
+
+    /**
+     * Checks if the recipe result is a placeholder and logs it if it is.
+     * <p>
+     * If the result is a placeholder, it will be removed from the inventory.
+     * <p>
+     * See {@link #isRecipeResultPlaceholder(ItemStack)}.
+     * <p>
+     * This method should not do anything unless a bug caused a placeholder result to be present.
+     *
+     * @param inventory
+     *     The inventory to check the result in.
+     * @param input
+     *     The input for the recipe.
+     */
+    private void verifyRecipeResultPlaceholder(final SmithingInventory inventory, ElytraInput input)
+    {
+        final @Nullable ItemStack result = inventory.getItem(SMITHING_TABLE_RESULT_SLOT);
+        // This should only be true when the input was handled incorrectly.
+        if (isRecipeResultPlaceholder(result))
+        {
+            plugin.myLogger(
+                Level.SEVERE,
+                "Smithing Table: " +
+                    "Attempted to retrieve a placeholder result! Result: " + result +
+                    ", input: " + input
+            );
+            inventory.setItem(SMITHING_TABLE_RESULT_SLOT, null);
+        }
     }
 
     /**

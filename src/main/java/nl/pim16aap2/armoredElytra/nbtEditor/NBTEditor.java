@@ -15,6 +15,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.semver4j.Semver;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -47,6 +48,36 @@ public class NBTEditor
     {
         attributeModifierManager = AttributeModifierManager.create(ArmoredElytra.SERVER_VERSION);
         trimEditor = newTrimEditor();
+    }
+
+    /**
+     * Checks if an item has a specific {@link PersistentDataType} with a specific key.
+     *
+     * @param item
+     *     The item to check.
+     * @param key
+     *     The key to check for.
+     * @param type
+     *     The type to check for.
+     * @param <P>
+     *     The type of the persistent data.
+     * @param <C>
+     *     The type of the container.
+     *
+     * @return True if the item has the specified key with the specified type, false otherwise.
+     */
+    public static <P, C> boolean hasPdcWithWithKey(
+        @Nullable ItemStack item, @Nonnull NamespacedKey key, @Nonnull PersistentDataType<P, C> type)
+    {
+        if (item == null || !item.hasItemMeta())
+            return false;
+
+        final @Nullable ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return false;
+
+        final PersistentDataContainer container = meta.getPersistentDataContainer();
+        return container.has(key, type);
     }
 
     /**
