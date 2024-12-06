@@ -1,12 +1,12 @@
 package nl.pim16aap2.armoredElytra;
 
+import nl.pim16aap2.armoredElytra.handlers.AbstractSmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
-import nl.pim16aap2.armoredElytra.handlers.SmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.Uninstaller;
 import nl.pim16aap2.armoredElytra.nbtEditor.DurabilityManager;
 import nl.pim16aap2.armoredElytra.nbtEditor.NBTEditor;
@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.semver4j.Semver;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -99,7 +100,9 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                                               nbtEditor, durabilityManager), this);
 
             Bukkit.getPluginManager()
-                  .registerEvents(new SmithingTableListener(this, nbtEditor, durabilityManager, config), this);
+                  .registerEvents(
+                      AbstractSmithingTableListener.create(SERVER_VERSION, this, nbtEditor, durabilityManager, config),
+                      this);
 
             Bukkit.getPluginManager()
                   .registerEvents(new AnvilHandler(this, nbtEditor, durabilityManager, config), this);
@@ -150,13 +153,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                                   messages.getString(Message.TIER_SHORT_NETHERITE)));
     }
 
-    public boolean playerHasCraftPerm(HumanEntity player, ArmorTier armorTier)
+    public boolean playerHasCraftPerm(@Nonnull HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassCraftPerm() ||
             player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
     }
 
-    public boolean playerHasWearPerm(HumanEntity player, ArmorTier armorTier)
+    public boolean playerHasWearPerm(@Nonnull HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassWearPerm() ||
             player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));

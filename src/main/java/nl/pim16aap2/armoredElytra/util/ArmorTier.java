@@ -3,6 +3,7 @@ package nl.pim16aap2.armoredElytra.util;
 import org.bukkit.Material;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum ArmorTier
@@ -16,6 +17,22 @@ public enum ArmorTier
     DIAMOND(5, 8, 2, 0, Material.DIAMOND, 3, "diamond", 528),
     NETHERITE(6, 8, 3, 0.1, Material.NETHERITE_INGOT, 3, "netherite", 592),
     ;
+
+    /**
+     * List of all values of this enum.
+     * <p>
+     * This includes the NONE value.
+     * <p>
+     * Use {@link #ARMOR_TIERS} for a list of all values excluding the NONE value.
+     */
+    public static final List<ArmorTier> VALUES = List.of(values());
+
+    /**
+     * List of all values of this enum, excluding the NONE value.
+     * <p>
+     * Use {@link #VALUES} for a list of all values including the NONE value.
+     */
+    public static final List<ArmorTier> ARMOR_TIERS = VALUES.subList(1, VALUES.size());
 
     private final int tierID;
     private final int armor;
