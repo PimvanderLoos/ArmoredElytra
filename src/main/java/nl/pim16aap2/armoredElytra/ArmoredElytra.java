@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.semver4j.Semver;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -150,13 +151,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
                                                                   messages.getString(Message.TIER_SHORT_NETHERITE)));
     }
 
-    public boolean playerHasCraftPerm(HumanEntity player, ArmorTier armorTier)
+    public boolean playerHasCraftPerm(@Nonnull HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassCraftPerm() ||
             player.hasPermission("armoredelytra.craft." + ArmorTier.getName(armorTier));
     }
 
-    public boolean playerHasWearPerm(HumanEntity player, ArmorTier armorTier)
+    public boolean playerHasWearPerm(@Nonnull HumanEntity player, ArmorTier armorTier)
     {
         return getConfigLoader().bypassWearPerm() ||
             player.hasPermission("armoredelytra.wear." + ArmorTier.getName(armorTier));

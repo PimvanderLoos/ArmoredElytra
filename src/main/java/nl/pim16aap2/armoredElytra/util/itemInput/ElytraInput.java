@@ -268,11 +268,11 @@ public record ElytraInput(
                 newArmorTier = ArmorTier.NETHERITE;
             }
             else
-                inputAction = InputAction.IGNORE;
+                inputAction = InputAction.BLOCK;
         }
 
         else
-            inputAction = InputAction.IGNORE;
+            inputAction = InputAction.BLOCK;
 
         return new ElytraInput(
             inputItems,
