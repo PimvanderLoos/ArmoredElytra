@@ -67,7 +67,7 @@ public class NBTEditor
      *
      * @return True if the item has the specified key with the specified type, false otherwise.
      */
-    public static <P, C> boolean hasPdcWithWithKey(
+    public static <P, C> boolean hasPdcWithKey(
         @Nullable ItemStack item, @Nonnull NamespacedKey key, @Nonnull PersistentDataType<P, C> type)
     {
         if (item == null || !item.hasItemMeta())
