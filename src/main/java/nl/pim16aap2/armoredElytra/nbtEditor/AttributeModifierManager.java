@@ -1,7 +1,7 @@
 package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
-import nl.pim16aap2.armoredElytra.util.Util;
+import nl.pim16aap2.armoredElytra.util.AttributeUtil;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -26,17 +26,17 @@ abstract class AttributeModifierManager
      */
     private static final List<AttributeCreator> ATTRIBUTE_SETTERS = List.of(
         new AttributeCreator(
-            Util.ATTRIBUTE_ARMOR,
+            AttributeUtil.ATTRIBUTE_ARMOR,
             ArmorTier::getArmor,
             AttributeModifierManager::newGenericArmorModifier
         ),
         new AttributeCreator(
-            Util.ATTRIBUTE_ARMOR_TOUGHNESS,
+            AttributeUtil.ATTRIBUTE_ARMOR_TOUGHNESS,
             ArmorTier::getToughness,
             AttributeModifierManager::newGenericArmorToughnessModifier
         ),
         new AttributeCreator(
-            Util.ATTRIBUTE_KNOCKBACK_RESISTANCE,
+            AttributeUtil.ATTRIBUTE_KNOCKBACK_RESISTANCE,
             ArmorTier::getKnockbackResistance,
             AttributeModifierManager::newGenericKnockbackResistanceModifier
         )
@@ -89,19 +89,19 @@ abstract class AttributeModifierManager
         @Override
         protected AttributeModifier newGenericArmorModifier(double value)
         {
-            return addNumberToChestModifier(Util.ATTRIBUTE_ARMOR.getKey(), value);
+            return addNumberToChestModifier(AttributeUtil.ATTRIBUTE_ARMOR.getKey(), value);
         }
 
         @Override
         protected AttributeModifier newGenericArmorToughnessModifier(double value)
         {
-            return addNumberToChestModifier(Util.ATTRIBUTE_ARMOR_TOUGHNESS.getKey(), value);
+            return addNumberToChestModifier(AttributeUtil.ATTRIBUTE_ARMOR_TOUGHNESS.getKey(), value);
         }
 
         @Override
         protected AttributeModifier newGenericKnockbackResistanceModifier(double value)
         {
-            return addNumberToChestModifier(Util.ATTRIBUTE_KNOCKBACK_RESISTANCE.getKey(), value);
+            return addNumberToChestModifier(AttributeUtil.ATTRIBUTE_KNOCKBACK_RESISTANCE.getKey(), value);
         }
 
         private static AttributeModifier addNumberToChestModifier(NamespacedKey key, double value)
@@ -162,7 +162,7 @@ abstract class AttributeModifierManager
         {
             return addNumberToChestModifier(
                 UUID_GENERIC_ARMOR,
-                Util.ATTRIBUTE_ARMOR,
+                AttributeUtil.ATTRIBUTE_ARMOR,
                 value
             );
         }
@@ -172,7 +172,7 @@ abstract class AttributeModifierManager
         {
             return addNumberToChestModifier(
                 UUID_GENERIC_ARMOR_TOUGHNESS,
-                Util.ATTRIBUTE_ARMOR_TOUGHNESS,
+                AttributeUtil.ATTRIBUTE_ARMOR_TOUGHNESS,
                 value
             );
         }
@@ -182,7 +182,7 @@ abstract class AttributeModifierManager
         {
             return addNumberToChestModifier(
                 UUID_GENERIC_KNOCKBACK_RESISTANCE,
-                Util.ATTRIBUTE_KNOCKBACK_RESISTANCE,
+                AttributeUtil.ATTRIBUTE_KNOCKBACK_RESISTANCE,
                 value
             );
         }

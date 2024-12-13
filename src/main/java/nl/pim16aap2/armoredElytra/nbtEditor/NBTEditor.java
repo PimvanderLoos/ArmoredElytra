@@ -2,6 +2,7 @@ package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.AttributeUtil;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -227,7 +228,8 @@ public class NBTEditor
         if (tierID != null)
             return ArmorTier.getArmorTierFromID(tierID);
 
-        final Collection<AttributeModifier> attributeModifiers = meta.getAttributeModifiers(Util.ATTRIBUTE_ARMOR);
+        final Collection<AttributeModifier> attributeModifiers =
+            meta.getAttributeModifiers(AttributeUtil.ATTRIBUTE_ARMOR);
         if (attributeModifiers == null)
             return ArmorTier.NONE;
 
