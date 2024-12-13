@@ -7,7 +7,6 @@ import nl.pim16aap2.armoredElytra.util.ConfigLoader;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
@@ -269,22 +268,11 @@ public record ElytraInput(
                 newArmorTier = ArmorTier.NETHERITE;
             }
             else
-                inputAction = InputAction.IGNORE;
-        }
-
-        else if (template == null)
-        {
-            inputAction = InputAction.IGNORE;
+                inputAction = InputAction.BLOCK;
         }
 
         else
-        {
-            if (Tag.ITEMS_TRIM_MATERIALS.isTagged(inputItems.combinedWith().getType()) &&
-                Tag.ITEMS_TRIM_TEMPLATES.isTagged(templateType))
-                inputAction = InputAction.APPLY_TEMPLATE;
-            else
-                inputAction = InputAction.IGNORE;
-        }
+            inputAction = InputAction.BLOCK;
 
         return new ElytraInput(
             inputItems,

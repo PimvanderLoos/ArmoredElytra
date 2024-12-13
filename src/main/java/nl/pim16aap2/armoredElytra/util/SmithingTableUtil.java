@@ -35,6 +35,8 @@ public final class SmithingTableUtil
 
     /**
      * The slot in the smithing table inventory where the result is placed.
+     * <p>
+     * If the smithing table does not have a template slot, this value is {@code -1}.
      */
     public static final int SMITHING_TABLE_RESULT_SLOT;
 

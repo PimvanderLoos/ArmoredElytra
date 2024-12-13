@@ -2,12 +2,12 @@ package nl.pim16aap2.armoredElytra.nbtEditor;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import nl.pim16aap2.armoredElytra.util.ArmorTier;
+import nl.pim16aap2.armoredElytra.util.AttributeUtil;
 import nl.pim16aap2.armoredElytra.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.semver4j.Semver;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +49,36 @@ public class NBTEditor
     {
         attributeModifierManager = AttributeModifierManager.create(ArmoredElytra.SERVER_VERSION);
         trimEditor = newTrimEditor();
+    }
+
+    /**
+     * Checks if an item has a specific {@link PersistentDataType} with a specific key.
+     *
+     * @param item
+     *     The item to check.
+     * @param key
+     *     The key to check for.
+     * @param type
+     *     The type to check for.
+     * @param <P>
+     *     The type of the persistent data.
+     * @param <C>
+     *     The type of the container.
+     *
+     * @return True if the item has the specified key with the specified type, false otherwise.
+     */
+    public static <P, C> boolean hasPdcWithKey(
+        @Nullable ItemStack item, @Nonnull NamespacedKey key, @Nonnull PersistentDataType<P, C> type)
+    {
+        if (item == null || !item.hasItemMeta())
+            return false;
+
+        final @Nullable ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return false;
+
+        final PersistentDataContainer container = meta.getPersistentDataContainer();
+        return container.has(key, type);
     }
 
     /**
@@ -150,8 +181,7 @@ public class NBTEditor
         boolean unbreakable,
         String name,
         @Nullable List<String> lore,
-        @Nullable Color color,
-        @Nullable ArmorTrimData trimData)
+        @Nullable Color color)
     {
         if (armorTier == null || armorTier == ArmorTier.NONE)
             return new ItemStack(item);
@@ -183,9 +213,6 @@ public class NBTEditor
         if (armorTier == ArmorTier.NETHERITE && HAS_FIRE_RESISTANT_METHOD)
             meta.setFireResistant(true);
 
-        if (trimEditor != null)
-            trimEditor.applyArmorTrim(meta, trimData);
-
         if (!ret.setItemMeta(meta))
             throw new IllegalStateException("Failed to set item meta '" + meta + "' for item: " + ret);
         return ret;
@@ -201,7 +228,8 @@ public class NBTEditor
         if (tierID != null)
             return ArmorTier.getArmorTierFromID(tierID);
 
-        final Collection<AttributeModifier> attributeModifiers = meta.getAttributeModifiers(Attribute.GENERIC_ARMOR);
+        final Collection<AttributeModifier> attributeModifiers =
+            meta.getAttributeModifiers(AttributeUtil.ATTRIBUTE_ARMOR);
         if (attributeModifiers == null)
             return ArmorTier.NONE;
 

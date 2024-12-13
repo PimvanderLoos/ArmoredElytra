@@ -2,6 +2,7 @@ package nl.pim16aap2.armoredElytra.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -18,6 +19,13 @@ import java.util.Objects;
 
 public class Util
 {
+    /**
+     * {@code true} if {@link Tag#ITEMS_CHEST_ARMOR} is available, {@code false} otherwise.
+     * <p>
+     * This tag was introduced in {@code 1.20.5} and is available until at least {@code 1.21.4}.
+     */
+    private static final boolean CHEST_ARMOR_TAG_AVAILABLE = verifyTagExists("ITEMS_CHEST_ARMOR");
+
     public static String errorToString(Error e)
     {
         StringWriter sw = new StringWriter();
@@ -86,6 +94,32 @@ public class Util
         return ret;
     }
 
+    /**
+     * Converts an armor tier to a chest plate material.
+     *
+     * @param armorTier
+     *     The armor tier to convert.
+     *
+     * @return The chest plate material of the armor tier. If the armor tier is {@link ArmorTier#NONE} or {@code null},
+     * {@code null} will be returned.
+     */
+    public static Material tierToChestPlate(@Nullable ArmorTier armorTier)
+    {
+        if (armorTier == null)
+            return null;
+
+        return switch (armorTier)
+        {
+            case NONE -> null;
+            case LEATHER -> Material.LEATHER_CHESTPLATE;
+            case GOLD -> Material.GOLDEN_CHESTPLATE;
+            case CHAIN -> Material.CHAINMAIL_CHESTPLATE;
+            case IRON -> Material.IRON_CHESTPLATE;
+            case DIAMOND -> Material.DIAMOND_CHESTPLATE;
+            case NETHERITE -> Material.NETHERITE_CHESTPLATE;
+        };
+    }
+
     public static boolean isChestPlate(@Nullable ItemStack itemStack)
     {
         return itemStack != null && isChestPlate(itemStack.getType());
@@ -94,17 +128,12 @@ public class Util
     // Check if mat is a chest plate.
     public static boolean isChestPlate(Material mat)
     {
-        try
-        {
-            return mat == Material.LEATHER_CHESTPLATE || mat == Material.GOLDEN_CHESTPLATE ||
-                mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE ||
-                mat == Material.DIAMOND_CHESTPLATE || mat == Material.NETHERITE_CHESTPLATE;
-        }
-        catch (IllegalArgumentException e)
-        {
-            // No need to handle this, this is just XMaterial complaining the material doesn't exist.
-            return false;
-        }
+        if (CHEST_ARMOR_TAG_AVAILABLE)
+            return Tag.ITEMS_CHEST_ARMOR.isTagged(mat);
+
+        return mat == Material.LEATHER_CHESTPLATE || mat == Material.GOLDEN_CHESTPLATE ||
+            mat == Material.CHAINMAIL_CHESTPLATE || mat == Material.IRON_CHESTPLATE ||
+            mat == Material.DIAMOND_CHESTPLATE || mat == Material.NETHERITE_CHESTPLATE;
     }
 
     /**
@@ -233,5 +262,26 @@ public class Util
     public static int between(int val, int min, int max)
     {
         return Math.max(min, Math.min(max, val));
+    }
+
+    /**
+     * Check that a field with the provided name exists in the {@link Tag} interface.
+     *
+     * @param tagName
+     *     The name of the field to check for.
+     *
+     * @return {@code true} if the field exists, {@code false} otherwise.
+     */
+    private static boolean verifyTagExists(String tagName)
+    {
+        try
+        {
+            Tag.class.getField(tagName);
+            return true;
+        }
+        catch (NoSuchFieldException e)
+        {
+            return false;
+        }
     }
 }
