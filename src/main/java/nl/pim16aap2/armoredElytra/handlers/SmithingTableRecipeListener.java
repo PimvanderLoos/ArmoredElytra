@@ -157,7 +157,7 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
     {
         if (item == null || item.getType() != Material.ELYTRA)
             return false;
-        return NBTEditor.hasPdcWithWithKey(item, RECIPE_PLACEHOLDER_KEY, PersistentDataType.BYTE);
+        return NBTEditor.hasPdcWithKey(item, RECIPE_PLACEHOLDER_KEY, PersistentDataType.BYTE);
     }
 
     /**
