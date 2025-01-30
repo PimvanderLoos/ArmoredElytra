@@ -24,10 +24,44 @@ import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Random;
+import java.util.Set;
 
 public class EventHandlers implements Listener
 {
+    /**
+     * A set of damage causes that should not decrease the durability of the elytra.
+     */
+    // See https://minecraft.fandom.com/wiki/Durability#Armor_durability
+    private static final Set<DamageCause> IGNORED_DAMAGE_CAUSES = EnumSet.of(
+        DamageCause.CRAMMING,
+        DamageCause.DRAGON_BREATH,
+        DamageCause.DROWNING,
+        DamageCause.FALL,
+        DamageCause.FIRE_TICK,
+        DamageCause.FLY_INTO_WALL,
+        DamageCause.KILL,
+        DamageCause.MAGIC,
+        DamageCause.POISON,
+        DamageCause.STARVATION,
+        DamageCause.SUFFOCATION,
+        DamageCause.SUICIDE,
+        DamageCause.VOID,
+        DamageCause.WITHER,
+        DamageCause.WORLD_BORDER
+    );
+
+    /**
+     * A set of fire-related damage causes.
+     */
+    private static final Set<DamageCause> FIRE_DAMAGE_CAUSES = EnumSet.of(
+        DamageCause.FIRE,
+        DamageCause.FIRE_TICK,
+        DamageCause.LAVA,
+        DamageCause.HOT_FLOOR
+    );
+
     private final Random random = new Random();
     private final ArmoredElytra plugin;
     private final NBTEditor nbtEditor;
@@ -61,7 +95,7 @@ public class EventHandlers implements Listener
     }
 
     // Handle armored elytra durability loss.
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerDamage(EntityDamageEvent e)
     {
         if (!(e.getEntity() instanceof final Player p))
@@ -76,9 +110,13 @@ public class EventHandlers implements Listener
             return;
 
         final DamageCause cause = e.getCause();
-        // The elytra doesn't receive any damage for these causes:
-        if (cause == DamageCause.DROWNING || cause == DamageCause.STARVATION || cause == DamageCause.SUFFOCATION ||
-            cause == DamageCause.SUICIDE || cause == DamageCause.FLY_INTO_WALL || cause == DamageCause.POISON)
+        // We shouldn't decrease the durability of the elytra for damage causes
+        // that do not damage the vanilla elytra in any way.
+        if (IGNORED_DAMAGE_CAUSES.contains(cause))
+            return;
+
+        // Netherite armor doesn't take durability damage from fire.
+        if (armorTier == ArmorTier.NETHERITE && FIRE_DAMAGE_CAUSES.contains(cause))
             return;
 
         final boolean removeDurability;
@@ -100,7 +138,7 @@ public class EventHandlers implements Listener
             Util.moveChestplateToInventory(p);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onMending(PlayerItemMendEvent e)
     {
         final ArmorTier armorTier = nbtEditor.getArmorTierFromElytra(e.getItem());
