@@ -1,0 +1,29 @@
+# This file contains all the (partial) sentences used in this plugin.
+# You can change which file will be used in the config.yml. 
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
+# Order doesn't matter and you can use comments if you so desire.
+# Please do note that white space does matter! (so spaces at the end of lines, for example).
+# The long names (without 'SHORT') are the names the elytras will have. 
+TIER.Leather=&2皮革鞘翅胸甲
+TIER.Gold=&e金鞘翅胸甲
+TIER.Chain=&8锁链鞘翅胸甲
+TIER.Iron=&7铁鞘翅胸甲
+TIER.Diamond=&b钻石鞘翅胸甲
+TIER.Netherite=&4下届合金鞘翅胸甲
+TIER.SHORT.Leather=&2皮革
+TIER.SHORT.Gold=&e金
+TIER.SHORT.Chain=&8锁链
+TIER.SHORT.Iron=&7铁
+TIER.SHORT.Diamond=&b钻石
+TIER.SHORT.Netherite=&4下届合金
+MESSAGES.UninstallMode=&c插件正处于卸载模式！ 不允许制作新的鞘翅胸甲！
+MESSAGES.UnsupportedTier=&c不支持的胸甲！ 请尝试以下的任意一种：皮革、金、铁、钻石、下届合金。
+MESSAGES.RepairNeeded=&c你不能使用这个鞘翅！ 请先在铁砧上修复它。
+
+# The following messages support the following variables: 
+# - %ARMOR_TIER% (refers to TIER.X (e.g. TIER.Leather))
+# - %ARMOR_TIER_SHORT% (refers to TIER.SHORT.X (e.g. TIER.SHORT.Leather)).
+MESSAGES.Lore=%ARMOR_TIER_SHORT% 等级鞘翅。
+MESSAGES.NoGivePermission=&c你没有给与 %ARMOR_TIER% 的权限。
+MESSAGES.UsageDenied=你没有装备 %ARMOR_TIER% 的权限！
+MESSAGES.ElytraReceived=&2已给予你一个 %ARMOR_TIER% ！
