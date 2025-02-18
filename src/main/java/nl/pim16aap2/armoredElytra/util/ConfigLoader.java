@@ -193,6 +193,14 @@ public class ConfigLoader
         {
             final ArmorTier armorTier = armorTiers[idx];
 
+            // IRON uses the same repair item as the preceding tier; CHAIN.
+            // We don't want to have duplicate entries in the config file.
+            if (armorTier == ArmorTier.IRON)
+            {
+                repairCounts[idx] = repairCounts[idx - 1];
+                continue;
+            }
+
             // Only the first one should have the comment.
             final @Nullable String[] comment = idx == 1 ? repairComment : null;
             final String name = Util.snakeToCamelCase(ArmorTier.getRepairItem(armorTier).name());
