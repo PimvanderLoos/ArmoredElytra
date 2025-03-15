@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.enchantments.Enchantment;
@@ -165,6 +166,11 @@ public class Util
         if (humanEntity instanceof Player player)
             return player;
         return null;
+    }
+
+    public static String nullableColorToString(@Nullable ChatColor color)
+    {
+        return color == null ? "" : color.toString();
     }
 
     public static String snakeToCamelCase(String input)

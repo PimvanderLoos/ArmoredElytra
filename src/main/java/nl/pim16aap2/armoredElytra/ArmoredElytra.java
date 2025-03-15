@@ -212,7 +212,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
     public @Nullable List<String> getElytraLore(ArmorTier armorTier)
     {
-        final String message = ChatColor.stripColor(getMessageWithTierNames(Message.MESSAGES_LORE, armorTier));
+        final String message = getMessageWithTierNames(Message.MESSAGES_LORE, armorTier);
         return message.equals("NONE") ? null : Collections.singletonList(message);
     }
 
