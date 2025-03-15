@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.util.messages;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import org.bukkit.ChatColor;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -66,8 +67,11 @@ public class Messages
      * Processes the contents of a file. Each valid line will be split up in the message key and the message value. It
      * then
      *
-     * @param br     The {@link BufferedReader} that supplies the text.
-     * @param action The action to take for every message and value combination that is encountered.
+     * @param br
+     *     The {@link BufferedReader} that supplies the text.
+     * @param action
+     *     The action to take for every message and value combination that is encountered.
+     *
      * @throws IOException
      */
     private void processFile(final BufferedReader br, final BiConsumer<Message, String> action)
@@ -103,19 +107,23 @@ public class Messages
     /**
      * Adds a message to the {@link #messageMap}.
      *
-     * @param message The {@link Message}.
-     * @param value   The value of the message.
+     * @param message
+     *     The {@link Message}.
+     * @param value
+     *     The value of the message.
      */
     private void addMessage(final Message message, final String value)
     {
-        messageMap.put(message, value);
+        messageMap.put(message, message.getDefaultColor() + ChatColor.translateAlternateColorCodes('&', value));
     }
 
     /**
      * Adds a message to the {@link #messageMap} if it isn't on the map already.
      *
-     * @param message The {@link Message}.
-     * @param value   The value of the message.
+     * @param message
+     *     The {@link Message}.
+     * @param value
+     *     The value of the message.
      */
     private void addBackupMessage(final Message message, final String value)
     {
@@ -177,7 +185,9 @@ public class Messages
     /**
      * Gets the default String to return in case a value could not be found for a given String.
      *
-     * @param key The key that could not be resolved.
+     * @param key
+     *     The key that could not be resolved.
+     *
      * @return The default String to return in case a value could not be found for a given String.
      */
     private String getFailureString(final String key)
@@ -189,8 +199,11 @@ public class Messages
      * Gets the translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      *
-     * @param msg    The {@link Message} to translate.
-     * @param values The values to substitute for the variables in the message.
+     * @param msg
+     *     The {@link Message} to translate.
+     * @param values
+     *     The values to substitute for the variables in the message.
+     *
      * @return The translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      */
@@ -211,12 +224,41 @@ public class Messages
         if (value != null)
         {
             for (int idx = 0; idx != values.length; ++idx)
-                value = value.replaceAll(Message.getVariableName(msg, idx), values[idx]);
+                value = insertVariable(value, Message.getVariableName(msg, idx), values[idx]);
             return value;
         }
 
         plugin.myLogger(Level.WARNING, "Failed to get the translation for key " + msg.name());
         return getFailureString(msg.name());
+    }
+
+    /**
+     * Inserts a variable into a base string. The variable is inserted at the first occurrence of the variable name.
+     * <p>
+     * This method uses {@link ChatColor#getLastColors(String)} to determine the color of the string before the variable
+     * is inserted. This color is then reinserted after the variable is inserted to ensure the color of the string is
+     * consistent.
+     *
+     * @param base
+     *     The base string.
+     * @param variable
+     *     The name of the variable to insert. E.g. "%ARMOR_TIER%".
+     * @param value
+     *     The value to insert. E.g. "Diamond".
+     *
+     * @return The base string with the variable inserted.
+     */
+    static String insertVariable(String base, String variable, String value)
+    {
+        final int idx = base.indexOf(variable);
+        if (idx == -1)
+            return base;
+
+        String color = ChatColor.getLastColors(base.substring(0, idx));
+        if (color.isEmpty())
+            color = ChatColor.RESET.toString();
+
+        return base.replaceFirst(variable, value + color);
     }
 
     private static void writeDefaultFiles(ArmoredElytra plugin)

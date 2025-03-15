@@ -1,9 +1,9 @@
 # This file contains all the (partial) sentences used in this plugin.
-# You can change which file will be used in the config.yml. 
-# The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
+# You can change which file will be used in the config.yml.
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys.
 # Order doesn't matter and you can use comments if you so desire.
 # Please do note that white space does matter! (so spaces at the end of lines, for example).
-# The long names (without 'SHORT') are the names the elytras will have. 
+# The long names (without 'SHORT') are the names the elytras will have.
 TIER.Leather=&2Leather Armored Elytra
 TIER.Gold=&EGolden Armored Elytra
 TIER.Chain=&8Chain Armored Elytra
@@ -20,10 +20,10 @@ MESSAGES.UninstallMode=&cPlugin in uninstall mode! New Armored Elytras are not a
 MESSAGES.UnsupportedTier=&cNot a supported armor tier! Try one of these: leather, gold, chain, iron, diamond, netherite.
 MESSAGES.RepairNeeded=&cYou cannot equip this elytra! Please repair it in an anvil first.
 
-# The following messages support the following variables: 
+# The following messages support the following variables:
 # - %ARMOR_TIER% (refers to TIER.X (e.g. TIER.Leather))
 # - %ARMOR_TIER_SHORT% (refers to TIER.SHORT.X (e.g. TIER.SHORT.Leather)).
 MESSAGES.Lore=Elytra with %ARMOR_TIER_SHORT% level protection.
-MESSAGES.NoGivePermission=&cYou do not have the required permission node to give a(n) %ARMOR_TIER%s.
+MESSAGES.NoGivePermission=&cYou do not have the required permission node to give %ARMOR_TIER%s.
 MESSAGES.UsageDenied=You do not have the required permissions to wear a(n) %ARMOR_TIER%!
 MESSAGES.ElytraReceived=&2A(n) %ARMOR_TIER% has been bestowed upon you!
