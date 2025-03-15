@@ -193,7 +193,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_USAGEDENIED, armorTier);
         if (!message.equals("NONE"))
-            messagePlayer(player, ChatColor.RED, message);
+            messagePlayer(player, message);
     }
 
     // Send the elytraReceivedMessage message to the player.
@@ -201,13 +201,13 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_ELYTRARECEIVED, armorTier);
         if (!message.equals("NONE"))
-            messagePlayer(player, ChatColor.GREEN, message);
+            messagePlayer(player, message);
     }
 
     public void sendNoGivePermissionMessage(HumanEntity player, ArmorTier armorTier)
     {
         final String message = getMessageWithTierNames(Message.MESSAGES_NOGIVEPERMISSION, armorTier);
-        messagePlayer(player, ChatColor.RED, message);
+        messagePlayer(player, message);
     }
 
     public @Nullable List<String> getElytraLore(ArmorTier armorTier)
