@@ -36,7 +36,6 @@ public class ConfigLoader
     private boolean checkForUpdates;
     private boolean noFlightDurability;
     private boolean useTierDurability;
-    private boolean dropNetheriteAsChestplate;
     private LinkedHashSet<Enchantment> allowedEnchantments;
     private List<List<Enchantment>> mutuallyExclusiveEnchantments;
     private boolean craftingInSmithingTable;
@@ -102,14 +101,6 @@ public class ConfigLoader
                 "If you install additional enchant plugins, " +
                     "you can make their enchantments mutually exclusive as well.",
                 "Just add their 'NamespacedKey'. Ask the enchantment plugin dev for more info if you need it."
-            };
-        String[] dropNetheriteAsChestplateComment =
-            {
-                "Whether to drop Netherite Armored Elytras as netherite chestplates when they are dropped",
-                "This means that they won't burn in lava etc.",
-                "When you pick them up, they will turn into Netherite Armored Elytras again.",
-                "Only applies to versions prior to 1.20.5. ",
-                "In 1.20.5 and later, newly-created netherite elytras are already fire resistant."
             };
         String[] updateComment =
             {
@@ -233,8 +224,6 @@ public class ConfigLoader
         allowAddingEnchantments = addNewConfigOption(config, "allowAddingEnchantments", true,
                                                      allowAddingEnchantmentsComment);
         allowRenaming = addNewConfigOption(config, "allowRenaming", true, allowRenamingComment);
-        dropNetheriteAsChestplate = addNewConfigOption(config, "dropNetheriteAsChestplate", true,
-                                                       dropNetheriteAsChestplateComment);
 
         checkForUpdates = addNewConfigOption(config, "checkForUpdates", true, updateComment);
         allowStats = addNewConfigOption(config, "allowStats", true, bStatsComment);
@@ -383,11 +372,6 @@ public class ConfigLoader
     public boolean noFlightDurability()
     {
         return noFlightDurability;
-    }
-
-    public boolean dropNetheriteAsChestplate()
-    {
-        return dropNetheriteAsChestplate;
     }
 
     public LinkedHashSet<Enchantment> allowedEnchantments()

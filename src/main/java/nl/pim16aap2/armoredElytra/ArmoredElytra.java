@@ -3,7 +3,6 @@ package nl.pim16aap2.armoredElytra;
 import nl.pim16aap2.armoredElytra.handlers.AbstractSmithingTableListener;
 import nl.pim16aap2.armoredElytra.handlers.AnvilHandler;
 import nl.pim16aap2.armoredElytra.handlers.CommandHandler;
-import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteConversionListener;
 import nl.pim16aap2.armoredElytra.handlers.DroppedNetheriteUpdateListener;
 import nl.pim16aap2.armoredElytra.handlers.EventHandlers;
 import nl.pim16aap2.armoredElytra.handlers.FlyDurabilityHandler;
@@ -109,8 +108,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
 
             if (NBTEditor.HAS_FIRE_RESISTANT_METHOD)
                 Bukkit.getPluginManager().registerEvents(new DroppedNetheriteUpdateListener(nbtEditor), this);
-            else if (config.dropNetheriteAsChestplate())
-                Bukkit.getPluginManager().registerEvents(new DroppedNetheriteConversionListener(nbtEditor), this);
 
             // Log all allowed enchantments.
             myLogger(Level.INFO, ("Allowed enchantments:"));
