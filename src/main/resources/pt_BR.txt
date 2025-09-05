@@ -1,0 +1,29 @@
+# This file contains all the (partial) sentences used in this plugin.
+# You can change which file will be used in the config.yml.
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys.
+# Order doesn't matter and you can use comments if you so desire.
+# Please do note that white space does matter! (so spaces at the end of lines, for example).
+# The long names (without 'SHORT') are the names the elytras will have.
+TIER.Leather=&2Élitros com Armadura de Couro
+TIER.Gold=&EÉlitros com Armadura de Ouro
+TIER.Chain=&8Élitros com Armadura de Malha
+TIER.Iron=&7Élitros com Armadura de Ferro
+TIER.Diamond=&BÉlitros com Armadura de Diamante
+TIER.Netherite=&4Élitros com Armadura de Netherite
+TIER.SHORT.Leather=&2Couro
+TIER.SHORT.Gold=&EOuro
+TIER.SHORT.Chain=&8Malha
+TIER.SHORT.Iron=&7Ferro
+TIER.SHORT.Diamond=&BDiamante
+TIER.SHORT.Netherite=&4Netherite
+MESSAGES.UninstallMode=&cPlugin em modo de desinstalação! Novos Élitros Armadurados não são permitidos!
+MESSAGES.UnsupportedTier=&cNão é um tipo de armadura suportado! Experimente um destes: couro, ouro, malha, ferro, diamante, netherita.
+MESSAGES.RepairNeeded=&cVocê não pode equipar este élitro! Por favor, conserte-o em uma bigorna primeiro.
+
+# The following messages support the following variables:
+# - %ARMOR_TIER% (refers to TIER.X (e.g. TIER.Leather))
+# - %ARMOR_TIER_SHORT% (refers to TIER.SHORT.X (e.g. TIER.SHORT.Leather)).
+MESSAGES.Lore=Élitro com %ARMOR_TIER_SHORT% nível de proteção.
+MESSAGES.NoGivePermission=&cVocê não tem a permissão necessária para dar %ARMOR_TIER%s.
+MESSAGES.UsageDenied=Você não tem a permissão necessária para usar a %ARMOR_TIER%!
+MESSAGES.ElytraReceived=&2Um %ARMOR_TIER% foi concedido a você!
