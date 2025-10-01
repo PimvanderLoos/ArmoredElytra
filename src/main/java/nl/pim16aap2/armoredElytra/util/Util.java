@@ -23,7 +23,7 @@ public class Util
     /**
      * {@code true} if {@link Tag#ITEMS_CHEST_ARMOR} is available, {@code false} otherwise.
      * <p>
-     * This tag was introduced in {@code 1.20.5} and is available until at least {@code 1.21.4}.
+     * This tag was introduced in {@code 1.20.5} and is available until at least {@code 1.21.9}.
      */
     private static final boolean CHEST_ARMOR_TAG_AVAILABLE = verifyTagExists("ITEMS_CHEST_ARMOR");
 
@@ -67,32 +67,19 @@ public class Util
     // Get the armor tier from a chest plate.
     public static ArmorTier armorToTier(Material mat)
     {
-        ArmorTier ret = ArmorTier.NONE;
+        if (mat == MappedMaterial.COPPER_CHESTPLATE)
+            return ArmorTier.COPPER;
 
-        switch (mat)
+        return switch (mat)
         {
-            case LEATHER_CHESTPLATE:
-                ret = ArmorTier.LEATHER;
-                break;
-            case GOLDEN_CHESTPLATE:
-                ret = ArmorTier.GOLD;
-                break;
-            case CHAINMAIL_CHESTPLATE:
-                ret = ArmorTier.CHAIN;
-                break;
-            case IRON_CHESTPLATE:
-                ret = ArmorTier.IRON;
-                break;
-            case DIAMOND_CHESTPLATE:
-                ret = ArmorTier.DIAMOND;
-                break;
-            case NETHERITE_CHESTPLATE:
-                ret = ArmorTier.NETHERITE;
-                break;
-            default:
-                break;
-        }
-        return ret;
+            case LEATHER_CHESTPLATE -> ArmorTier.LEATHER;
+            case GOLDEN_CHESTPLATE -> ArmorTier.GOLD;
+            case CHAINMAIL_CHESTPLATE -> ArmorTier.CHAIN;
+            case IRON_CHESTPLATE -> ArmorTier.IRON;
+            case DIAMOND_CHESTPLATE -> ArmorTier.DIAMOND;
+            case NETHERITE_CHESTPLATE -> ArmorTier.NETHERITE;
+            default -> ArmorTier.NONE;
+        };
     }
 
     /**
@@ -104,7 +91,7 @@ public class Util
      * @return The chest plate material of the armor tier. If the armor tier is {@link ArmorTier#NONE} or {@code null},
      * {@code null} will be returned.
      */
-    public static Material tierToChestPlate(@Nullable ArmorTier armorTier)
+    public static @Nullable Material tierToChestPlate(@Nullable ArmorTier armorTier)
     {
         if (armorTier == null)
             return null;
@@ -118,6 +105,7 @@ public class Util
             case IRON -> Material.IRON_CHESTPLATE;
             case DIAMOND -> Material.DIAMOND_CHESTPLATE;
             case NETHERITE -> Material.NETHERITE_CHESTPLATE;
+            case COPPER -> MappedMaterial.COPPER_CHESTPLATE;
         };
     }
 

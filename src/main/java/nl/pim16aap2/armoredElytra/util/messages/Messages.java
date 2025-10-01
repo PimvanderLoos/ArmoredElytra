@@ -4,6 +4,7 @@ import nl.pim16aap2.armoredElytra.ArmoredElytra;
 import org.bukkit.ChatColor;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -265,13 +266,35 @@ public class Messages
     {
         try
         {
-            getPackagedLocalizations(plugin).forEach(file -> plugin.saveResource(file, false));
+            getPackagedLocalizations(plugin).forEach(file -> saveResource(plugin, file, false));
         }
         catch (IOException e)
         {
             plugin.myLogger(Level.SEVERE, "Failed to write default localization files!");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Saves a resource embedded in the jar to the plugin's data folder.
+     * <p>
+     * If the resource already exists and replace is false, no action is taken. This is different from
+     * {@link ArmoredElytra#saveResource(String, boolean)} because that method will print a warning if the file already
+     * exists and replace is false.
+     *
+     * @param plugin
+     *     The plugin instance.
+     * @param resourcePath
+     *     The path to the resource in the jar.
+     * @param replace
+     *     Whether to replace the file if it already exists.
+     */
+    private static void saveResource(ArmoredElytra plugin, String resourcePath, boolean replace)
+    {
+        File outFile = new File(plugin.getDataFolder(), resourcePath);
+        if (!replace && outFile.exists())
+            return;
+        plugin.saveResource(resourcePath, replace);
     }
 
     private static List<String> getPackagedLocalizations(ArmoredElytra plugin)

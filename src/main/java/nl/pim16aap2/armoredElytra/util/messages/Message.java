@@ -20,6 +20,7 @@ public enum Message implements IMessageVariable
     TIER_IRON,
     TIER_DIAMOND,
     TIER_NETHERITE,
+    TIER_COPPER,
 
     TIER_SHORT_LEATHER,
     TIER_SHORT_GOLD,
@@ -27,6 +28,7 @@ public enum Message implements IMessageVariable
     TIER_SHORT_IRON,
     TIER_SHORT_DIAMOND,
     TIER_SHORT_NETHERITE,
+    TIER_SHORT_COPPER,
 
     MESSAGES_UNINSTALLMODE(ChatColor.RED),
     MESSAGES_UNSUPPORTEDTIER(ChatColor.RED),
