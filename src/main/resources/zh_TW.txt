@@ -1,26 +1,28 @@
 # This file contains all the (partial) sentences used in this plugin.
-# You can change which file will be used in the config.yml. 
-# The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
+# You can change which file will be used in the config.yml.
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys.
 # Order doesn't matter and you can use comments if you so desire.
 # Please do note that white space does matter! (so spaces at the end of lines, for example).
-# The long names (without 'SHORT') are the names the elytras will have. 
+# The long names (without 'SHORT') are the names the elytras will have.
 TIER.Leather=&2皮革裝甲鞘翅
 TIER.Gold=&e金裝甲鞘翅
 TIER.Chain=&8鎖練裝甲鞘翅
 TIER.Iron=&7鐵裝甲鞘翅
 TIER.Diamond=&b鑽石裝甲鞘翅
 TIER.Netherite=&4獄髓裝甲鞘翅
+TIER.Copper=&6銅裝甲鞘翅
 TIER.SHORT.Leather=&2皮革
 TIER.SHORT.Gold=&e金
 TIER.SHORT.Chain=&8鎖練
 TIER.SHORT.Iron=&7鐵
 TIER.SHORT.Diamond=&b鑽石
 TIER.SHORT.Netherite=&4獄髓
+TIER.SHORT.Copper=&6銅
 MESSAGES.UninstallMode=&c插件正處於解除安裝模式！ 將不允許製作新的裝甲鞘翅！
 MESSAGES.UnsupportedTier=&c不支持的裝甲等級！ 請嘗試以下的其中一種：皮革、金、鐵、鑽石、獄髓
 MESSAGES.RepairNeeded=&c你不能裝備這個鞘翅！ 請先在鐵砧上修復。
 
-# The following messages support the following variables: 
+# The following messages support the following variables:
 # - %ARMOR_TIER% (refers to TIER.X (e.g. TIER.Leather))
 # - %ARMOR_TIER_SHORT% (refers to TIER.SHORT.X (e.g. TIER.SHORT.Leather)).
 MESSAGES.Lore=具有 %ARMOR_TIER_SHORT% 保護等級的鞘翅。

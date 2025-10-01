@@ -131,23 +131,30 @@ public class ArmoredElytra extends JavaPlugin implements Listener
         return nbtEditor;
     }
 
+    private ArmorTierName getArmorTierName(Message longName, Message shortName)
+    {
+        return new ArmorTierName(messages.getString(longName), messages.getString(shortName));
+    }
+
+    private void readMessages(ArmorTier armorTier)
+    {
+        final ArmorTierName armorTierName = switch (armorTier)
+        {
+            case NONE -> new ArmorTierName("NONE", "NONE");
+            case LEATHER -> getArmorTierName(Message.TIER_LEATHER, Message.TIER_SHORT_LEATHER);
+            case GOLD -> getArmorTierName(Message.TIER_GOLD, Message.TIER_SHORT_GOLD);
+            case CHAIN -> getArmorTierName(Message.TIER_CHAIN, Message.TIER_SHORT_CHAIN);
+            case IRON -> getArmorTierName(Message.TIER_IRON, Message.TIER_SHORT_IRON);
+            case DIAMOND -> getArmorTierName(Message.TIER_DIAMOND, Message.TIER_SHORT_DIAMOND);
+            case NETHERITE -> getArmorTierName(Message.TIER_NETHERITE, Message.TIER_SHORT_NETHERITE);
+            case COPPER -> getArmorTierName(Message.TIER_COPPER, Message.TIER_SHORT_COPPER);
+        };
+        armorTierNames.put(armorTier, armorTierName);
+    }
+
     private void readMessages()
     {
-        // Shouldn't be used.
-        armorTierNames.put(ArmorTier.NONE, new ArmorTierName("NONE", "NONE"));
-
-        armorTierNames.put(ArmorTier.LEATHER, new ArmorTierName(messages.getString(Message.TIER_LEATHER),
-                                                                messages.getString(Message.TIER_SHORT_LEATHER)));
-        armorTierNames.put(ArmorTier.GOLD, new ArmorTierName(messages.getString(Message.TIER_GOLD),
-                                                             messages.getString(Message.TIER_SHORT_GOLD)));
-        armorTierNames.put(ArmorTier.CHAIN, new ArmorTierName(messages.getString(Message.TIER_CHAIN),
-                                                              messages.getString(Message.TIER_SHORT_CHAIN)));
-        armorTierNames.put(ArmorTier.IRON, new ArmorTierName(messages.getString(Message.TIER_IRON),
-                                                             messages.getString(Message.TIER_SHORT_IRON)));
-        armorTierNames.put(ArmorTier.DIAMOND, new ArmorTierName(messages.getString(Message.TIER_DIAMOND),
-                                                                messages.getString(Message.TIER_SHORT_DIAMOND)));
-        armorTierNames.put(ArmorTier.NETHERITE, new ArmorTierName(messages.getString(Message.TIER_NETHERITE),
-                                                                  messages.getString(Message.TIER_SHORT_NETHERITE)));
+        ArmorTier.VALUES.forEach(this::readMessages);
     }
 
     public boolean playerHasCraftPerm(@Nonnull HumanEntity player, ArmorTier armorTier)
@@ -183,9 +190,7 @@ public class ArmoredElytra extends JavaPlugin implements Listener
     private String getMessageWithTierNames(final Message message, final ArmorTier armorTier)
     {
         ArmorTierName tierName = armorTierNames.get(armorTier);
-        return getMyMessages().getString(message,
-                                         tierName.getLongName(),
-                                         tierName.getShortName());
+        return getMyMessages().getString(message, tierName.longName(), tierName.shortName());
     }
 
     // Send the usageDeniedMessage message to the player.
@@ -253,6 +258,6 @@ public class ArmoredElytra extends JavaPlugin implements Listener
             getLogger().log(Level.INFO, "ArmorTier was null! Failed to obtain proper string!");
             return "NULL";
         }
-        return armorTierNames.get(tier).getLongName();
+        return armorTierNames.get(tier).longName();
     }
 }

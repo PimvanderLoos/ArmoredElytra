@@ -16,6 +16,7 @@ public enum ArmorTier
     IRON(4, 6, 0, 0, Material.IRON_INGOT, 4, "iron", 240),
     DIAMOND(5, 8, 2, 0, Material.DIAMOND, 3, "diamond", 528),
     NETHERITE(6, 8, 3, 0.1, Material.NETHERITE_INGOT, 3, "netherite", 592),
+    COPPER(7, 4, 0, 0, Material.COPPER_INGOT, 4, "copper", 176),
     ;
 
     /**
