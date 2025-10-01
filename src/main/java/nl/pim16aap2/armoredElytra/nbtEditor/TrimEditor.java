@@ -16,8 +16,7 @@ final class TrimEditor
 
     void copyArmorTrim(ItemMeta elytraMeta, ItemStack chestPlate)
     {
-        final ArmorMeta chestPlateMeta = (ArmorMeta) chestPlate.getItemMeta();
-        if (chestPlateMeta == null)
+        if (!(chestPlate.getItemMeta() instanceof ArmorMeta chestPlateMeta))
             return;
 
         final ArmorTrim trim = chestPlateMeta.getTrim();

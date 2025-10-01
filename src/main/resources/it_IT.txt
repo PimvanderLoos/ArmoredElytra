@@ -1,26 +1,28 @@
 # This file contains all the (partial) sentences used in this plugin.
-# You can change which file will be used in the config.yml. 
-# The format is "key=value" (without quotation marks). You can modify the values, but not the keys. 
+# You can change which file will be used in the config.yml.
+# The format is "key=value" (without quotation marks). You can modify the values, but not the keys.
 # Order doesn't matter and you can use comments if you so desire.
 # Please do note that white space does matter! (so spaces at the end of lines, for example).
-# The long names (without 'SHORT') are the names the elytras will have. 
+# The long names (without 'SHORT') are the names the elytras will have.
 TIER.Leather=&2Elytra corazzata di pelle
 TIER.Gold=&EElytra corazzata di oro
 TIER.Chain=&8Elytra corazzata di maglia
 TIER.Iron=&7Elytra corazzata di ferro
 TIER.Diamond=&BElytra corazzata di diamante
 TIER.Netherite=&4Elytra corazzata di netherite
+TIER.Copper=&6Elytra corazzata di rame
 TIER.SHORT.Leather=&2Pelle
 TIER.SHORT.Gold=&EOro
 TIER.SHORT.Chain=&8Maglia
 TIER.SHORT.Iron=&7Ferro
 TIER.SHORT.Diamond=&BDiamante
 TIER.SHORT.Netherite=&4Netherite
+TIER.SHORT.Copper=&6Rame
 MESSAGES.UninstallMode=&cPlugin in modalità disinstallazione! Nuove elytra corazzate non sono permesse!
 MESSAGES.UnsupportedTier=&cLivello di armatura non supportato! Prova uno di questi: pelle, oro, maglia, ferro, diamante, netherite.
 MESSAGES.RepairNeeded=&cNon puoi equipaggiare questa elytra! Riparala in un incudine prima.
 
-# The following messages support the following variables: 
+# The following messages support the following variables:
 # - %ARMOR_TIER% (refers to TIER.X (e.g. TIER.Leather))
 # - %ARMOR_TIER_SHORT% (refers to TIER.SHORT.X (e.g. TIER.SHORT.Leather)).
 MESSAGES.Lore=Elytra con protezione di %ARMOR_TIER_SHORT%.

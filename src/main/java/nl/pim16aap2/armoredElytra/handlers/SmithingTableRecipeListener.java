@@ -25,7 +25,6 @@ import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.logging.Level;
 
 import static nl.pim16aap2.armoredElytra.util.SmithingTableUtil.SMITHING_TABLE_RESULT_SLOT;
@@ -228,8 +227,11 @@ class SmithingTableRecipeListener extends AbstractSmithingTableListener implemen
     {
         final NamespacedKey key = new NamespacedKey(plugin, "st_recipe_" + tier.name().toLowerCase(Locale.ROOT));
 
-        final RecipeChoice chestPlate = new RecipeChoice.MaterialChoice(
-            Objects.requireNonNull(Util.tierToChestPlate(tier)));
+        final @Nullable Material chestPlateMaterial = Util.tierToChestPlate(tier);
+        if (chestPlateMaterial == null)
+            return;
+
+        final RecipeChoice chestPlate = new RecipeChoice.MaterialChoice(chestPlateMaterial);
 
         registerCraftingRecipe(key, null, chestPlate);
     }
