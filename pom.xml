@@ -11,10 +11,14 @@
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
 
-        <version.maven.checkstyle>3.4.0</version.maven.checkstyle>
-        <version.maven.compiler>3.13.0</version.maven.compiler>
-        <version.maven.shade>3.6.0</version.maven.shade>
-        <version.maven.surefire>3.3.0</version.maven.surefire>
+        <version.maven-checkstyle>3.4.0</version.maven-checkstyle>
+        <version.maven-compiler>3.13.0</version.maven-compiler>
+        <version.maven-shade>3.6.0</version.maven-shade>
+        <version.maven-surefire>3.3.0</version.maven-surefire>
+        <version.maven-release>3.1.1</version.maven-release>
+        <version.maven-javadoc>3.11.2</version.maven-javadoc>
+        <version.maven-source>3.3.1</version.maven-source>
+        <version.maven-gpg>3.2.8</version.maven-gpg>
 
         <version.semver4j>5.3.0</version.semver4j>
         <version.spigot>1.20.6-R0.1-SNAPSHOT</version.spigot>
@@ -95,8 +99,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}</finalName>
-
         <!-- Ensure the version variable -->
         <resources>
             <resource>
@@ -109,7 +111,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${version.maven.shade}</version>
+                <version>${version.maven-shade}</version>
                 <configuration>
                     <relocations>
                         <relocation>
@@ -135,13 +137,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.maven.compiler}</version>
+                <version>${version.maven-compiler}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${version.maven.checkstyle}</version>
+                <version>${version.maven-checkstyle}</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
@@ -157,12 +159,103 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.maven.surefire}</version>
+                <version>${version.maven-surefire}</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
                     <useFile>false</useFile>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${version.maven-release}</version>
+                <configuration>
+                    <signTag>true</signTag>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${version.maven-javadoc}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${version.maven-source}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.maven-gpg}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <bestPractices>true</bestPractices>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>pimvanderloos</id>
+            <name>Pim van der Loos</name>
+            <url>https://github.com/PimvanderLoos</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/PimvanderLoos/ArmoredElytra.git</url>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

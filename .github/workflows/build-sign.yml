@@ -1,0 +1,44 @@
+name: Build, test, sign, and upload
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-sign-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY }}
+      MAVEN_GPG_KEY_FINGERPRINT: 6C063BAA00065DFED08D7CD6B21CB73DBBF60FE5
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Set up JDK 21 + GPG
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+          gpg-private-key: ${{ secrets.MAVEN_GPG_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Build, test, and sign
+        run: |
+          mvn --batch-mode --show-version --no-transfer-progress \
+            -Psign,release \
+            -Dgpg.keyname=6C063BAA00065DFED08D7CD6B21CB73DBBF60FE5 \
+            clean \
+            test \
+            verify
+
+      - name: Upload build artifacts (JARs + .asc)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ArmoredElytra-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            target/ArmoredElytra-*.jar*
