@@ -1,10 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2.armoredElytra</groupId>
     <artifactId>ArmoredElytra</artifactId>
-    <version>3.6</version>
+    <version>3.7-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,12 +18,12 @@
         <version.maven-source>3.3.1</version.maven-source>
         <version.maven-gpg>3.2.8</version.maven-gpg>
 
-        <version.semver4j>5.3.0</version.semver4j>
+        <version.semver4j>5.7.0</version.semver4j>
         <version.spigot>1.20.6-R0.1-SNAPSHOT</version.spigot>
         <version.bstats>3.0.2</version.bstats>
         <version.checkstyle>10.17.0</version.checkstyle>
-        <version.mockito>5.12.0</version.mockito>
-        <version.junit>5.10.3</version.junit>
+        <version.mockito>5.17.0</version.mockito>
+        <version.junit>5.13.4</version.junit>
     </properties>
 
     <repositories>
@@ -80,6 +78,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
