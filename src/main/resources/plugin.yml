@@ -3,7 +3,7 @@ main: nl.pim16aap2.armoredElytra.ArmoredElytra
 version: ${project.version}
 author: pim16aap2
 softdepend: [ AdvancedEnchantments ]
-api-version: 1.16
+api-version: 1.18
 commands:
   ArmoredElytra:
     description: Give an armored elytra of the specified tier.
