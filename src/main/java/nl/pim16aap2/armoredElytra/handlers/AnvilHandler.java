@@ -148,7 +148,7 @@ public class AnvilHandler extends ArmoredElytraHandler implements Listener
                 "No elytra found in anvil inventory with contents: " + Arrays.toString(anvilInventory.getContents()));
 
         final Material expectedRepairItem = ArmorTier.getRepairItem(armorTier);
-        if (repairItem == null || ArmorTier.getRepairItem(armorTier) != repairItem.getType())
+        if (repairItem == null || expectedRepairItem != repairItem.getType())
             throw new IllegalStateException(
                 "Expected repair item to be '" + expectedRepairItem + "' but received '" + repairItem + "' in anvil " +
                     "inventory with contents: " + Arrays.toString(anvilInventory.getContents()));

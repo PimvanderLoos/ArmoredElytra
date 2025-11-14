@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import org.bukkit.Material;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ public enum ArmorTier
     IRON(4, 6, 0, 0, Material.IRON_INGOT, 4, "iron", 240),
     DIAMOND(5, 8, 2, 0, Material.DIAMOND, 3, "diamond", 528),
     NETHERITE(6, 8, 3, 0.1, Material.NETHERITE_INGOT, 3, "netherite", 592),
-    COPPER(7, 4, 0, 0, Material.COPPER_INGOT, 4, "copper", 176),
+    COPPER(7, 4, 0, 0, MappedMaterial.COPPER_INGOT, 4, "copper", 176),
     ;
 
     /**
@@ -39,7 +40,7 @@ public enum ArmorTier
     private final int armor;
     private final int toughness;
     private final double knockbackResistance;
-    private final Material repair;
+    private final @Nullable Material repair;
     private final int defaultRepairCount;
     private final String name;
     private final int durability;
@@ -47,7 +48,7 @@ public enum ArmorTier
     private static final Map<Integer, ArmorTier> armorValueMap = new HashMap<>();
     private static final Map<Integer, ArmorTier> armorIDMap = new HashMap<>();
 
-    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, Material repair,
+    ArmorTier(int tierID, int armor, int toughness, double knockbackResistance, @Nullable Material repair,
               int defaultRepairCount, String name, int durability)
     {
         this.tierID = tierID;
@@ -87,7 +88,7 @@ public enum ArmorTier
     }
 
     // return the repair item of a tier
-    public static Material getRepairItem(ArmorTier tier)
+    public static @Nullable Material getRepairItem(ArmorTier tier)
     {
         return tier.repair;
     }
