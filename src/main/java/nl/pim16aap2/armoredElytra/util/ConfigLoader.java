@@ -1,6 +1,7 @@
 package nl.pim16aap2.armoredElytra.util;
 
 import nl.pim16aap2.armoredElytra.ArmoredElytra;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
@@ -194,7 +195,8 @@ public class ConfigLoader
 
             // Only the first one should have the comment.
             final @Nullable String[] comment = idx == 1 ? repairComment : null;
-            final String name = Util.snakeToCamelCase(ArmorTier.getRepairItem(armorTier).name());
+            final Material repairItem = ArmorTier.getRepairItem(armorTier);
+            final String name = Util.snakeToCamelCase(repairItem == null ? "None" : repairItem.name());
             final int defaultRepairCount = ArmorTier.getDefaultRepairCount(armorTier);
 
             repairCounts[idx] = addNewConfigOption(config, name, defaultRepairCount, comment);

@@ -22,11 +22,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class EventHandlers implements Listener
 {
@@ -34,32 +39,34 @@ public class EventHandlers implements Listener
      * A set of damage causes that should not decrease the durability of the elytra.
      */
     // See https://minecraft.fandom.com/wiki/Durability#Armor_durability
-    private static final Set<DamageCause> IGNORED_DAMAGE_CAUSES = EnumSet.of(
-        DamageCause.CRAMMING,
-        DamageCause.DRAGON_BREATH,
-        DamageCause.DROWNING,
-        DamageCause.FALL,
-        DamageCause.FIRE_TICK,
-        DamageCause.FLY_INTO_WALL,
-        DamageCause.KILL,
-        DamageCause.MAGIC,
-        DamageCause.POISON,
-        DamageCause.STARVATION,
-        DamageCause.SUFFOCATION,
-        DamageCause.SUICIDE,
-        DamageCause.VOID,
-        DamageCause.WITHER,
-        DamageCause.WORLD_BORDER
+    private static final Set<DamageCause> IGNORED_DAMAGE_CAUSES = getDamageCauses(
+        "CRAMMING",
+        "DRAGON_BREATH",
+        "DROWNING",
+        "FALL",
+        "FIRE_TICK",
+        "FLY_INTO_WALL",
+        "KILL",
+        "MAGIC",
+        "POISON",
+        "SONIC",
+        "STARVATION",
+        "SUFFOCATION",
+        "SUICIDE",
+        "VOID",
+        "WITHER",
+        "WORLD_BORDER"
     );
 
     /**
      * A set of fire-related damage causes.
      */
-    private static final Set<DamageCause> FIRE_DAMAGE_CAUSES = EnumSet.of(
-        DamageCause.FIRE,
-        DamageCause.FIRE_TICK,
-        DamageCause.LAVA,
-        DamageCause.HOT_FLOOR
+    private static final Set<DamageCause> FIRE_DAMAGE_CAUSES = getDamageCauses(
+        "CAMPFIRE",
+        "FIRE",
+        "FIRE_TICK",
+        "HOT_FLOOR",
+        "LAVA"
     );
 
     private final Random random = new Random();
@@ -180,6 +187,27 @@ public class EventHandlers implements Listener
                 break;
             default:
                 break;
+        }
+    }
+
+    private static Set<DamageCause> getDamageCauses(String... names)
+    {
+        return Arrays.stream(names)
+                     .map(EventHandlers::findDamageCause)
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(DamageCause.class)));
+    }
+
+    private static @Nullable DamageCause findDamageCause(String name)
+    {
+        try
+        {
+            return DamageCause.valueOf(name);
+        }
+        catch (IllegalArgumentException e)
+        {
+            ArmoredElytra.getInstance().myLogger(Level.INFO, "Failed to find DamageCause with name: " + name);
+            return null;
         }
     }
 }
