@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2.armoredElytra</groupId>
     <artifactId>ArmoredElytra</artifactId>
-    <version>3.8-SNAPSHOT</version>
+    <version>3.8</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -262,6 +262,6 @@
         <url>https://github.com/PimvanderLoos/ArmoredElytra.git</url>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.8</tag>
     </scm>
 </project>
